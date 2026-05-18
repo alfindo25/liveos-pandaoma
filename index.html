@@ -226,6 +226,10 @@ tbody td{padding:12px 16px;white-space:nowrap;}
 }
 .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;background:var(--navy);color:#fff;border-radius:var(--radius);font-size:13px;font-weight:600;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
 .toast.show{opacity:1;transform:translateY(0);}
+.req-star{color:#dc2626;margin-left:2px;font-size:13px;line-height:1;}
+.field-error{border-color:#dc2626!important;background:#fff5f5!important;}
+.error-msg{font-size:11px;color:#dc2626;font-weight:600;margin-top:4px;display:none;}
+.error-msg.show{display:block;}
 .del-row{padding:4px 8px;font-size:12px;border-radius:var(--radius-sm);background:var(--red-bg);color:var(--red);border:1px solid #fca5a5;cursor:pointer;font-family:var(--font);font-weight:600;transition:.15s;margin-left:4px;}
 .del-row:hover{background:var(--red);color:#fff;}
 .edit-row{padding:4px 10px;font-size:11px;border-radius:var(--radius-sm);background:var(--blue-lt);color:var(--blue);border:1px solid var(--blue);cursor:pointer;font-family:var(--font);font-weight:600;transition:.15s;}
@@ -378,17 +382,17 @@ tbody td{padding:12px 16px;white-space:nowrap;}
 <div class="topbar"><div class="pgtitle">Input <span>Data</span></div></div>
 <div class="input-layout">
 <div class="fc"><div class="fct">Tambah Sesi Live</div>
-<div style="margin-bottom:14px"><div class="fl" style="margin-bottom:8px">Marketplace</div>
+<div style="margin-bottom:14px"><div class="fl" style="margin-bottom:8px">Marketplace<span class="req-star">*</span></div>
 <div class="mp-sel"><div class="mp-opt shopee on" id="mps" onclick="selMP('Shopee')">Shopee</div><div class="mp-opt tiktok" id="mpt" onclick="selMP('TikTok')">TikTok</div></div></div>
 <div class="fg">
-<div class="fgi full"><label class="fl">Nama Streamer</label>
+<div class="fgi full"><label class="fl">Nama Streamer<span class="req-star">*</span></label>
 <div class="streamer-select"><input class="streamer-input" id="f-streamer-input" placeholder="Klik untuk pilih streamer..." readonly onclick="openDropdown()"/>
 <div class="streamer-dropdown" id="streamer-dropdown"></div></div>
-<input type="hidden" id="f-streamer-id"/></div>
-<div class="fgi"><label class="fl">Tanggal</label><input class="fi" id="f-date" type="date"/></div>
-<div class="fgi"><label class="fl">Jam Mulai</label><input class="fi" id="f-time" type="time"/></div>
-<div class="fgi"><label class="fl">Durasi (menit)</label><input class="fi" id="f-dur" type="number" placeholder="120"/></div>
-<div class="fgi full"><label class="fl">GMV (Rp)</label><input class="fi" id="f-gmv" type="number" placeholder="32000000"/></div>
+<input type="hidden" id="f-streamer-id"/><div class="error-msg" id="err-streamer">Nama streamer wajib dipilih</div></div>
+<div class="fgi"><label class="fl">Tanggal<span class="req-star">*</span></label><input class="fi" id="f-date" type="date"/></div>
+<div class="fgi"><label class="fl">Jam Mulai<span class="req-star">*</span></label><input class="fi" id="f-time" type="time"/><div class="error-msg" id="err-time">Jam mulai wajib diisi</div></div>
+<div class="fgi"><label class="fl">Durasi (menit)<span class="req-star">*</span></label><input class="fi" id="f-dur" type="number" placeholder="120"/><div class="error-msg" id="err-dur">Durasi wajib diisi</div></div>
+<div class="fgi full"><label class="fl">GMV (Rp)<span class="req-star">*</span></label><input class="fi" id="f-gmv" type="number" placeholder="32000000"/><div class="error-msg" id="err-gmv">GMV wajib diisi</div></div>
 <div class="fgi full"><label class="fl">Catatan</label><input class="fi" id="f-note" type="text" placeholder="flash sale, giveaway, dll"/></div>
 </div>
 <button class="sub-btn" id="save-btn" onclick="submitForm()">Simpan Sesi Live</button></div>
@@ -443,6 +447,7 @@ tbody td{padding:12px 16px;white-space:nowrap;}
 <div class="sr"><div><div class="sk">Total Sesi</div></div><div class="sv" id="set-total">0</div></div>
 <div class="sr"><div><div class="sk">Total Streamer</div></div><div class="sv" id="set-streamers">0</div></div>
 <div class="sr"><div><div class="sk">Database</div><div class="sdesc">Firebase Firestore - Real-time</div></div><div class="sv" style="color:var(--green)">Terhubung</div></div>
+<div class="sr"><div><div class="sk">Riwayat AI Chat</div><div class="sdesc">Tersimpan di browser ini</div></div><button onclick="clearChatHistory()" class="dbtn" style="font-size:11px;padding:5px 12px;">Hapus Riwayat</button></div>
 <div class="sr"><div><div class="sk">Versi</div></div><div class="sv">LiveOS v3.1</div></div>
 </div>
 <div class="sc2" style="border-color:#fca5a5"><div class="stitle" style="color:var(--red)">Zona Bahaya</div>
@@ -459,7 +464,7 @@ tbody td{padding:12px 16px;white-space:nowrap;}
     </div>
     <input type="hidden" id="edit-id"/>
     <div style="margin-bottom:14px">
-      <div class="fl" style="margin-bottom:8px">Marketplace</div>
+      <div class="fl" style="margin-bottom:8px">Marketplace<span class="req-star">*</span></div>
       <div class="mp-sel">
         <div class="mp-opt shopee on" id="edit-mps" onclick="setEditMP('Shopee')">🛍️ Shopee</div>
         <div class="mp-opt tiktok" id="edit-mpt" onclick="setEditMP('TikTok')">🎵 TikTok</div>
@@ -467,23 +472,23 @@ tbody td{padding:12px 16px;white-space:nowrap;}
     </div>
     <div class="fg">
       <div class="fgi full">
-        <label class="fl">Nama Streamer</label>
+        <label class="fl">Nama Streamer<span class="req-star">*</span></label>
         <input class="fi" id="edit-streamer" type="text" readonly style="background:var(--surface);color:var(--text2)"/>
       </div>
       <div class="fgi">
-        <label class="fl">Tanggal</label>
+        <label class="fl">Tanggal<span class="req-star">*</span></label>
         <input class="fi" id="edit-date" type="date"/>
       </div>
       <div class="fgi">
-        <label class="fl">Jam Mulai</label>
+        <label class="fl">Jam Mulai<span class="req-star">*</span></label>
         <input class="fi" id="edit-time" type="time"/>
       </div>
       <div class="fgi">
-        <label class="fl">Durasi (menit)</label>
+        <label class="fl">Durasi (menit)<span class="req-star">*</span></label>
         <input class="fi" id="edit-dur" type="number" placeholder="120"/>
       </div>
       <div class="fgi">
-        <label class="fl">GMV (Rp)</label>
+        <label class="fl">GMV (Rp)<span class="req-star">*</span></label>
         <input class="fi" id="edit-gmv" type="number" placeholder="32000000"/>
       </div>
       <div class="fgi full">
@@ -541,6 +546,42 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 let currentUser=null,allSessions=[],allStreamers=[],chatHistory=[],chartInst=null;
+const CHAT_STORAGE_KEY='liveos_chat_history_v1';
+
+function saveChatHistory(){
+  try{localStorage.setItem(CHAT_STORAGE_KEY,JSON.stringify(chatHistory.slice(-50)));}catch(e){}
+}
+function loadChatHistory(){
+  try{
+    const saved=localStorage.getItem(CHAT_STORAGE_KEY);
+    if(saved){
+      const parsed=JSON.parse(saved);
+      if(parsed&&parsed.length){
+        chatHistory=parsed;
+        // Render saved messages
+        const c=document.getElementById('msgs');
+        if(c){
+          // Keep welcome msg, add history
+          parsed.forEach(m=>{
+            if(m.content&&m.content.trim()){
+              const div=document.createElement('div');
+              div.className='msg '+(m.role==='ai'?'ai':'user');
+              const av=m.role==='ai'?'AI':(currentUser?.displayName?.[0]?.toUpperCase()||'K');
+              div.innerHTML='<div class="mav">'+av+'</div><div><div class="mbub">'+
+                m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')+
+                '</div><div class="mtime">'+(m.time||'')+'</div></div>';
+              c.appendChild(div);
+            }
+          });
+          c.scrollTop=c.scrollHeight;
+          const cnt=parsed.filter(m=>m.role==='user').length;
+          const ms=document.getElementById('mem-status');
+          if(ms)ms.textContent='Memori aktif — '+cnt+' pesan tersimpan';
+        }
+      }
+    }
+  }catch(e){}
+}
 let SC='gmv',SD=-1,SMP='Shopee',AF={shopee:true,tiktok:true,period:'today',customFrom:'',customTo:''};
 
 // Safety timeout 8s
@@ -567,6 +608,7 @@ auth.onAuthStateChanged(async(user)=>{
     loadSettings();
     loadGroqKey();
     startListeners();
+    setTimeout(loadChatHistory, 800);
   }else{
     currentUser=null;
     document.getElementById('login-screen').classList.add('show');
@@ -1026,9 +1068,10 @@ function renderTable(data){
     const rankClass=i===0?'r1':i===1?'r2':i===2?'r3':'';
     const mp=d.mp==='Shopee'?'mps':'mpt';
     const date=d.date?new Date(d.date).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'2-digit'}):'';
-    // Cek apakah user ini yang input (by name atau email prefix)
+    // Superuser bisa edit semua, user biasa hanya bisa edit miliknya sendiri
+    const isSuperuser = currentUser && currentUser.email === 'alfindo.ixa.2537@gmail.com';
     const myName = currentUser ? (currentUser.displayName || currentUser.email.split('@')[0]) : '';
-    const isOwner = d.by && (d.by === myName || d.by.startsWith(myName));
+    const isOwner = isSuperuser || (d.by && (d.by === myName || d.by.startsWith(myName)));
     const actionBtns = isOwner
       ? '<button class="edit-row" onclick="openEditModal(\''+d.id+'\')">✏️ Edit</button>'
         +'<button class="del-row" onclick="delSess(\''+d.id+'\')">🗑</button>'
@@ -1120,8 +1163,43 @@ async function submitForm(){
   const streamerId=document.getElementById('f-streamer-id').value;
   const streamerName=document.getElementById('f-streamer-input').value.trim();
   const gmv=parseFloat(document.getElementById('f-gmv').value);
-  if(!streamerId||!streamerName){showToast('Pilih nama streamer dulu!',true);return;}
-  if(isNaN(gmv)||gmv<=0){showToast('GMV wajib diisi!',true);return;}
+  // Validasi semua field wajib
+  let valid = true;
+  const clearErr = ids => ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.classList.remove('field-error');}
+    const errEl=document.getElementById('err-'+id.replace('f-',''));
+    if(errEl)errEl.classList.remove('show');
+  });
+  clearErr(['f-streamer-input','f-date','f-time','f-dur','f-gmv']);
+
+  if(!streamerId||!streamerName){
+    document.getElementById('f-streamer-input').classList.add('field-error');
+    const e=document.getElementById('err-streamer');if(e)e.classList.add('show');
+    valid=false;
+  }
+  if(!document.getElementById('f-date').value){
+    document.getElementById('f-date').classList.add('field-error');
+    valid=false;
+  }
+  if(!document.getElementById('f-time').value){
+    document.getElementById('f-time').classList.add('field-error');
+    const e=document.getElementById('err-time');if(e)e.classList.add('show');
+    valid=false;
+  }
+  const durVal=parseFloat(document.getElementById('f-dur').value);
+  if(!durVal||durVal<=0){
+    document.getElementById('f-dur').classList.add('field-error');
+    const e=document.getElementById('err-dur');if(e)e.classList.add('show');
+    valid=false;
+  }
+  if(isNaN(gmv)||gmv<=0){
+    document.getElementById('f-gmv').classList.add('field-error');
+    const e=document.getElementById('err-gmv');if(e)e.classList.add('show');
+    valid=false;
+  }
+  if(!valid){showToast('Lengkapi semua field yang wajib diisi!',true);return;}
+
   const btn=document.getElementById('save-btn');
   btn.disabled=true;btn.textContent='Menyimpan...';
   // Reset form immediately (optimistic) so user can start next entry
@@ -1197,6 +1275,17 @@ function toggleGroqKey(){
   else{inp.type='password';if(btn)btn.textContent='👁';}
 }
 
+function clearChatHistory(){
+  localStorage.removeItem(CHAT_STORAGE_KEY);
+  chatHistory=[];
+  const c=document.getElementById('msgs');
+  if(c){
+    c.innerHTML='<div class="msg ai"><div class="mav">AI</div><div><div class="mbub">Halo! Aku AI Assistant LiveOS Pandaoma.<br><br>Diskusi GMV, tren, strategi, atau input data via chat.<br><br>Contoh: <i>Rora live Shopee jam 19:00 durasi 2 jam GMV 32 juta</i></div><div class="mtime">Sekarang</div></div></div>';
+  }
+  const ms=document.getElementById('mem-status');
+  if(ms)ms.textContent='Memori aktif';
+  showToast('Riwayat chat dihapus.');
+}
 async function saveSetting(){
   try{
     await db.collection('settings').doc('brand').set({brand:document.getElementById('s-brand').value.trim()||'Pandaoma',category:document.getElementById('s-cat').value.trim()});
@@ -1210,7 +1299,7 @@ async function sendChat(){
   if(!msg)return;
   inp.value='';
   addMsg('user',msg);
-  chatHistory.push({role:'user',content:msg});
+  chatHistory.push({role:'user',content:msg,time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})});
   const te=showTyping();
   document.getElementById('sb2').disabled=true;
   try{
@@ -1315,9 +1404,10 @@ PANDUAN:
     const clean=reply.replace(/\{"action":"add_session"[^}]*\}\n?/g,'').trim();
     addMsg('ai',clean);
     // Push to history with correct role
-    chatHistory.push({role:'ai',content:clean});
+    chatHistory.push({role:'ai',content:clean,time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})});
+    saveChatHistory();
     const msgCount = chatHistory.filter(m=>m.role==='user').length;
-    document.getElementById('mem-status').textContent='Memori aktif — '+msgCount+' pertanyaan dalam sesi ini';
+    document.getElementById('mem-status').textContent='Memori aktif — '+msgCount+' pesan tersimpan';
   }catch(err){te.remove();addMsg('ai','Error: '+err.message);}
   document.getElementById('sb2').disabled=false;
 }
