@@ -185,8 +185,49 @@ tbody td{padding:12px 16px;white-space:nowrap;}
 .sv{font-size:12px;color:var(--text2);font-family:var(--mono);}
 .dbtn{padding:7px 14px;border-radius:var(--radius-sm);background:var(--red-bg);border:1px solid #fca5a5;color:var(--red);font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;transition:.15s;}
 .dbtn:hover{background:var(--red);color:#fff;}
+/* CALENDAR MODAL */
+.cal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;}
+.cal-modal{background:#fff;border-radius:14px;box-shadow:0 8px 40px rgba(15,31,61,.18);overflow:hidden;display:flex;flex-direction:column;max-width:660px;width:100%;}
+.cal-modal-top{display:flex;}
+.cal-sidebar{width:170px;background:var(--surface);border-right:1px solid var(--border);padding:16px 12px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+.cal-sidebar-btn{padding:9px 12px;border-radius:var(--radius-sm);border:none;background:none;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;text-align:left;font-family:var(--font);transition:.15s;}
+.cal-sidebar-btn:hover{background:var(--blue-lt);color:var(--blue);}
+.cal-sidebar-btn.active{background:var(--blue);color:#fff;font-weight:600;}
+.cal-main{flex:1;padding:16px;}
+.cal-months{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.cal-month{}
+.cal-month-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-month-title{font-size:13px;font-weight:700;color:var(--navy);}
+.cal-nav-btn{background:none;border:none;cursor:pointer;color:var(--text2);padding:2px 6px;border-radius:4px;font-size:14px;font-weight:700;}
+.cal-nav-btn:hover{background:var(--surface);color:var(--navy);}
+.cal-nav-btn.hide{visibility:hidden;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-dow{font-size:10px;font-weight:700;color:var(--text3);text-align:center;padding:3px 0;}
+.cal-day{width:32px;height:32px;border-radius:50%;border:none;background:none;font-size:12px;font-weight:500;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.1s;margin:1px auto;}
+.cal-day:hover:not(.cal-empty):not(.cal-other){background:var(--blue-lt);color:var(--blue);}
+.cal-day.cal-empty,.cal-day.cal-other{color:var(--text3);cursor:default;background:none;}
+.cal-day.cal-today{font-weight:800;color:var(--blue);}
+.cal-day.cal-selected{background:var(--blue)!important;color:#fff!important;border-radius:50%;}
+.cal-day.cal-in-range{background:var(--blue-lt);border-radius:0;color:var(--blue);}
+.cal-day.cal-range-start{background:var(--blue)!important;color:#fff!important;border-radius:50% 0 0 50%;}
+.cal-day.cal-range-end{background:var(--blue)!important;color:#fff!important;border-radius:0 50% 50% 0;}
+.cal-day.cal-range-start.cal-range-end{border-radius:50%!important;}
+.cal-footer{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);}
+.cal-footer-label{font-size:12px;color:var(--text2);font-weight:500;}
+.cal-footer-label span{color:var(--navy);font-weight:700;}
+.cal-apply-btn{padding:8px 20px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);}
+.cal-apply-btn:hover{background:var(--navy);}
+.cal-cancel-btn{padding:8px 16px;border-radius:var(--radius-sm);background:none;color:var(--text2);border:1px solid var(--border);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);}
+.cal-cancel-btn:hover{background:var(--surface);}
+@media(max-width:600px){
+  .cal-months{grid-template-columns:1fr;}
+  .cal-sidebar{display:none;}
+  .cal-modal{max-width:100%;}
+}
 .toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;background:var(--navy);color:#fff;border-radius:var(--radius);font-size:13px;font-weight:600;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
 .toast.show{opacity:1;transform:translateY(0);}
+.del-row{padding:4px 10px;font-size:11px;border-radius:var(--radius-sm);background:var(--red-bg);color:var(--red);border:1px solid #fca5a5;cursor:pointer;font-family:var(--font);font-weight:600;transition:.15s;}
+.del-row:hover{background:var(--red);color:#fff;}
 #mobnav{display:none;}
 @media(max-width:768px){
   #app.show{flex-direction:column;}
@@ -273,12 +314,18 @@ tbody td{padding:12px 16px;white-space:nowrap;}
 <div class="topbar">
 <div><div class="pgtitle">Live <span>Dashboard</span></div><div class="pgsub">Pandaoma - Real-time Firebase</div></div>
 <div class="filters">
-<div class="chip shopee on" onclick="toggleF('shopee')">Shopee</div>
-<div class="chip tiktok on" onclick="toggleF('tiktok')">TikTok</div>
+<div class="chip shopee on" onclick="toggleF('shopee')">🛍 Shopee</div>
+<div class="chip tiktok on" onclick="toggleF('tiktok')">🎵 TikTok</div>
 <div class="fdiv"></div>
-<div class="chip per on" onclick="toggleP('today')" id="p-today">Hari Ini</div>
-<div class="chip per" onclick="toggleP('week')" id="p-week">7 Hari</div>
-<div class="chip per" onclick="toggleP('month')" id="p-month">30 Hari</div>
+<div class="chip per on" id="p-today" onclick="setQuickRange('today')">Hari Ini</div>
+<div class="chip per" id="p-yesterday" onclick="setQuickRange('yesterday')">Kemarin</div>
+<div class="chip per" id="p-week" onclick="setQuickRange('week')">7 Hari Terakhir</div>
+<div class="chip per" id="p-month" onclick="setQuickRange('month')">30 Hari Terakhir</div>
+<div class="chip per" id="p-custom" onclick="openCalendar()" style="border-color:var(--border2)">📅 Kustom</div>
+</div>
+<div id="date-label-bar" style="display:none;margin-bottom:12px;padding:6px 12px;background:var(--blue-lt);border:1px solid var(--blue);border-radius:var(--radius-sm);font-size:12px;color:var(--blue);font-weight:600;display:flex;align-items:center;gap:8px;">
+<span id="date-label-text"></span>
+<button onclick="setQuickRange('today')" style="margin-left:auto;background:none;border:none;color:var(--blue);cursor:pointer;font-size:11px;font-weight:600;padding:0;">✕ Reset</button>
 </div>
 </div>
 <div class="sync-bar syncing" id="sync-bar"><div class="sync-dot pulse" id="sync-dot"></div><span id="sync-text">Menghubungkan...</span></div>
@@ -371,6 +418,34 @@ tbody td{padding:12px 16px;white-space:nowrap;}
 </div>
 </main>
 </div>
+<!-- CALENDAR MODAL -->
+<div id="cal-overlay" class="cal-overlay" style="display:none" onclick="calOverlayClick(event)">
+  <div class="cal-modal">
+    <div class="cal-modal-top">
+      <div class="cal-sidebar">
+        <button class="cal-sidebar-btn" onclick="calQuick('today')">Hari Ini</button>
+        <button class="cal-sidebar-btn" onclick="calQuick('yesterday')">Kemarin</button>
+        <button class="cal-sidebar-btn" onclick="calQuick('week')">7 Hari Terakhir</button>
+        <button class="cal-sidebar-btn" onclick="calQuick('month')">30 Hari Terakhir</button>
+        <button class="cal-sidebar-btn" onclick="calQuick('thismonth')">Bulan Ini</button>
+        <button class="cal-sidebar-btn" onclick="calQuick('lastmonth')">Bulan Lalu</button>
+      </div>
+      <div class="cal-main">
+        <div class="cal-months">
+          <div class="cal-month" id="cal-left"></div>
+          <div class="cal-month" id="cal-right"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cal-footer">
+      <div class="cal-footer-label">Dipilih: <span id="cal-label">Pilih tanggal mulai</span></div>
+      <div style="display:flex;gap:8px;">
+        <button class="cal-cancel-btn" onclick="closeCalendar()">Batal</button>
+        <button class="cal-apply-btn" onclick="applyCalendar()">Terapkan</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script>
 // ── FIREBASE INIT ──
@@ -387,7 +462,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 let currentUser=null,allSessions=[],allStreamers=[],chatHistory=[],chartInst=null;
-let SC='gmv',SD=-1,SMP='Shopee',AF={shopee:true,tiktok:true,period:'today'};
+let SC='gmv',SD=-1,SMP='Shopee',AF={shopee:true,tiktok:true,period:'today',customFrom:'',customTo:''};
 
 // Safety timeout 8s
 const loadingTimeout = setTimeout(()=>{
@@ -564,17 +639,212 @@ function toggleF(mp){
   document.querySelector('.chip.'+mp).classList.toggle('on',AF[mp]);
   refreshAll();
 }
-function toggleP(p){
-  AF.period=p;
-  ['today','week','month'].forEach(x=>document.getElementById('p-'+x).classList.toggle('on',x===p));
+// ── QUICK RANGE ──
+function setQuickRange(type){
+  const now=new Date();
+  const today=now.toISOString().split('T')[0];
+  let from,to;
+  if(type==='today'){from=today;to=today;}
+  else if(type==='yesterday'){
+    const y=new Date(now);y.setDate(now.getDate()-1);
+    from=y.toISOString().split('T')[0];to=from;
+  }
+  else if(type==='week'){
+    const w=new Date(now);w.setDate(now.getDate()-6);
+    from=w.toISOString().split('T')[0];to=today;
+  }
+  else if(type==='month'){
+    const m=new Date(now);m.setDate(now.getDate()-29);
+    from=m.toISOString().split('T')[0];to=today;
+  }
+  else if(type==='thismonth'){
+    from=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];to=today;
+  }
+  else if(type==='lastmonth'){
+    const lm=new Date(now.getFullYear(),now.getMonth()-1,1);
+    const lme=new Date(now.getFullYear(),now.getMonth(),0);
+    from=lm.toISOString().split('T')[0];to=lme.toISOString().split('T')[0];
+  }
+  AF.customFrom=from;AF.customTo=to;AF.period='custom';
+  // update chip UI
+  ['today','yesterday','week','month','custom'].forEach(x=>{
+    const el=document.getElementById('p-'+x);
+    if(el)el.classList.remove('on');
+  });
+  const map={today:'p-today',yesterday:'p-yesterday',week:'p-week',month:'p-month'};
+  if(map[type]){const el=document.getElementById(map[type]);if(el)el.classList.add('on');}
+  else{const el=document.getElementById('p-custom');if(el)el.classList.add('on');}
+  updateDateLabel(from,to);
   refreshAll();
 }
+
+function updateDateLabel(from,to){
+  const bar=document.getElementById('date-label-bar');
+  const txt=document.getElementById('date-label-text');
+  if(!bar||!txt)return;
+  if(from===to){
+    txt.textContent='Menampilkan: '+formatDateLabel(from);
+  }else{
+    txt.textContent='Menampilkan: '+formatDateLabel(from)+' – '+formatDateLabel(to);
+  }
+  bar.style.display='flex';
+}
+
+function formatDateLabel(d){
+  if(!d)return'';
+  return new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+}
+
+// ── CALENDAR MODAL ──
+let calState={leftYear:0,leftMonth:0,selStart:'',selEnd:'',picking:false};
+
+function openCalendar(){
+  const now=new Date();
+  calState.leftYear=now.getFullYear();
+  calState.leftMonth=now.getMonth();
+  calState.selStart=AF.customFrom||'';
+  calState.selEnd=AF.customTo||'';
+  calState.picking=false;
+  document.getElementById('cal-overlay').style.display='flex';
+  renderCal();
+}
+
+function closeCalendar(){
+  document.getElementById('cal-overlay').style.display='none';
+}
+
+function calOverlayClick(e){
+  if(e.target===document.getElementById('cal-overlay'))closeCalendar();
+}
+
+function calNavLeft(dir){
+  calState.leftMonth+=dir;
+  if(calState.leftMonth>11){calState.leftMonth=0;calState.leftYear++;}
+  if(calState.leftMonth<0){calState.leftMonth=11;calState.leftYear--;}
+  renderCal();
+}
+
+function renderCal(){
+  const {leftYear,leftMonth,selStart,selEnd}=calState;
+  const rightMonth=leftMonth===11?0:leftMonth+1;
+  const rightYear=leftMonth===11?leftYear+1:leftYear;
+  document.getElementById('cal-left').innerHTML=buildMonth(leftYear,leftMonth,true);
+  document.getElementById('cal-right').innerHTML=buildMonth(rightYear,rightMonth,false);
+  // update label
+  const lbl=document.getElementById('cal-label');
+  if(lbl){
+    if(!selStart)lbl.textContent='Pilih tanggal mulai';
+    else if(!selEnd)lbl.textContent=formatDateLabel(selStart)+' → pilih tanggal akhir';
+    else lbl.textContent=formatDateLabel(selStart)+' – '+formatDateLabel(selEnd);
+  }
+}
+
+function buildMonth(year,month,isLeft){
+  const DAYS=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  const monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const today=new Date().toISOString().split('T')[0];
+  const firstDay=new Date(year,month,1).getDay();
+  const offset=(firstDay+6)%7; // Monday-first
+  const daysInMonth=new Date(year,month+1,0).getDate();
+
+  let h='<div class="cal-month-header">';
+  if(isLeft){
+    h+='<button class="cal-nav-btn" onclick="calNavLeft(-1)">&#171;</button>';
+    h+='<button class="cal-nav-btn" onclick="calNavLeft(-1)">&#8249;</button>';
+  }else{
+    h+='<button class="cal-nav-btn hide">&#171;</button>';
+    h+='<button class="cal-nav-btn hide">&#8249;</button>';
+  }
+  h+='<div class="cal-month-title">'+monthNames[month]+' '+year+'</div>';
+  if(!isLeft){
+    h+='<button class="cal-nav-btn" onclick="calNavLeft(1)">&#8250;</button>';
+    h+='<button class="cal-nav-btn" onclick="calNavLeft(1)">&#187;</button>';
+  }else{
+    h+='<button class="cal-nav-btn hide">&#8250;</button>';
+    h+='<button class="cal-nav-btn hide">&#187;</button>';
+  }
+  h+='</div>';
+  h+='<div class="cal-grid">';
+  DAYS.forEach(d=>h+='<div class="cal-dow">'+d+'</div>');
+  for(let i=0;i<offset;i++)h+='<div class="cal-day cal-empty"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=year+'-'+(month+1<10?'0':'')+(month+1)+'-'+(d<10?'0':'')+d;
+    let cls='cal-day';
+    if(ds===today)cls+=' cal-today';
+    const {selStart,selEnd}=calState;
+    if(selStart&&selEnd){
+      if(ds===selStart&&ds===selEnd)cls+=' cal-selected cal-range-start cal-range-end';
+      else if(ds===selStart)cls+=' cal-range-start cal-selected';
+      else if(ds===selEnd)cls+=' cal-range-end cal-selected';
+      else if(ds>selStart&&ds<selEnd)cls+=' cal-in-range';
+    }else if(selStart&&ds===selStart){cls+=' cal-selected';}
+    h+='<button class="'+cls+'" onclick="calDayClick(\''+ds+'\')">'+(d<10?'0':'')+d+'</button>';
+  }
+  h+='</div>';
+  return h;
+}
+
+function calDayClick(ds){
+  if(!calState.selStart||calState.selEnd){
+    calState.selStart=ds;calState.selEnd='';calState.picking=true;
+  }else{
+    if(ds<calState.selStart){calState.selEnd=calState.selStart;calState.selStart=ds;}
+    else{calState.selEnd=ds;}
+    calState.picking=false;
+  }
+  renderCal();
+}
+
+function calQuick(type){
+  const now=new Date();
+  const today=now.toISOString().split('T')[0];
+  let from,to;
+  if(type==='today'){from=today;to=today;}
+  else if(type==='yesterday'){const y=new Date(now);y.setDate(now.getDate()-1);from=y.toISOString().split('T')[0];to=from;}
+  else if(type==='week'){const w=new Date(now);w.setDate(now.getDate()-6);from=w.toISOString().split('T')[0];to=today;}
+  else if(type==='month'){const m=new Date(now);m.setDate(now.getDate()-29);from=m.toISOString().split('T')[0];to=today;}
+  else if(type==='thismonth'){from=new Date(now.getFullYear(),now.getMonth(),1).toISOString().split('T')[0];to=today;}
+  else if(type==='lastmonth'){
+    const lm=new Date(now.getFullYear(),now.getMonth()-1,1);
+    const lme=new Date(now.getFullYear(),now.getMonth(),0);
+    from=lm.toISOString().split('T')[0];to=lme.toISOString().split('T')[0];
+  }
+  calState.selStart=from;calState.selEnd=to;
+  // update sidebar active
+  document.querySelectorAll('.cal-sidebar-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderCal();
+}
+
+function applyCalendar(){
+  if(!calState.selStart){showToast('Pilih tanggal dulu!',true);return;}
+  const from=calState.selStart;
+  const to=calState.selEnd||calState.selStart;
+  AF.customFrom=from;AF.customTo=to;AF.period='custom';
+  // update chips
+  ['today','yesterday','week','month'].forEach(x=>{
+    const el=document.getElementById('p-'+x);if(el)el.classList.remove('on');
+  });
+  const cp=document.getElementById('p-custom');if(cp)cp.classList.add('on');
+  updateDateLabel(from,to);
+  closeCalendar();
+  refreshAll();
+}
+
+// Keep old toggleP for backward compat
+function toggleP(p){setQuickRange(p);}
 function filterData(data){
   const now=new Date();
   return data.filter(d=>{
     if(d.mp==='Shopee'&&!AF.shopee)return false;
     if(d.mp==='TikTok'&&!AF.tiktok)return false;
     const dt=d.date?new Date(d.date):new Date();
+    if(AF.customFrom&&AF.customTo){
+      const from=new Date(AF.customFrom);
+      const to=new Date(AF.customTo);
+      to.setHours(23,59,59,999);
+      return dt>=from&&dt<=to;
+    }
     if(AF.period==='today')return dt.toDateString()===now.toDateString();
     if(AF.period==='week')return(now-dt)/864e5<=7;
     return(now-dt)/864e5<=30;
@@ -672,7 +942,7 @@ function renderTable(data){
       +'<td style="color:var(--text2)">'+(d.dur?fDur(d.dur):'')+'</td>'
       +'<td style="color:var(--text3);font-size:12px">'+date+'</td>'
       +'<td style="font-size:12px;color:var(--text3)">'+(d.by||'')+'</td>'
-      +'<td><button class="db" onclick="delSess(\''+d.id+'\')">Hapus</button></td>'
+      +'<td><button class="del-row" onclick="delSess(\''+d.id+'\')">🗑 Hapus</button></td>'
       +'</tr>';
   }).join('');
 }
