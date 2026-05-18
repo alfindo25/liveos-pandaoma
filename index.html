@@ -261,6 +261,31 @@ tbody td{padding:12px 16px;white-space:nowrap;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+/* ── SOP & PRODUCT KNOWLEDGE PAGE ── */
+.sop-hero{text-align:center;margin-bottom:1.5rem;padding:1.5rem;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);}
+.sop-hero-label{display:inline-block;background:var(--blue-lt);color:var(--blue);font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;margin-bottom:10px;letter-spacing:.4px;}
+.sop-hero h2{font-size:22px;font-weight:800;color:var(--navy);margin:0 0 6px;line-height:1.3;font-family:'Plus Jakarta Sans',sans-serif;}
+.sop-hero p{font-size:14px;color:var(--text2);margin:0;}
+.sop-sec-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin:1.5rem 0 10px;display:flex;align-items:center;gap:8px;}
+.sop-sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.sop-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px;}
+.sop-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;}
+.sop-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc-accent,var(--blue));border-radius:var(--radius) var(--radius) 0 0;}
+.sop-card-top{display:flex;align-items:flex-start;gap:10px;}
+.sop-num{min-width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--sc-bg,var(--blue-lt));color:var(--sc-color,var(--blue));flex-shrink:0;font-family:var(--mono);}
+.sop-title{font-size:13.5px;font-weight:700;color:var(--navy);line-height:1.4;margin:0;}
+.sop-desc{font-size:12.5px;color:var(--text2);line-height:1.6;margin:0;border-top:1px solid var(--border);padding-top:8px;}
+.sop-tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700;background:var(--sc-bg,var(--blue-lt));color:var(--sc-color,var(--blue));align-self:flex-start;}
+.sop-example{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6;margin-top:6px;font-style:italic;}
+.sop-example strong{color:var(--blue);font-style:normal;}
+.sop-tip-box{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;background:var(--amber-bg);border:1px solid #fcd34d;border-radius:var(--radius);margin-top:16px;}
+.sop-tip-box svg{width:18px;height:18px;flex-shrink:0;margin-top:2px;stroke:var(--amber);}
+.sop-tip-box p{font-size:12px;color:var(--amber);line-height:1.6;margin:0;font-weight:600;}
+.pk-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px;box-shadow:var(--shadow);}
+.pk-coming{text-align:center;padding:60px 20px;color:var(--text3);}
+.pk-coming-icon{font-size:48px;margin-bottom:12px;}
+.pk-coming-title{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:6px;}
+
 
 /* ── PANDUAN PAGE ── */
 #page-panduan { padding: 20px 28px; }
@@ -816,6 +841,8 @@ margin-bottom: 4px;
 <button class="ni" onclick="goPage('aichat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</button>
 <button class="ni" onclick="goPage('inputdata')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Input Data</button>
       <button class="ni" onclick="goPage('panduan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan</button>
+      <button class="ni" onclick="goPage('sop')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
+      <button class="ni" onclick="goPage('produk')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
 <div class="nsec" style="margin-top:6px">Master Data</div>
 <button class="ni" onclick="goPage('streamers')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Data Streamer</button>
 <div class="nsec" style="margin-top:6px">Lainnya</div>
@@ -832,6 +859,7 @@ margin-bottom: 4px;
 <div class="mni" onclick="goPage('aichat')" id="mn-aichat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</div>
 <div class="mni" onclick="goPage('inputdata')" id="mn-inputdata"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Input</div>
     <div class="mni" onclick="goPage('panduan')" id="mn-panduan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan</div>
+    <div class="mni" onclick="goPage('sop')" id="mn-sop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP</div>
 <div class="mni" onclick="goPage('streamers')" id="mn-streamers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Streamer</div>
 <div class="mni" onclick="goPage('setting')" id="mn-setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Setting</div>
 </nav>
@@ -1197,6 +1225,97 @@ margin-bottom: 4px;
 
 </div>
 
+<div class="page" id="page-sop">
+<div class="topbar"><div><div class="pgtitle">SOP <span>Live</span></div><div class="pgsub">Standar operasional untuk semua host Pandaoma</div></div></div>
+<div style="max-width:760px">
+
+<div class="sop-hero">
+  <div class="sop-hero-label">Live Streaming</div>
+  <h2>SOP Live Streaming Pandaoma</h2>
+  <p>Standar penampilan & teknik untuk semua host — berlaku di Shopee & TikTok</p>
+</div>
+
+<div class="sop-sec-label">Penampilan & sikap</div>
+<div class="sop-grid">
+  <div class="sop-card" style="--sc-accent:#7F77DD;--sc-bg:#EEEDFE;--sc-color:#534AB7">
+    <div class="sop-card-top"><div class="sop-num">1</div><p class="sop-title">Berpenampilan rapi & menarik</p></div>
+    <p class="sop-desc">Wajib pakai makeup. Penampilan mencerminkan profesionalisme brand Pandaoma di depan penonton.</p>
+    <span class="sop-tag">Wajib setiap sesi</span>
+  </div>
+  <div class="sop-card" style="--sc-accent:#1D9E75;--sc-bg:#E1F5EE;--sc-color:#0F6E56">
+    <div class="sop-card-top"><div class="sop-num">2</div><p class="sop-title">Senyum & ekspresif</p></div>
+    <p class="sop-desc">Ekspresi wajah yang hangat dan antusias membuat penonton betah dan nyaman di live kamu.</p>
+    <span class="sop-tag">Energi positif</span>
+  </div>
+  <div class="sop-card" style="--sc-accent:#BA7517;--sc-bg:#FAEEDA;--sc-color:#854F0B">
+    <div class="sop-card-top"><div class="sop-num">3</div><p class="sop-title">Suara & artikulasi jelas</p></div>
+    <p class="sop-desc">Bicara dengan tempo stabil, tidak terburu-buru. Penonton harus bisa menangkap setiap kata dengan mudah.</p>
+    <span class="sop-tag">Komunikasi</span>
+  </div>
+  <div class="sop-card" style="--sc-accent:#D85A30;--sc-bg:#FAECE7;--sc-color:#993C1D">
+    <div class="sop-card-top"><div class="sop-num">4</div><p class="sop-title">Live dengan semangat</p></div>
+    <p class="sop-desc">Energi host menular ke penonton. Kalau host antusias, penonton juga ikut terbawa dan lebih aktif.</p>
+    <span class="sop-tag">Energi</span>
+  </div>
+  <div class="sop-card" style="--sc-accent:#378ADD;--sc-bg:#E6F1FB;--sc-color:#185FA5">
+    <div class="sop-card-top"><div class="sop-num">5</div><p class="sop-title">Duduk tegak, jangan lesu</p></div>
+    <p class="sop-desc">Postur tubuh yang baik menunjukkan kepercayaan diri dan menambah kesan profesional di mata penonton.</p>
+    <span class="sop-tag">Postur</span>
+  </div>
+</div>
+
+<div class="sop-sec-label">Teknik & interaksi live</div>
+<div class="sop-grid">
+  <div class="sop-card" style="--sc-accent:#7F77DD;--sc-bg:#EEEDFE;--sc-color:#534AB7">
+    <div class="sop-card-top"><div class="sop-num">6</div><p class="sop-title">Menguasai produk</p></div>
+    <p class="sop-desc">Pahami fungsi, keunggulan, dan cara pakai setiap produk sebelum live. Penonton percaya jika kamu benar-benar paham.</p>
+    <span class="sop-tag">Product knowledge</span>
+  </div>
+  <div class="sop-card" style="--sc-accent:#1D9E75;--sc-bg:#E1F5EE;--sc-color:#0F6E56">
+    <div class="sop-card-top"><div class="sop-num">7</div><p class="sop-title">Mata selalu menatap layar</p></div>
+    <p class="sop-desc">Tatap kamera terus — ini menciptakan koneksi visual dengan penonton. Jangan sering melirik ke bawah atau ke samping.</p>
+    <span class="sop-tag">Koneksi penonton</span>
+  </div>
+  <div class="sop-card" style="--sc-accent:#BA7517;--sc-bg:#FAEEDA;--sc-color:#854F0B">
+    <div class="sop-card-top"><div class="sop-num">8</div><p class="sop-title">Bangun komunikasi 2 arah</p></div>
+    <p class="sop-desc">Jangan hanya presentasi satu arah. Tanya kebutuhan dan masalah penonton secara aktif agar mereka merasa diperhatikan.</p>
+    <span class="sop-tag">Engagement</span>
+  </div>
+  <div class="sop-card" style="--sc-accent:#D85A30;--sc-bg:#FAECE7;--sc-color:#993C1D">
+    <div class="sop-card-top"><div class="sop-num">9</div><p class="sop-title">Sebutkan benefit checkout</p></div>
+    <p class="sop-desc">Selalu ingatkan penonton apa yang mereka dapatkan saat checkout — bonus, promo, gratis ongkir, voucher, dll.</p>
+    <span class="sop-tag">Konversi</span>
+  </div>
+  <div class="sop-card" style="--sc-accent:#378ADD;--sc-bg:#E6F1FB;--sc-color:#185FA5">
+    <div class="sop-card-top"><div class="sop-num">10</div><p class="sop-title">Angkat produk saat demo</p></div>
+    <p class="sop-desc">Saat memperlihatkan produk, angkat ke depan kamera dengan posisi yang jelas. Jangan diletakkan begitu saja di meja.</p>
+    <span class="sop-tag">Presentasi produk</span>
+  </div>
+</div>
+
+<div class="sop-sec-label">Closing & transisi etalase</div>
+<div class="sop-card" style="--sc-accent:#534AB7;--sc-bg:#EEEDFE;--sc-color:#534AB7">
+  <div class="sop-card-top"><div class="sop-num">11</div><p class="sop-title">Closing sebelum pindah etalase</p></div>
+  <p class="sop-desc">Sebelum berpindah ke produk berikutnya, selalu tutup dengan closing yang mendorong penonton untuk segera checkout.</p>
+  <div class="sop-example"><strong>Contoh script:</strong> "Yang mau produk ini, ada di etalase 1 ya — checkout sekarang mumpung ada promo spesial banget. Oke, kita lanjut ke etalase 5!"</div>
+  <span class="sop-tag">Closing technique</span>
+</div>
+
+<div class="sop-tip-box">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <p>SOP ini berlaku untuk semua sesi live Pandaoma di Shopee maupun TikTok. Ada pertanyaan atau saran? Sampaikan ke Kopan.</p>
+</div>
+
+</div>
+</div>
+<div class="page" id="page-produk">
+<div class="topbar"><div><div class="pgtitle">Product <span>Knowledge</span></div><div class="pgsub">Informasi lengkap produk Pandaoma untuk tim</div></div></div>
+<div class="pk-coming">
+  <div class="pk-coming-icon">📦</div>
+  <div class="pk-coming-title">Segera hadir</div>
+  <p style="font-size:13px;color:var(--text3);margin-top:4px;">Konten product knowledge akan ditambahkan oleh admin. Stay tuned!</p>
+</div>
+</div>
 <div class="page" id="page-setting">
 <div class="topbar"><div class="pgtitle">Setting</div></div>
 <div class="sc2"><div class="stitle">Informasi Brand</div>
@@ -1466,7 +1585,7 @@ function goPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.ni,.mni').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
-  const pages=['dashboard','aichat','inputdata','panduan','streamers','setting'];
+  const pages=['dashboard','aichat','inputdata','panduan','sop','produk','streamers','setting'];
   document.querySelectorAll('.ni')[pages.indexOf(p)]?.classList.add('active');
   const mn=document.getElementById('mn-'+p);
   if(mn)mn.classList.add('active');
