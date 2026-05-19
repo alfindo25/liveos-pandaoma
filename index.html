@@ -1535,35 +1535,7 @@ margin-bottom: 4px;
 <div class="sr"><div><div class="sk">Riwayat AI Chat</div><div class="sdesc">Tersimpan di browser ini</div></div><button onclick="clearChatHistory()" class="dbtn" style="font-size:11px;padding:5px 12px;">Hapus Riwayat</button></div>
 <div class="sr"><div><div class="sk">Versi</div></div><div class="sv">LiveOS v3.1</div></div>
 </div>
-<!-- EDIT STREAMER MODAL -->
-<div id="edit-streamer-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:440px;box-shadow:0 8px 40px rgba(15,31,61,.18);">
-    <div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
-      ✏️ Edit Streamer
-      <button onclick="closeEditStreamer()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);">&#215;</button>
-    </div>
-    <input type="hidden" id="edit-streamer-id"/>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <div>
-        <label class="fl">Nama Lengkap<span class="req-star">*</span></label>
-        <input class="fi" id="es-name" type="text" placeholder="cth. Rora"/>
-      </div>
-      <div>
-        <label class="fl">Role / Jabatan</label>
-        <input class="fi" id="es-role" type="text" placeholder="cth. Host Utama"/>
-      </div>
-      <div>
-        <label class="fl">Email Login Streamer</label>
-        <input class="fi" id="es-email" type="email" placeholder="rora@pandaoma.com"/>
-        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Email ini digunakan untuk akses menu Incentive</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
-      <button onclick="closeEditStreamer()" style="padding:9px 18px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">Batal</button>
-      <button onclick="saveEditStreamer()" style="padding:9px 20px;border-radius:var(--radius-sm);background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">💾 Simpan</button>
-    </div>
-  </div>
-</div>
+
 
 <div class="sc2" id="approve-users-section" style="display:none">
 <div class="stitle">Approve User Baru</div>
@@ -1646,6 +1618,35 @@ margin-bottom: 4px;
         <button class="cal-cancel-btn" onclick="closeCalendar()">Batal</button>
         <button class="cal-apply-btn" onclick="applyCalendar()">Terapkan</button>
       </div>
+    </div>
+  </div>
+</div>
+<!-- EDIT STREAMER MODAL -->
+<div id="edit-streamer-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:440px;box-shadow:0 8px 40px rgba(15,31,61,.18);">
+    <div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+      ✏️ Edit Streamer
+      <button onclick="closeEditStreamer()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);">&#215;</button>
+    </div>
+    <input type="hidden" id="edit-streamer-id"/>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label class="fl">Nama Lengkap<span class="req-star">*</span></label>
+        <input class="fi" id="es-name" type="text" placeholder="cth. Rora"/>
+      </div>
+      <div>
+        <label class="fl">Role / Jabatan</label>
+        <input class="fi" id="es-role" type="text" placeholder="cth. Host Utama"/>
+      </div>
+      <div>
+        <label class="fl">Email Login Streamer</label>
+        <input class="fi" id="es-email" type="email" placeholder="rora@pandaoma.com"/>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Email ini digunakan untuk akses menu Incentive</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+      <button onclick="closeEditStreamer()" style="padding:9px 18px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">Batal</button>
+      <button onclick="saveEditStreamer()" style="padding:9px 20px;border-radius:var(--radius-sm);background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">💾 Simpan</button>
     </div>
   </div>
 </div>
@@ -1893,11 +1894,6 @@ async function addStreamer(){
 }
 
 function openEditStreamer(id){
-  // Cek superuser
-  if(!currentUser||currentUser.email!=='alfindo.ixa.2537@gmail.com'){
-    showToast('Hanya admin yang bisa edit streamer.',true);
-    return;
-  }
   const s=allStreamers.find(x=>x.id===id);
   if(!s){showToast('Data tidak ditemukan.',true);return;}
   document.getElementById('edit-streamer-id').value=id;
@@ -1950,21 +1946,12 @@ function renderStreamerList(){
     if(!gmvMap[s.streamerId])gmvMap[s.streamerId]={gmv:0,n:0};
     gmvMap[s.streamerId].gmv+=(s.gmv||0);gmvMap[s.streamerId].n++;
   });
-  const isSU=currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
   el.innerHTML=allStreamers.map(s=>{
     const st=gmvMap[s.id]||{gmv:0,n:0};
     const emailHtml=s.email
       ?'<span style="font-size:10px;color:var(--blue);background:var(--blue-lt);padding:1px 6px;border-radius:8px;margin-left:4px;">'+s.email+'</span>'
       :'<span style="color:var(--red);font-size:10px;font-weight:600;margin-left:4px;">&#9888; belum ada email</span>';
     const statsHtml=st.n>0?'<div class="sc-stats">'+fRpS(st.gmv)+' &middot; '+st.n+' sesi</div>':'';
-    const editBtn=isSU
-      ?'<button class="edit-row" onclick="openEditStreamer(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;">Edit</button>'
-      :'';
-    const delBtn='<button class="sc-del" onclick="deleteStreamer(\''+s.id+'\',\''+s.name+'\')">'
-      +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
-      +'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>'
-      +'<path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>'
-      +'</svg></button>';
     return '<div class="streamer-card">'
       +'<div class="sc-av">'+s.name[0].toUpperCase()+'</div>'
       +'<div class="sc-info">'
@@ -1973,10 +1960,28 @@ function renderStreamerList(){
         +statsHtml
       +'</div>'
       +'<div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">'
-        +editBtn+delBtn
+        +'<button class="edit-row streamer-edit-btn" data-id="'+s.id+'" style="font-size:11px;padding:4px 10px;">Edit</button>'
+        +'<button class="sc-del streamer-del-btn" data-id="'+s.id+'" data-name="'+s.name+'">'
+          +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+          +'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>'
+          +'<path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>'
+          +'</svg>'
+        +'</button>'
       +'</div>'
-      +'</div>';
+    +'</div>';
   }).join('');
+
+  // Event delegation — attach once after render
+  el.querySelectorAll('.streamer-edit-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      openEditStreamer(this.dataset.id);
+    });
+  });
+  el.querySelectorAll('.streamer-del-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      deleteStreamer(this.dataset.id, this.dataset.name);
+    });
+  });
 }
 
 
