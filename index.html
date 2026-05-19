@@ -972,6 +972,7 @@ margin-bottom: 4px;
 <div class="fg" style="grid-template-columns:1fr 1fr;gap:12px">
 <div class="fgi"><label class="fl">Nama Lengkap</label><input class="fi" id="ns-name" type="text" placeholder="cth. Rora"/></div>
 <div class="fgi"><label class="fl">Role</label><input class="fi" id="ns-role" type="text" placeholder="cth. Host Utama"/></div>
+<div class="fgi full"><label class="fl">Email Login Streamer<span class="req-star">*</span></label><input class="fi" id="ns-email" type="email" placeholder="rora@pandaoma.com (untuk akses menu Incentive)"/></div>
 </div>
 <button class="sub-btn" style="margin-top:12px" id="add-streamer-btn" onclick="addStreamer()">Tambah Streamer</button></div>
 <div class="fc" style="margin-bottom:0">
@@ -1305,10 +1306,28 @@ margin-bottom: 4px;
 
 <!-- FILTER BULAN -->
 <div style="margin-bottom:18px">
-  <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">Filter Bulan</div>
-  <div style="display:flex;gap:6px;flex-wrap:wrap;" id="month-filter-btns">
-    <button class="chip" id="mf-1" onclick="toggleMonthFilter(1)">Jan</button><button class="chip" id="mf-2" onclick="toggleMonthFilter(2)">Feb</button><button class="chip" id="mf-3" onclick="toggleMonthFilter(3)">Mar</button><button class="chip" id="mf-4" onclick="toggleMonthFilter(4)">Apr</button><button class="chip" id="mf-5" onclick="toggleMonthFilter(5)">Mei</button><button class="chip" id="mf-6" onclick="toggleMonthFilter(6)">Jun</button><button class="chip" id="mf-7" onclick="toggleMonthFilter(7)">Jul</button><button class="chip" id="mf-8" onclick="toggleMonthFilter(8)">Agu</button><button class="chip" id="mf-9" onclick="toggleMonthFilter(9)">Sep</button><button class="chip" id="mf-10" onclick="toggleMonthFilter(10)">Okt</button><button class="chip" id="mf-11" onclick="toggleMonthFilter(11)">Nov</button><button class="chip" id="mf-12" onclick="toggleMonthFilter(12)">Des</button>
-    <button onclick="clearMonthFilter()" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--text2);cursor:pointer;">Reset</button>
+  <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;">Filter Periode</div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button onclick="incYearNav(-1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);">&#8249;</button>
+      <span id="inc-year-label" style="font-size:16px;font-weight:800;color:var(--navy);min-width:48px;text-align:center;font-family:var(--mono);">2026</span>
+      <button onclick="incYearNav(1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);">&#8250;</button>
+    </div>
+    <button onclick="clearMonthFilter()" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;margin-left:auto;">Reset</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:480px;" id="month-filter-btns">
+    <button class="chip" id="mf-1" onclick="toggleMonthFilter(1)">Jan</button>
+    <button class="chip" id="mf-2" onclick="toggleMonthFilter(2)">Feb</button>
+    <button class="chip" id="mf-3" onclick="toggleMonthFilter(3)">Mar</button>
+    <button class="chip" id="mf-4" onclick="toggleMonthFilter(4)">Apr</button>
+    <button class="chip" id="mf-5" onclick="toggleMonthFilter(5)">Mei</button>
+    <button class="chip" id="mf-6" onclick="toggleMonthFilter(6)">Jun</button>
+    <button class="chip" id="mf-7" onclick="toggleMonthFilter(7)">Jul</button>
+    <button class="chip" id="mf-8" onclick="toggleMonthFilter(8)">Agu</button>
+    <button class="chip" id="mf-9" onclick="toggleMonthFilter(9)">Sep</button>
+    <button class="chip" id="mf-10" onclick="toggleMonthFilter(10)">Okt</button>
+    <button class="chip" id="mf-11" onclick="toggleMonthFilter(11)">Nov</button>
+    <button class="chip" id="mf-12" onclick="toggleMonthFilter(12)">Des</button>
   </div>
 </div>
 
@@ -2851,8 +2870,16 @@ async function rejectUser(uid,name){
 // ── INCENTIVE SYSTEM ──
 let allIncentives = [];
 let selectedMonths = [];
+let selectedIncYear = new Date().getFullYear();
 let editingIncentiveId = null;
 const BULAN_NAMES = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function incYearNav(dir){
+  selectedIncYear += dir;
+  const el = document.getElementById('inc-year-label');
+  if(el) el.textContent = selectedIncYear;
+  renderIncentive();
+}
 
 // Listen realtime
 function startIncentiveListener(){
@@ -2889,19 +2916,23 @@ function toggleMonthFilter(m){
 
 function clearMonthFilter(){
   selectedMonths=[];
+  selectedIncYear=new Date().getFullYear();
+  const el=document.getElementById('inc-year-label');
+  if(el)el.textContent=selectedIncYear;
   document.querySelectorAll('#month-filter-btns .chip').forEach(btn=>{btn.classList.remove('on','per');});
   renderIncentive();
 }
 
 function filterIncentives(data){
-  const now=new Date();
-  const curYear=now.getFullYear();
-  let filtered=data.filter(d=>d.tahun===curYear||(d.tahun&&d.tahun>=curYear-1));
+  let filtered=data.filter(d=>d.tahun===selectedIncYear);
   if(selectedMonths.length>0)filtered=filtered.filter(d=>selectedMonths.includes(d.bulan));
   return filtered;
 }
 
 function renderIncentive(){
+  // Update year label
+  const yl=document.getElementById('inc-year-label');
+  if(yl)yl.textContent=selectedIncYear;
   const isSU=isSuperuserInc();
   const myStreamer=getMyStreamer();
 
@@ -2951,7 +2982,7 @@ function renderIncentive(){
   const periodEl=document.getElementById('incentive-period-label');
   if(totalBar){totalBar.style.display=myData.length?'flex':'none';}
   if(totalEl)totalEl.textContent=fRp(grandTotal);
-  if(periodEl)periodEl.textContent=selectedMonths.length?'('+selectedMonths.map(m=>BULAN_NAMES[m]).join(', ')+')':'(semua bulan)';
+  if(periodEl)periodEl.textContent='('+selectedIncYear+(selectedMonths.length?' · '+selectedMonths.map(m=>BULAN_NAMES[m]).join(', '):'')+')'
   const tb=document.getElementById('incentive-tbody');
   if(!tb)return;
   if(!myData.length){tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada data incentive.</td></tr>';return;}
@@ -2985,7 +3016,7 @@ function openIncentiveInput(){
   // Set bulan ke sekarang
   const now=new Date();
   document.getElementById('inc-bulan').value=now.getMonth()+1;
-  document.getElementById('inc-tahun').value=now.getFullYear();
+  document.getElementById('inc-tahun').value=selectedIncYear||now.getFullYear();
   document.getElementById('inc-nominal').value='';
   document.getElementById('inc-catatan').value='';
   document.getElementById('incentive-modal').style.display='flex';
