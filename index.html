@@ -894,14 +894,20 @@ margin-bottom: 4px;
 <div class="card"><div class="ch"><div class="ct">Grafik GMV Harian</div><div class="leg"><div class="li"><div class="ld" style="background:var(--shopee)"></div>Shopee</div><div class="li"><div class="ld" style="background:var(--tiktok)"></div>TikTok</div></div></div><div class="cb"><canvas id="mainChart"></canvas><div id="chart-empty">Belum ada data. Input sesi live dulu!</div></div></div>
 <div class="card" style="display:flex;flex-direction:column;max-height:420px;"><div class="ch"><div class="ct">🏆 Rank Streamer Bulan Ini</div></div><div id="top3-list" style="overflow-y:auto;flex:1;"><div class="empty" style="padding:24px">Belum ada data</div></div></div>
 </div>
-<div class="tcard"><div class="thdr"><div class="ct">Rank Sesi Live</div><span class="badge" id="tcount">0 sesi</span></div>
+<div class="tcard"><div class="thdr" style="display:flex;align-items:center;justify-content:space-between;"><div class="ct">Rank Sesi Live <span style="font-size:11px;color:var(--text3);font-weight:500;">(Top 5)</span></div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge" id="tcount">0 sesi</span>
+            <button onclick="goPage('detail')" style="padding:5px 14px;font-size:12px;font-weight:700;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;cursor:pointer;font-family:var(--font);white-space:nowrap;" onmouseover="this.style.background='var(--blue)'" onmouseout="this.style.background='var(--navy)'">Detail →</button>
+          </div>
+        </div>
 <div class="twrap"><table><thead><tr>
 <th>#</th><th onclick="sortT('name')">Streamer <span class="si">↕</span></th>
 <th onclick="sortT('mp')">MP <span class="si">↕</span></th>
 <th onclick="sortT('gmv')" class="srt">GMV <span class="si">↓</span></th>
+<th onclick="sortT('date')">Tanggal <span class="si">↕</span></th>
 <th onclick="sortT('time')">Jam <span class="si">↕</span></th>
 <th onclick="sortT('duration')">Durasi <span class="si">↕</span></th>
-<th>Tanggal</th><th>Diinput oleh</th><th></th>
+<th>Diinput oleh</th><th></th>
 </tr></thead><tbody id="tbody"><tr><td colspan="9" class="empty">Menghubungkan...</td></tr></tbody></table></div></div>
 </div>
 <div class="page" id="page-aichat">
@@ -919,7 +925,24 @@ margin-bottom: 4px;
 <div class="page" id="page-inputdata">
 <div class="topbar"><div class="pgtitle">Input <span>Data</span></div></div>
 <div class="input-layout">
-<div class="fc"><div class="fct">Tambah Sesi Live</div>
+
+<div class="fc" style="background:var(--off);border-color:var(--border2)">
+  <div class="fct" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+    <span>Import Data via CSV</span>
+    <button onclick="downloadTemplate()" style="padding:5px 12px;font-size:11px;font-weight:700;border-radius:var(--radius-sm);background:var(--green);color:#fff;border:none;cursor:pointer;font-family:var(--font);">⬇ Download Template</button>
+  </div>
+  <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6;">
+    1. Download template CSV di atas → isi data di Excel/Google Sheets → simpan sebagai CSV<br/>
+    2. Upload file CSV di bawah → data akan otomatis masuk ke database
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <input type="file" id="csv-import" accept=".csv" style="flex:1;font-size:13px;font-family:var(--font);padding:6px;" onchange="previewCSV(this)"/>
+    <button onclick="importCSV()" id="import-btn" style="padding:8px 16px;font-size:12px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);white-space:nowrap;opacity:.5;" disabled>Import Data</button>
+  </div>
+  <div id="csv-preview" style="margin-top:10px;"></div>
+</div>
+
+<div class="fc"><div class="fct">Tambah Sesi Live (Manual)</div>
 <div style="margin-bottom:14px"><div class="fl" style="margin-bottom:8px">Marketplace<span class="req-star">*</span></div>
 <div class="mp-sel"><div class="mp-opt shopee on" id="mps" onclick="selMP('Shopee')">Shopee</div><div class="mp-opt tiktok" id="mpt" onclick="selMP('TikTok')">TikTok</div></div></div>
 <div class="fg">
@@ -937,7 +960,8 @@ margin-bottom: 4px;
 <div class="fc" style="background:var(--blue-lt);border-color:var(--blue)">
 <div style="font-size:12px;color:var(--blue);font-weight:600;">Nama streamer dari master data - tidak bisa typo!</div>
 <div style="font-size:11px;color:var(--blue-mid);margin-top:4px;">Belum ada streamer? Tambah dulu di menu Data Streamer.</div>
-</div></div>
+</div>
+</div>
 </div>
 <div class="page" id="page-streamers">
 <div class="topbar"><div><div class="pgtitle">Data <span>Streamer</span></div><div class="pgsub">Master data nama streamer Pandaoma</div></div></div>
@@ -1972,21 +1996,28 @@ function refreshTop3(data){
 function buildChart(data){
   const ctx=document.getElementById('mainChart');
   if(!ctx)return;
+  if(typeof Chart==='undefined'){setTimeout(()=>buildChart(data),300);return;}
   const now=new Date();
   const labels=[],shD=[],tkD=[];
 
-  // Deteksi mode grafik
-  const filtered=filterData(data);
-  const isHourly = AF.customFrom&&AF.customFrom===AF.customTo || AF.period==='today' || AF.period==='yesterday';
+  // Deteksi mode grafik — hourly kalau 1 hari saja
+  const isHourly = (AF.period==='today') || (AF.period==='yesterday') ||
+    (AF.customFrom && AF.customTo && AF.customFrom===AF.customTo);
+  const filtered = filterData(data);
 
   if(isHourly){
     // Mode per jam — sumbu X = 00:00–23:00
-    const targetDate = AF.customFrom || now.toISOString().split('T')[0];
+    // Tentukan tanggal target
+    let targetDate;
+    if(AF.customFrom){targetDate=AF.customFrom;}
+    else if(AF.period==='yesterday'){const y=new Date(now);y.setDate(now.getDate()-1);targetDate=y.toISOString().split('T')[0];}
+    else{targetDate=now.toISOString().split('T')[0];}
+
     for(let h=0;h<24;h++){
       const hStr=(h<10?'0':'')+h+':00';
       labels.push(hStr);
       const inHour=(x)=>{
-        if(x.date!==targetDate)return false;
+        if(!x.date||x.date!==targetDate)return false;
         if(!x.time)return false;
         const xh=parseInt(x.time.split(':')[0],10);
         return xh===h;
@@ -1995,17 +2026,16 @@ function buildChart(data){
       tkD.push(filtered.filter(x=>x.mp==='TikTok'&&inHour(x)).reduce((s,x)=>s+(x.gmv||0),0));
     }
   } else {
-    // Mode per hari — sumbu X = tanggal
-    const days=AF.period==='week'?7:AF.period==='month'?30:30;
+    // Mode per hari
     let startDate,endDate;
     if(AF.customFrom&&AF.customTo){
       startDate=new Date(AF.customFrom);endDate=new Date(AF.customTo);
     } else {
+      const days=AF.period==='week'?7:30;
       endDate=new Date(now);startDate=new Date(now);
       startDate.setDate(now.getDate()-(days-1));
     }
-    const msDay=864e5;
-    const numDays=Math.round((endDate-startDate)/msDay)+1;
+    const numDays=Math.round((endDate-startDate)/864e5)+1;
     for(let i=0;i<numDays;i++){
       const d=new Date(startDate);d.setDate(startDate.getDate()+i);
       const ds=d.toISOString().split('T')[0];
@@ -2015,7 +2045,8 @@ function buildChart(data){
     }
   }
   const hasData=[...shD,...tkD].some(v=>v>0);
-  document.getElementById('chart-empty').style.display=hasData?'none':'block';
+  const chartEmpty=document.getElementById('chart-empty');
+  if(chartEmpty)chartEmpty.style.display=hasData?'none':'block';
   ctx.style.display=hasData?'block':'none';
   const ds=[];
   if(AF.shopee)ds.push({label:'Shopee',data:shD,borderColor:'#ee4d2d',backgroundColor:'rgba(238,77,45,.07)',tension:.4,fill:true,pointRadius:3,pointHoverRadius:5});
@@ -2572,6 +2603,119 @@ function exportCSV(){
   a.download='liveos-sesi-'+new Date().toISOString().split('T')[0]+'.csv';
   a.click();
   showToast('CSV berhasil diexport!');
+}
+
+// ── CSV IMPORT & TEMPLATE ──
+const CSV_TEMPLATE_HEADERS = 'Nama Streamer,Marketplace,Tanggal (YYYY-MM-DD),Jam Mulai (HH:MM),Durasi (menit),GMV (angka tanpa titik),Catatan';
+const CSV_TEMPLATE_EXAMPLE = [
+  'Rora,Shopee,2026-05-18,19:00,120,32000000,flash sale',
+  'Adena,TikTok,2026-05-18,20:00,90,15000000,',
+  'Savira,Shopee,2026-05-19,09:00,60,8500000,giveaway'
+].join('\n');
+
+function downloadTemplate(){
+  const csv = CSV_TEMPLATE_HEADERS + '\n' + CSV_TEMPLATE_EXAMPLE;
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'template-import-liveos.csv';
+  a.click();
+  showToast('Template CSV berhasil didownload!');
+}
+
+let parsedCSVRows = [];
+
+function previewCSV(input){
+  const file = input.files[0];
+  if(!file){return;}
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    const lines = text.split('\n').filter(l=>l.trim());
+    if(lines.length<2){showToast('File CSV kosong atau format salah!',true);return;}
+
+    // Skip header row
+    const dataLines = lines.slice(1);
+    parsedCSVRows = [];
+    const errors = [];
+    const validMPs = ['Shopee','TikTok'];
+    const streamerNames = allStreamers.map(s=>s.name.toLowerCase());
+
+    dataLines.forEach((line,idx)=>{
+      if(!line.trim())return;
+      const cols = line.split(',');
+      if(cols.length<6){errors.push('Baris '+(idx+2)+': kolom tidak lengkap');return;}
+      const [name,mp,date,time,dur,gmv,note=''] = cols.map(c=>c.trim().replace(/^"+|"+$/g,''));
+      if(!name){errors.push('Baris '+(idx+2)+': nama streamer kosong');return;}
+      if(!validMPs.includes(mp)){errors.push('Baris '+(idx+2)+': marketplace harus "Shopee" atau "TikTok"');return;}
+      if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){errors.push('Baris '+(idx+2)+': format tanggal harus YYYY-MM-DD');return;}
+      const gmvNum = parseFloat(gmv.replace(/[^0-9.]/g,''));
+      if(isNaN(gmvNum)||gmvNum<=0){errors.push('Baris '+(idx+2)+': GMV tidak valid');return;}
+
+      // Match streamer
+      const streamer = allStreamers.find(s=>s.name.toLowerCase()===name.toLowerCase());
+      if(!streamer){errors.push('Baris '+(idx+2)+': streamer "'+name+'" tidak ditemukan di master data');return;}
+
+      parsedCSVRows.push({
+        streamerId:streamer.id, streamerName:streamer.name,
+        mp, date, time:time||'', dur:parseFloat(dur)||0,
+        gmv:gmvNum, note:note||''
+      });
+    });
+
+    const preview = document.getElementById('csv-preview');
+    const importBtn = document.getElementById('import-btn');
+
+    if(errors.length>0){
+      preview.innerHTML = '<div style="background:var(--red-bg);border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--red);line-height:1.8;">'
+        +'<strong>⚠️ Ada '+errors.length+' error:</strong><br/>'+errors.join('<br/>')+'</div>';
+    }
+
+    if(parsedCSVRows.length>0){
+      importBtn.disabled = false;
+      importBtn.style.opacity = '1';
+      const successHtml = '<div style="background:var(--green-bg);border:1px solid #a7f3d0;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--green);margin-top:6px;">'
+        +'✅ <strong>'+parsedCSVRows.length+' baris siap diimport</strong>'
+        +(errors.length?' ('+errors.length+' baris error diskip)':'')+'<br/>'
+        + parsedCSVRows.slice(0,3).map(r=>r.streamerName+' | '+r.mp+' | '+r.date+' | GMV '+fRp(r.gmv)).join('<br/>')
+        +(parsedCSVRows.length>3?'<br/>...dan '+(parsedCSVRows.length-3)+' baris lainnya':'')
+        +'</div>';
+      preview.innerHTML = (errors.length>0?preview.innerHTML:'') + successHtml;
+    } else {
+      importBtn.disabled = true;
+      importBtn.style.opacity = '.5';
+    }
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+async function importCSV(){
+  if(!parsedCSVRows.length){showToast('Tidak ada data valid untuk diimport!',true);return;}
+  const btn = document.getElementById('import-btn');
+  btn.disabled=true; btn.textContent='Mengimport...';
+
+  let success=0, fail=0;
+  const byName = currentUser?.displayName||currentUser?.email?.split('@')[0]||'';
+
+  // Import semua baris secara parallel (batch)
+  const promises = parsedCSVRows.map(row =>
+    db.collection('sessions').add({
+      ...row,
+      by: byName + ' (import CSV)',
+      createdAt: new Date().toISOString()
+    }).then(()=>success++).catch(()=>fail++)
+  );
+
+  await Promise.all(promises);
+
+  btn.textContent='Import Data';
+  parsedCSVRows=[];
+  document.getElementById('csv-import').value='';
+  document.getElementById('csv-preview').innerHTML='';
+  btn.disabled=true; btn.style.opacity='.5';
+
+  if(success>0) showToast('✅ '+success+' sesi berhasil diimport!'+(fail?' ('+fail+' gagal)':''));
+  else showToast('❌ Import gagal. Coba lagi.',true);
 }
 
 </script>
