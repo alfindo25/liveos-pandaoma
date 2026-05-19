@@ -1751,6 +1751,8 @@ auth.onAuthStateChanged(async(user)=>{
     startListeners();
     startIncentiveListener();
     setTimeout(loadChatHistory, 800);
+    // Re-render streamer list after currentUser is confirmed (for isSU check)
+    setTimeout(renderStreamerList, 1500);
   }else{
     currentUser=null;
     document.getElementById('login-screen').classList.add('show');
@@ -1868,6 +1870,7 @@ function goPage(p){
   if(p==='incentive')renderIncentive();
   if(p==='setting'){loadGroqKey();loadPendingUsers();}
   if(p==='streamers'){
+    renderStreamerList();
     const addForm=document.getElementById('add-streamer-form');
     if(addForm)addForm.style.display=(currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com')?'block':'none';
   }
@@ -1890,8 +1893,13 @@ async function addStreamer(){
 }
 
 function openEditStreamer(id){
+  // Cek superuser
+  if(!currentUser||currentUser.email!=='alfindo.ixa.2537@gmail.com'){
+    showToast('Hanya admin yang bisa edit streamer.',true);
+    return;
+  }
   const s=allStreamers.find(x=>x.id===id);
-  if(!s)return;
+  if(!s){showToast('Data tidak ditemukan.',true);return;}
   document.getElementById('edit-streamer-id').value=id;
   document.getElementById('es-name').value=s.name||'';
   document.getElementById('es-role').value=s.role||'';
