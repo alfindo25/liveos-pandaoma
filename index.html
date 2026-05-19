@@ -794,6 +794,7 @@ margin-bottom: 4px;
 .step-card { padding: 18px; }
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div id="loading-screen">
@@ -838,12 +839,12 @@ margin-bottom: 4px;
 <div class="snav">
 <div class="nsec">Menu</div>
 <button class="ni active" onclick="goPage('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
+<button class="ni" onclick="goPage('detail')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Detail Sesi</button>
 <button class="ni" onclick="goPage('aichat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</button>
 <button class="ni" onclick="goPage('inputdata')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Input Data</button>
-      <button class="ni" onclick="goPage('panduan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan</button>
-      <button class="ni" onclick="goPage('detail')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Detail Sesi</button>
-      <button class="ni" onclick="goPage('sop')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
-      <button class="ni" onclick="goPage('produk')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
+<button class="ni" onclick="goPage('sop')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
+<button class="ni" onclick="goPage('produk')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
+<button class="ni" onclick="goPage('panduan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan LiveOS</button>
 <div class="nsec" style="margin-top:6px">Master Data</div>
 <button class="ni" onclick="goPage('streamers')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Data Streamer</button>
 <div class="nsec" style="margin-top:6px">Lainnya</div>
@@ -927,19 +928,19 @@ margin-bottom: 4px;
 <div class="input-layout">
 
 <div class="fc" style="background:var(--off);border-color:var(--border2)">
-  <div class="fct" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
-    <span>Import Data via CSV</span>
-    <button onclick="downloadTemplate()" style="padding:5px 12px;font-size:11px;font-weight:700;border-radius:var(--radius-sm);background:var(--green);color:#fff;border:none;cursor:pointer;font-family:var(--font);">⬇ Download Template</button>
-  </div>
-  <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6;">
-    1. Download template CSV di atas → isi data di Excel/Google Sheets → simpan sebagai CSV<br/>
-    2. Upload file CSV di bawah → data akan otomatis masuk ke database
-  </div>
-  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-    <input type="file" id="csv-import" accept=".csv" style="flex:1;font-size:13px;font-family:var(--font);padding:6px;" onchange="previewCSV(this)"/>
-    <button onclick="importCSV()" id="import-btn" style="padding:8px 16px;font-size:12px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);white-space:nowrap;opacity:.5;" disabled>Import Data</button>
-  </div>
-  <div id="csv-preview" style="margin-top:10px;"></div>
+<div class="fct" style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+<span>Import Data via Excel</span>
+<button onclick="downloadTemplate()" style="padding:5px 12px;font-size:11px;font-weight:700;border-radius:var(--radius-sm);background:var(--green);color:#fff;border:none;cursor:pointer;font-family:var(--font);">⬇ Download Template .xlsx</button>
+</div>
+<div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.7;">
+1. Download template Excel → isi data di Excel/Google Sheets → simpan<br/>
+2. Upload file .xlsx di bawah → lihat preview → klik Import
+</div>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+<input type="file" id="csv-import" accept=".xlsx,.xls" style="flex:1;font-size:13px;font-family:var(--font);padding:6px;" onchange="previewExcel(this)"/>
+<button onclick="importExcel()" id="import-btn" style="padding:8px 16px;font-size:12px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);white-space:nowrap;opacity:.5;" disabled>Import Data</button>
+</div>
+<div id="csv-preview" style="margin-top:10px;"></div>
 </div>
 
 <div class="fc"><div class="fct">Tambah Sesi Live (Manual)</div>
@@ -1654,7 +1655,7 @@ function goPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.ni,.mni').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
-  const pages=['dashboard','aichat','inputdata','panduan','detail','sop','produk','streamers','setting'];
+  const pages=['dashboard','detail','aichat','inputdata','sop','produk','panduan','streamers','setting'];
   document.querySelectorAll('.ni')[pages.indexOf(p)]?.classList.add('active');
   const mn=document.getElementById('mn-'+p);
   if(mn)mn.classList.add('active');
@@ -1996,42 +1997,30 @@ function refreshTop3(data){
 function buildChart(data){
   const ctx=document.getElementById('mainChart');
   if(!ctx)return;
-  if(typeof Chart==='undefined'){setTimeout(()=>buildChart(data),300);return;}
+  if(typeof Chart==='undefined'){setTimeout(()=>buildChart(data),400);return;}
   const now=new Date();
+  const filtered=filterData(data);
   const labels=[],shD=[],tkD=[];
 
-  // Deteksi mode grafik — hourly kalau 1 hari saja
-  const isHourly = (AF.period==='today') || (AF.period==='yesterday') ||
-    (AF.customFrom && AF.customTo && AF.customFrom===AF.customTo);
-  const filtered = filterData(data);
+  // Determine period
+  const isCustomSingle=AF.customFrom&&AF.customTo&&AF.customFrom===AF.customTo;
+  const isToday=AF.period==='today';
 
-  if(isHourly){
-    // Mode per jam — sumbu X = 00:00–23:00
-    // Tentukan tanggal target
-    let targetDate;
-    if(AF.customFrom){targetDate=AF.customFrom;}
-    else if(AF.period==='yesterday'){const y=new Date(now);y.setDate(now.getDate()-1);targetDate=y.toISOString().split('T')[0];}
-    else{targetDate=now.toISOString().split('T')[0];}
-
+  if(isToday||isCustomSingle){
+    // Per jam
+    const targetDate=AF.customFrom||now.toISOString().split('T')[0];
     for(let h=0;h<24;h++){
-      const hStr=(h<10?'0':'')+h+':00';
-      labels.push(hStr);
-      const inHour=(x)=>{
-        if(!x.date||x.date!==targetDate)return false;
-        if(!x.time)return false;
-        const xh=parseInt(x.time.split(':')[0],10);
-        return xh===h;
-      };
-      shD.push(filtered.filter(x=>x.mp==='Shopee'&&inHour(x)).reduce((s,x)=>s+(x.gmv||0),0));
-      tkD.push(filtered.filter(x=>x.mp==='TikTok'&&inHour(x)).reduce((s,x)=>s+(x.gmv||0),0));
+      labels.push((h<10?'0':'')+h+':00');
+      shD.push(filtered.filter(x=>x.mp==='Shopee'&&x.date===targetDate&&x.time&&parseInt(x.time.split(':')[0],10)===h).reduce((s,x)=>s+(x.gmv||0),0));
+      tkD.push(filtered.filter(x=>x.mp==='TikTok'&&x.date===targetDate&&x.time&&parseInt(x.time.split(':')[0],10)===h).reduce((s,x)=>s+(x.gmv||0),0));
     }
   } else {
-    // Mode per hari
+    // Per hari — max sesuai filter
     let startDate,endDate;
     if(AF.customFrom&&AF.customTo){
       startDate=new Date(AF.customFrom);endDate=new Date(AF.customTo);
     } else {
-      const days=AF.period==='week'?7:30;
+      const days=AF.period==='month'?30:7;
       endDate=new Date(now);startDate=new Date(now);
       startDate.setDate(now.getDate()-(days-1));
     }
@@ -2044,6 +2033,7 @@ function buildChart(data){
       tkD.push(filtered.filter(x=>x.mp==='TikTok'&&x.date===ds).reduce((s,x)=>s+(x.gmv||0),0));
     }
   }
+
   const hasData=[...shD,...tkD].some(v=>v>0);
   const chartEmpty=document.getElementById('chart-empty');
   if(chartEmpty)chartEmpty.style.display=hasData?'none':'block';
@@ -2052,19 +2042,9 @@ function buildChart(data){
   if(AF.shopee)ds.push({label:'Shopee',data:shD,borderColor:'#ee4d2d',backgroundColor:'rgba(238,77,45,.07)',tension:.4,fill:true,pointRadius:3,pointHoverRadius:5});
   if(AF.tiktok)ds.push({label:'TikTok',data:tkD,borderColor:'#0a7abf',backgroundColor:'rgba(10,122,191,.07)',tension:.4,fill:true,pointRadius:3,pointHoverRadius:5,borderDash:[4,2]});
   if(chartInst){chartInst.destroy();chartInst=null;}
-  chartInst=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fRp(c.raw)}}},scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#94a3b8',font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#94a3b8',font:{size:10},callback:v=>fRpS(v)}}}}});
+  chartInst=new Chart(ctx,{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fRp(c.raw)}}},scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#94a3b8',font:{size:10},maxRotation:45}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#94a3b8',font:{size:10},callback:v=>fRpS(v)}}}}}); 
 }
 
-function sortT(col){
-  if(SC===col)SD*=-1;else{SC=col;SD=-1;}
-  document.querySelectorAll('thead th .si').forEach(el=>el.textContent='sort');
-  document.querySelectorAll('thead th').forEach(el=>el.classList.remove('srt'));
-  const cols=['rank','name','mp','gmv','time','duration'];
-  const idx=cols.indexOf(col);
-  const ths=document.querySelectorAll('thead th');
-  if(ths[idx+1]){ths[idx+1].classList.add('srt');ths[idx+1].querySelector('.si').textContent=SD===1?'asc':'desc';}
-  renderTable(filterData(allSessions));
-}
 
 function renderTable(data,limitTop5=true){
   const sorted=[...data].sort((a,b)=>{
@@ -2605,117 +2585,97 @@ function exportCSV(){
   showToast('CSV berhasil diexport!');
 }
 
-// ── CSV IMPORT & TEMPLATE ──
-const CSV_TEMPLATE_HEADERS = 'Nama Streamer,Marketplace,Tanggal (YYYY-MM-DD),Jam Mulai (HH:MM),Durasi (menit),GMV (angka tanpa titik),Catatan';
-const CSV_TEMPLATE_EXAMPLE = [
-  'Rora,Shopee,2026-05-18,19:00,120,32000000,flash sale',
-  'Adena,TikTok,2026-05-18,20:00,90,15000000,',
-  'Savira,Shopee,2026-05-19,09:00,60,8500000,giveaway'
-].join('\n');
-
+// ── EXCEL IMPORT & TEMPLATE ──
 function downloadTemplate(){
-  const csv = CSV_TEMPLATE_HEADERS + '\n' + CSV_TEMPLATE_EXAMPLE;
-  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'template-import-liveos.csv';
-  a.click();
-  showToast('Template CSV berhasil didownload!');
+  if(typeof XLSX==='undefined'){showToast('Library belum siap, coba refresh.',true);return;}
+  const wb=XLSX.utils.book_new();
+  const wsData=[
+    ['Nama Streamer','Marketplace','Tanggal (YYYY-MM-DD)','Jam Mulai (HH:MM)','Durasi (menit)','GMV (angka tanpa titik)','Catatan'],
+    ['Rora','Shopee','2026-05-18','19:00',120,32000000,'flash sale'],
+    ['Adena','TikTok','2026-05-19','20:00',90,15000000,''],
+    ['Savira','Shopee','2026-05-20','09:00',60,8500000,'giveaway'],
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols']=[{wch:20},{wch:12},{wch:20},{wch:15},{wch:15},{wch:22},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws,'Data Sesi Live');
+  XLSX.writeFile(wb,'template-import-liveos.xlsx');
+  showToast('Template Excel berhasil didownload!');
 }
 
-let parsedCSVRows = [];
+let parsedCSVRows=[];
 
-function previewCSV(input){
-  const file = input.files[0];
-  if(!file){return;}
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const text = e.target.result;
-    const lines = text.split('\n').filter(l=>l.trim());
-    if(lines.length<2){showToast('File CSV kosong atau format salah!',true);return;}
-
-    // Skip header row
-    const dataLines = lines.slice(1);
-    parsedCSVRows = [];
-    const errors = [];
-    const validMPs = ['Shopee','TikTok'];
-    const streamerNames = allStreamers.map(s=>s.name.toLowerCase());
-
-    dataLines.forEach((line,idx)=>{
-      if(!line.trim())return;
-      const cols = line.split(',');
-      if(cols.length<6){errors.push('Baris '+(idx+2)+': kolom tidak lengkap');return;}
-      const [name,mp,date,time,dur,gmv,note=''] = cols.map(c=>c.trim().replace(/^"+|"+$/g,''));
-      if(!name){errors.push('Baris '+(idx+2)+': nama streamer kosong');return;}
-      if(!validMPs.includes(mp)){errors.push('Baris '+(idx+2)+': marketplace harus "Shopee" atau "TikTok"');return;}
-      if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)){errors.push('Baris '+(idx+2)+': format tanggal harus YYYY-MM-DD');return;}
-      const gmvNum = parseFloat(gmv.replace(/[^0-9.]/g,''));
-      if(isNaN(gmvNum)||gmvNum<=0){errors.push('Baris '+(idx+2)+': GMV tidak valid');return;}
-
-      // Match streamer
-      const streamer = allStreamers.find(s=>s.name.toLowerCase()===name.toLowerCase());
-      if(!streamer){errors.push('Baris '+(idx+2)+': streamer "'+name+'" tidak ditemukan di master data');return;}
-
-      parsedCSVRows.push({
-        streamerId:streamer.id, streamerName:streamer.name,
-        mp, date, time:time||'', dur:parseFloat(dur)||0,
-        gmv:gmvNum, note:note||''
+function previewExcel(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(typeof XLSX==='undefined'){showToast('Library belum siap, refresh halaman.',true);return;}
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=new Uint8Array(e.target.result);
+      const wb=XLSX.read(data,{type:'array',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false,dateNF:'YYYY-MM-DD'});
+      if(rows.length<2){showToast('File Excel kosong!',true);return;}
+      parsedCSVRows=[];
+      const errors=[];
+      rows.slice(1).forEach(function(cols,idx){
+        const name=String(cols[0]||'').trim();
+        const mp=String(cols[1]||'').trim();
+        let date=String(cols[2]||'').trim();
+        const time=String(cols[3]||'').trim();
+        const dur=parseFloat(cols[4])||0;
+        const gmvRaw=String(cols[5]||'').replace(/[^0-9.]/g,'');
+        const gmv=parseFloat(gmvRaw)||0;
+        const note=String(cols[6]||'').trim();
+        if(!name&&!gmvRaw)return;
+        if(!name){errors.push('Baris '+(idx+2)+': nama kosong');return;}
+        if(mp!=='Shopee'&&mp!=='TikTok'){errors.push('Baris '+(idx+2)+': MP harus Shopee/TikTok, dapat: '+mp);return;}
+        // Normalize date format
+        if(date.includes('/')){date=date.split('/').reverse().join('-');}
+        if(!date.match(/^\d{4}-\d{2}-\d{2}$/)){errors.push('Baris '+(idx+2)+': format tanggal harus YYYY-MM-DD, dapat: '+date);return;}
+        if(!gmv){errors.push('Baris '+(idx+2)+': GMV tidak valid');return;}
+        const streamer=allStreamers.find(function(s){return s.name.toLowerCase()===name.toLowerCase();});
+        if(!streamer){errors.push('Baris '+(idx+2)+': streamer "'+name+'" tidak ada di master data');return;}
+        parsedCSVRows.push({streamerId:streamer.id,streamerName:streamer.name,mp:mp,date:date,time:time,dur:dur,gmv:gmv,note:note});
       });
-    });
-
-    const preview = document.getElementById('csv-preview');
-    const importBtn = document.getElementById('import-btn');
-
-    if(errors.length>0){
-      preview.innerHTML = '<div style="background:var(--red-bg);border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--red);line-height:1.8;">'
-        +'<strong>⚠️ Ada '+errors.length+' error:</strong><br/>'+errors.join('<br/>')+'</div>';
-    }
-
-    if(parsedCSVRows.length>0){
-      importBtn.disabled = false;
-      importBtn.style.opacity = '1';
-      const successHtml = '<div style="background:var(--green-bg);border:1px solid #a7f3d0;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--green);margin-top:6px;">'
-        +'✅ <strong>'+parsedCSVRows.length+' baris siap diimport</strong>'
-        +(errors.length?' ('+errors.length+' baris error diskip)':'')+'<br/>'
-        + parsedCSVRows.slice(0,3).map(r=>r.streamerName+' | '+r.mp+' | '+r.date+' | GMV '+fRp(r.gmv)).join('<br/>')
-        +(parsedCSVRows.length>3?'<br/>...dan '+(parsedCSVRows.length-3)+' baris lainnya':'')
-        +'</div>';
-      preview.innerHTML = (errors.length>0?preview.innerHTML:'') + successHtml;
-    } else {
-      importBtn.disabled = true;
-      importBtn.style.opacity = '.5';
-    }
+      const preview=document.getElementById('csv-preview');
+      const importBtn=document.getElementById('import-btn');
+      let html2='';
+      if(errors.length>0){
+        html2+='<div style="background:var(--red-bg);border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--red);line-height:1.8;"><strong>Ada '+errors.length+' baris error (diskip):</strong><br/>'+errors.join('<br/>')+'</div>';
+      }
+      if(parsedCSVRows.length>0){
+        importBtn.disabled=false;importBtn.style.opacity='1';
+        html2+='<div style="background:var(--green-bg);border:1px solid #a7f3d0;border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--green);margin-top:6px;"><strong>'+parsedCSVRows.length+' baris siap diimport</strong>'+(errors.length?' ('+errors.length+' diskip)':'')+'<br/>'+parsedCSVRows.slice(0,3).map(function(r){return r.streamerName+' | '+r.mp+' | '+r.date+' | '+fRp(r.gmv);}).join('<br/>')+(parsedCSVRows.length>3?'<br/>...dan '+(parsedCSVRows.length-3)+' lainnya':'')+'</div>';
+      } else {
+        importBtn.disabled=true;importBtn.style.opacity='.5';
+      }
+      preview.innerHTML=html2;
+    }catch(err){showToast('Gagal baca file: '+err.message,true);}
   };
-  reader.readAsText(file,'UTF-8');
+  reader.readAsArrayBuffer(file);
 }
 
-async function importCSV(){
-  if(!parsedCSVRows.length){showToast('Tidak ada data valid untuk diimport!',true);return;}
-  const btn = document.getElementById('import-btn');
-  btn.disabled=true; btn.textContent='Mengimport...';
-
-  let success=0, fail=0;
-  const byName = currentUser?.displayName||currentUser?.email?.split('@')[0]||'';
-
-  // Import semua baris secara parallel (batch)
-  const promises = parsedCSVRows.map(row =>
-    db.collection('sessions').add({
-      ...row,
-      by: byName + ' (import CSV)',
-      createdAt: new Date().toISOString()
-    }).then(()=>success++).catch(()=>fail++)
-  );
-
+async function importExcel(){
+  if(!parsedCSVRows.length){showToast('Tidak ada data valid!',true);return;}
+  const btn=document.getElementById('import-btn');
+  btn.disabled=true;btn.textContent='Mengimport...';
+  const byName=(currentUser&&currentUser.displayName)||((currentUser&&currentUser.email)||'').split('@')[0]||'';
+  let success=0,fail=0;
+  const promises=parsedCSVRows.map(function(row){
+    return db.collection('sessions').add(Object.assign({},row,{
+      by:byName+' (import Excel)',
+      createdAt:new Date().toISOString()
+    })).then(function(){success++;}).catch(function(){fail++;});
+  });
   await Promise.all(promises);
-
   btn.textContent='Import Data';
   parsedCSVRows=[];
   document.getElementById('csv-import').value='';
   document.getElementById('csv-preview').innerHTML='';
-  btn.disabled=true; btn.style.opacity='.5';
-
-  if(success>0) showToast('✅ '+success+' sesi berhasil diimport!'+(fail?' ('+fail+' gagal)':''));
-  else showToast('❌ Import gagal. Coba lagi.',true);
+  btn.disabled=true;btn.style.opacity='.5';
+  if(success>0)showToast(success+' sesi berhasil diimport!'+(fail?' ('+fail+' gagal)':''));
+  else showToast('Import gagal. Coba lagi.',true);
 }
 
 </script>
