@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -1535,6 +1536,36 @@ margin-bottom: 4px;
 <div class="sr"><div><div class="sk">Riwayat AI Chat</div><div class="sdesc">Tersimpan di browser ini</div></div><button onclick="clearChatHistory()" class="dbtn" style="font-size:11px;padding:5px 12px;">Hapus Riwayat</button></div>
 <div class="sr"><div><div class="sk">Versi</div></div><div class="sv">LiveOS v3.1</div></div>
 </div>
+<!-- EDIT STREAMER MODAL -->
+<div id="edit-streamer-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:440px;box-shadow:0 8px 40px rgba(15,31,61,.18);">
+    <div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+      ✏️ Edit Streamer
+      <button onclick="closeEditStreamer()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);">&#215;</button>
+    </div>
+    <input type="hidden" id="edit-streamer-id"/>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label class="fl">Nama Lengkap<span class="req-star">*</span></label>
+        <input class="fi" id="es-name" type="text" placeholder="cth. Rora"/>
+      </div>
+      <div>
+        <label class="fl">Role / Jabatan</label>
+        <input class="fi" id="es-role" type="text" placeholder="cth. Host Utama"/>
+      </div>
+      <div>
+        <label class="fl">Email Login Streamer</label>
+        <input class="fi" id="es-email" type="email" placeholder="rora@pandaoma.com"/>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">Email ini digunakan untuk akses menu Incentive</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+      <button onclick="closeEditStreamer()" style="padding:9px 18px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">Batal</button>
+      <button onclick="saveEditStreamer()" style="padding:9px 20px;border-radius:var(--radius-sm);background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
 <div class="sc2" id="approve-users-section" style="display:none">
 <div class="stitle">Approve User Baru</div>
 <div id="pending-users-list"><div style="font-size:13px;color:var(--text3);padding:8px 0;">Memuat...</div></div>
@@ -1857,6 +1888,44 @@ async function addStreamer(){
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
+function openEditStreamer(id){
+  const s=allStreamers.find(x=>x.id===id);
+  if(!s)return;
+  document.getElementById('edit-streamer-id').value=id;
+  document.getElementById('es-name').value=s.name||'';
+  document.getElementById('es-role').value=s.role||'';
+  document.getElementById('es-email').value=s.email||'';
+  document.getElementById('edit-streamer-modal').style.display='flex';
+}
+
+function closeEditStreamer(){
+  document.getElementById('edit-streamer-modal').style.display='none';
+}
+
+async function saveEditStreamer(){
+  const id=document.getElementById('edit-streamer-id').value;
+  const name=document.getElementById('es-name').value.trim();
+  const role=document.getElementById('es-role').value.trim();
+  const email=document.getElementById('es-email').value.trim();
+  if(!id){showToast('Error: ID tidak ditemukan.',true);return;}
+  if(!name){showToast('Nama wajib diisi!',true);return;}
+  try{
+    await db.collection('streamers').doc(id).update({
+      name,
+      role:role||'Streamer',
+      email:email||'',
+      updatedAt:new Date().toISOString()
+    });
+    closeEditStreamer();
+    showToast('✅ Data '+name+' berhasil diupdate!');
+  }catch(e){showToast('Gagal update: '+e.message,true);}
+}
+
+// Close modal on overlay click
+document.addEventListener('click',function(e){
+  if(e.target&&e.target.id==='edit-streamer-modal')closeEditStreamer();
+});
+
 async function deleteStreamer(id,name){
   if(!currentUser||currentUser.email!=='alfindo.ixa.2537@gmail.com'){showToast('Hanya admin yang bisa menghapus streamer.',true);return;}
   if(!confirm('Hapus "'+name+'" dari master data?'))return;
@@ -1874,14 +1943,20 @@ function renderStreamerList(){
   });
   el.innerHTML=allStreamers.map(s=>{
     const st=gmvMap[s.id]||{gmv:0,n:0};
+    const emailBadge=s.email
+      ?'<span style="font-size:10px;color:var(--blue);background:var(--blue-lt);padding:1px 6px;border-radius:8px;margin-left:4px;">'+s.email+'</span>'
+      :'<span style="color:var(--red);font-size:10px;font-weight:600;margin-left:4px;">⚠ belum ada email</span>';
     return '<div class="streamer-card">'
       +'<div class="sc-av">'+s.name[0].toUpperCase()+'</div>'
-      +'<div class="sc-info"><div class="sc-name">'+s.name+'</div><div class="sc-role">'+(s.role||'Streamer')+'</div>'
-      +(st.n>0?'<div class="sc-stats">'+fRpS(st.gmv)+' - '+st.n+' sesi</div>':'')
+      +'<div class="sc-info"><div class="sc-name">'+s.name+'</div>'
+      +'<div class="sc-role">'+(s.role||'Streamer')+emailBadge+'</div>'
+      +(st.n>0?'<div class="sc-stats">'+fRpS(st.gmv)+' · '+st.n+' sesi</div>':'')
       +'</div>'
-      +'<button class="sc-del" onclick="deleteStreamer(\''+s.id+'\',\''+s.name+'\')">'
+      +'<div style="display:flex;gap:6px;flex-shrink:0;">'
+      +'<button class="edit-row" onclick="openEditStreamer(''+s.id+'')" style="font-size:11px;padding:4px 10px;">Edit</button>'
+      +'<button class="sc-del" onclick="deleteStreamer(''+s.id+'',''+s.name+'')">'
       +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'
-      +'</button></div>';
+      +'</button></div></div>';
   }).join('');
 }
 
