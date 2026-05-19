@@ -266,8 +266,8 @@ tbody td{padding:12px 16px;white-space:nowrap;}
 .sop-hero-label{display:inline-block;background:var(--blue-lt);color:var(--blue);font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;margin-bottom:10px;letter-spacing:.4px;}
 .sop-hero h2{font-size:22px;font-weight:800;color:var(--navy);margin:0 0 6px;line-height:1.3;font-family:'Plus Jakarta Sans',sans-serif;}
 .sop-hero p{font-size:14px;color:var(--text2);margin:0;}
-.sop-sec-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin:1.5rem 0 10px;display:flex;align-items:center;gap:8px;}
-.sop-sec-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.sop-sec-label{font-size:16px;font-weight:800;color:var(--navy);margin:1.8rem 0 12px;display:flex;align-items:center;gap:10px;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.2px;}
+.sop-sec-label::after{content:'';flex:1;height:2px;background:var(--border);border-radius:2px;}
 .sop-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px;}
 .sop-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;}
 .sop-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc-accent,var(--blue));border-radius:var(--radius) var(--radius) 0 0;}
@@ -842,7 +842,8 @@ margin-bottom: 4px;
 <button class="ni" onclick="goPage('detail')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Detail Sesi</button>
 <button class="ni" onclick="goPage('aichat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</button>
 <button class="ni" onclick="goPage('inputdata')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Input Data</button>
-<button class="ni" onclick="goPage('sop')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
+<button class="ni" onclick="goPage('incentive')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Incentive</button>
+      <button class="ni" onclick="goPage('sop')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
 <button class="ni" onclick="goPage('produk')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
 <button class="ni" onclick="goPage('panduan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan LiveOS</button>
 <div class="nsec" style="margin-top:6px">Master Data</div>
@@ -1294,8 +1295,91 @@ margin-bottom: 4px;
   </div>
 </div>
 </div>
+<div class="page" id="page-incentive">
+<div class="topbar">
+  <div><div class="pgtitle">💰 <span>Incentive</span></div><div class="pgsub" id="incentive-subtitle">Data incentive bulanan streamer</div></div>
+  <div id="incentive-admin-btn" style="display:none">
+    <button onclick="openIncentiveInput()" style="padding:8px 18px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);">+ Input Incentive</button>
+  </div>
+</div>
+
+<!-- FILTER BULAN -->
+<div style="margin-bottom:18px">
+  <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">Filter Bulan</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;" id="month-filter-btns">
+    <button class="chip" id="mf-1" onclick="toggleMonthFilter(1)">Jan</button><button class="chip" id="mf-2" onclick="toggleMonthFilter(2)">Feb</button><button class="chip" id="mf-3" onclick="toggleMonthFilter(3)">Mar</button><button class="chip" id="mf-4" onclick="toggleMonthFilter(4)">Apr</button><button class="chip" id="mf-5" onclick="toggleMonthFilter(5)">Mei</button><button class="chip" id="mf-6" onclick="toggleMonthFilter(6)">Jun</button><button class="chip" id="mf-7" onclick="toggleMonthFilter(7)">Jul</button><button class="chip" id="mf-8" onclick="toggleMonthFilter(8)">Agu</button><button class="chip" id="mf-9" onclick="toggleMonthFilter(9)">Sep</button><button class="chip" id="mf-10" onclick="toggleMonthFilter(10)">Okt</button><button class="chip" id="mf-11" onclick="toggleMonthFilter(11)">Nov</button><button class="chip" id="mf-12" onclick="toggleMonthFilter(12)">Des</button>
+    <button onclick="clearMonthFilter()" style="padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--text2);cursor:pointer;">Reset</button>
+  </div>
+</div>
+
+<div id="incentive-summary-cards"></div>
+
+<!-- DETAIL TABLE -->
+<div id="incentive-total-bar" style="display:none;margin-bottom:12px;padding:12px 16px;background:var(--green-bg);border:1px solid #a7f3d0;border-radius:var(--radius);display:flex;align-items:center;gap:12px;">
+  <span style="font-size:13px;font-weight:700;color:var(--green)">Total Incentive: <span id="incentive-grand-total">Rp 0</span></span>
+  <span style="font-size:12px;color:var(--green);opacity:.7" id="incentive-period-label"></span>
+</div>
+<div class="tcard" id="incentive-table-wrap">
+  <div class="thdr"><div class="ct">Riwayat Incentive</div><span class="badge" id="incentive-total-badge">-</span></div>
+  <div class="twrap">
+    <table>
+      <thead><tr>
+        <th>Streamer</th>
+        <th>Periode</th>
+        <th>Nominal</th>
+        <th>Catatan</th>
+        <th>Diinput oleh</th>
+        <th id="incentive-aksi-col" style="display:none">Aksi</th>
+      </tr></thead>
+      <tbody id="incentive-tbody"><tr><td colspan="7" class="empty">Memuat data...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- INPUT MODAL (superuser only) -->
+<div id="incentive-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:460px;box-shadow:0 8px 40px rgba(15,31,61,.18);">
+    <div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+      💰 Input Incentive
+      <button onclick="closeIncentiveInput()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);">&#215;</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label class="fl">Streamer</label>
+        <select class="fi" id="inc-streamer" style="cursor:pointer">
+          <option value="">-- Pilih Streamer --</option>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label class="fl">Bulan</label>
+          <select class="fi" id="inc-bulan" style="cursor:pointer">
+            <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+          </select>
+        </div>
+        <div>
+          <label class="fl">Tahun</label>
+          <input class="fi" id="inc-tahun" type="number" value="2026" min="2024" max="2030"/>
+        </div>
+      </div>
+      <div>
+        <label class="fl">Nominal (Rp)<span class="req-star">*</span></label>
+        <input class="fi" id="inc-nominal" type="number" placeholder="2500000"/>
+      </div>
+      <div>
+        <label class="fl">Catatan (opsional)</label>
+        <input class="fi" id="inc-catatan" type="text" placeholder="Target tercapai 110%, bonus spesial, dll"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+      <button onclick="closeIncentiveInput()" style="padding:9px 18px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">Batal</button>
+      <button onclick="saveIncentive()" style="padding:9px 20px;border-radius:var(--radius-sm);background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+</div>
 <div class="page" id="page-sop">
-<div class="topbar"><div><div class="pgtitle">SOP <span>Live</span></div><div class="pgsub">Standar operasional untuk semua host Pandaoma</div></div></div>
+
 <div style="max-width:760px">
 
 <div class="sop-hero">
@@ -1600,6 +1684,7 @@ auth.onAuthStateChanged(async(user)=>{
     loadSettings();
     loadGroqKey();
     startListeners();
+    startIncentiveListener();
     setTimeout(loadChatHistory, 800);
   }else{
     currentUser=null;
@@ -1690,12 +1775,13 @@ function goPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.ni,.mni').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
-  const pages=['dashboard','detail','aichat','inputdata','sop','produk','panduan','streamers','setting'];
+  const pages=['dashboard','detail','aichat','inputdata','incentive','sop','produk','panduan','streamers','setting'];
   document.querySelectorAll('.ni')[pages.indexOf(p)]?.classList.add('active');
   const mn=document.getElementById('mn-'+p);
   if(mn)mn.classList.add('active');
   if(p==='dashboard')refreshAll();
   if(p==='detail')renderDetailTable();
+  if(p==='incentive')renderIncentive();
   if(p==='setting'){loadGroqKey();loadPendingUsers();}
   if(p==='streamers'){
     const addForm=document.getElementById('add-streamer-form');
@@ -1710,7 +1796,9 @@ async function addStreamer(){
   if(!name){showToast('Nama wajib diisi!',true);return;}
   if(allStreamers.find(s=>s.name.toLowerCase()===name.toLowerCase())){showToast(name+' sudah ada!',true);return;}
   try{
-    await db.collection('streamers').add({name,role:role||'Streamer',addedBy:currentUser?.displayName||'',createdAt:new Date().toISOString()});
+    const email=document.getElementById('ns-email')?.value?.trim()||'';
+    await db.collection('streamers').add({name,role:role||'Streamer',email,addedBy:currentUser?.displayName||'',createdAt:new Date().toISOString()});
+    if(document.getElementById('ns-email'))document.getElementById('ns-email').value='';
     document.getElementById('ns-name').value='';
     document.getElementById('ns-role').value='';
     showToast(name+' ditambahkan!');
@@ -2758,6 +2846,205 @@ async function rejectUser(uid,name){
     showToast(name+' ditolak.');
     loadPendingUsers();
   }catch(e){showToast('Gagal.',true);}
+}
+
+// ── INCENTIVE SYSTEM ──
+let allIncentives = [];
+let selectedMonths = [];
+let editingIncentiveId = null;
+const BULAN_NAMES = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+// Listen realtime
+function startIncentiveListener(){
+  db.collection('incentives').orderBy('tahun','desc').onSnapshot(snap=>{
+    allIncentives = snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(document.getElementById('page-incentive').classList.contains('active'))renderIncentive();
+  });
+}
+
+function getMyStreamer(){
+  // Cocokkan email user login dengan email di master data streamer
+  if(!currentUser)return null;
+  return allStreamers.find(s=>s.email&&s.email.toLowerCase()===currentUser.email.toLowerCase());
+}
+
+function isSuperuserInc(){
+  return currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
+}
+
+function toggleMonthFilter(m){
+  const idx=selectedMonths.indexOf(m);
+  if(idx>=0)selectedMonths.splice(idx,1);
+  else selectedMonths.push(m);
+  document.querySelectorAll('#month-filter-btns .chip').forEach((btn,i)=>{
+    btn.classList.toggle('per',false);
+    btn.classList.toggle('on',false);
+  });
+  selectedMonths.forEach(mo=>{
+    const el=document.getElementById('mf-'+mo);
+    if(el){el.classList.add('per');el.classList.add('on');}
+  });
+  renderIncentive();
+}
+
+function clearMonthFilter(){
+  selectedMonths=[];
+  document.querySelectorAll('#month-filter-btns .chip').forEach(btn=>{btn.classList.remove('on','per');});
+  renderIncentive();
+}
+
+function filterIncentives(data){
+  const now=new Date();
+  const curYear=now.getFullYear();
+  let filtered=data.filter(d=>d.tahun===curYear||(d.tahun&&d.tahun>=curYear-1));
+  if(selectedMonths.length>0)filtered=filtered.filter(d=>selectedMonths.includes(d.bulan));
+  return filtered;
+}
+
+function renderIncentive(){
+  const isSU=isSuperuserInc();
+  const myStreamer=getMyStreamer();
+
+  // Tampilkan admin btn
+  const adminBtn=document.getElementById('incentive-admin-btn');
+  if(adminBtn)adminBtn.style.display=isSU?'block':'none';
+
+  // Tampilkan kolom aksi kalau superuser
+  const aksiCol=document.getElementById('incentive-aksi-col');
+  if(aksiCol)aksiCol.style.display=isSU?'':'none';
+
+  // Update subtitle
+  const sub=document.getElementById('incentive-subtitle');
+  if(sub){
+    if(isSU)sub.textContent='Semua data incentive streamer — hanya tampil untuk masing-masing';
+    else if(myStreamer)sub.textContent='Incentive kamu sebagai '+myStreamer.name;
+    else sub.textContent='Akunmu belum dikaitkan ke streamer manapun';
+  }
+
+  // Filter data berdasarkan role
+  let myData;
+  if(isSU){
+    myData=filterIncentives(allIncentives);
+  }else if(myStreamer){
+    myData=filterIncentives(allIncentives.filter(d=>d.streamerId===myStreamer.id||d.streamerEmail===currentUser.email));
+  }else{
+    // User tidak punya streamer
+    document.getElementById('incentive-summary-cards').innerHTML='<div class="empty" style="padding:30px">Akunmu belum dikaitkan ke streamer. Hubungi admin.</div>';
+    document.getElementById('incentive-tbody').innerHTML='<tr><td colspan="7" class="empty">Tidak ada data</td></tr>';
+    return;
+  }
+
+  // Sort by tahun desc, bulan desc
+  myData.sort((a,b)=>b.tahun!==a.tahun?b.tahun-a.tahun:b.bulan-a.bulan);
+
+  // Summary cards dihapus — langsung ke tabel
+  const cardsEl=document.getElementById('incentive-summary-cards');
+  if(cardsEl)cardsEl.innerHTML='';
+
+  // ── TABLE ──
+  const badge=document.getElementById('incentive-total-badge');
+  if(badge)badge.textContent=myData.length+' data';
+  // Total bar
+  const grandTotal=myData.reduce((s,d)=>s+(d.nominal||0),0);
+  const totalBar=document.getElementById('incentive-total-bar');
+  const totalEl=document.getElementById('incentive-grand-total');
+  const periodEl=document.getElementById('incentive-period-label');
+  if(totalBar){totalBar.style.display=myData.length?'flex':'none';}
+  if(totalEl)totalEl.textContent=fRp(grandTotal);
+  if(periodEl)periodEl.textContent=selectedMonths.length?'('+selectedMonths.map(m=>BULAN_NAMES[m]).join(', ')+')':'(semua bulan)';
+  const tb=document.getElementById('incentive-tbody');
+  if(!tb)return;
+  if(!myData.length){tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada data incentive.</td></tr>';return;}
+  tb.innerHTML=myData.map(d=>{
+    const aksiCell=isSU
+      ?'<td><button class="edit-row" onclick="editIncentive(\''+d.id+'\')">✏️ Edit</button> <button class="del-row" onclick="delIncentive(\''+d.id+'\')">🗑</button></td>'
+      :'<td></td>';
+    const isZero=!d.nominal||d.nominal===0;
+    return '<tr>'
+      +'<td style="font-weight:700;color:var(--navy)">'+d.streamerName+'</td>'
+      +'<td style="font-weight:600;color:var(--text2)">'+BULAN_NAMES[d.bulan||1]+' '+d.tahun+'</td>'
+      +'<td class="'+(isZero?'':'gv')+'" style="'+(isZero?'color:var(--text3)':'')+'">'+(isZero?'Rp 0 <span style="font-size:10px;color:var(--text3)">(belum diinput)</span>':fRp(d.nominal))+'</td>'
+      +'<td style="color:var(--text2);font-size:12px">'+(d.catatan||'—')+'</td>'
+      +'<td style="color:var(--text3);font-size:12px">'+(d.inputBy||'—')+'</td>'
+      +aksiCell
+      +'</tr>';
+  }).join('');
+}
+
+function openIncentiveInput(){
+  editingIncentiveId=null;
+  // Populate streamer dropdown
+  const sel=document.getElementById('inc-streamer');
+  sel.innerHTML='<option value="">-- Pilih Streamer --</option>';
+  allStreamers.forEach(s=>{
+    const opt=document.createElement('option');
+    opt.value=s.id;opt.textContent=s.name+(s.email?' ('+s.email+')':'');
+    opt.dataset.email=s.email||'';opt.dataset.name=s.name;
+    sel.appendChild(opt);
+  });
+  // Set bulan ke sekarang
+  const now=new Date();
+  document.getElementById('inc-bulan').value=now.getMonth()+1;
+  document.getElementById('inc-tahun').value=now.getFullYear();
+  document.getElementById('inc-nominal').value='';
+  document.getElementById('inc-catatan').value='';
+  document.getElementById('incentive-modal').style.display='flex';
+}
+
+function closeIncentiveInput(){
+  document.getElementById('incentive-modal').style.display='none';
+  editingIncentiveId=null;
+}
+
+async function saveIncentive(){
+  const streamerId=document.getElementById('inc-streamer').value;
+  const sel=document.getElementById('inc-streamer');
+  const opt=sel.options[sel.selectedIndex];
+  if(!streamerId){showToast('Pilih streamer dulu!',true);return;}
+  const nominal=parseFloat(document.getElementById('inc-nominal').value);
+  if(!nominal||nominal<=0){showToast('Nominal wajib diisi!',true);return;}
+  const data={
+    streamerId,
+    streamerName:opt.dataset.name||opt.textContent.split(' (')[0],
+    streamerEmail:opt.dataset.email||'',
+    bulan:parseInt(document.getElementById('inc-bulan').value),
+    tahun:parseInt(document.getElementById('inc-tahun').value),
+    nominal,
+    catatan:document.getElementById('inc-catatan').value.trim(),
+    inputBy:currentUser?.displayName||currentUser?.email?.split('@')[0]||'',
+    updatedAt:new Date().toISOString()
+  };
+  try{
+    if(editingIncentiveId){
+      await db.collection('incentives').doc(editingIncentiveId).update(data);
+      showToast('Incentive diupdate!');
+    }else{
+      data.createdAt=new Date().toISOString();
+      await db.collection('incentives').add(data);
+      showToast('Incentive tersimpan!');
+    }
+    closeIncentiveInput();
+  }catch(e){showToast('Gagal: '+e.message,true);}
+}
+
+function editIncentive(id){
+  const d=allIncentives.find(x=>x.id===id);
+  if(!d)return;
+  editingIncentiveId=id;
+  openIncentiveInput();
+  setTimeout(()=>{
+    document.getElementById('inc-streamer').value=d.streamerId||'';
+    document.getElementById('inc-bulan').value=d.bulan||1;
+    document.getElementById('inc-tahun').value=d.tahun||new Date().getFullYear();
+    document.getElementById('inc-nominal').value=d.nominal||'';
+    document.getElementById('inc-catatan').value=d.catatan||'';
+  },100);
+}
+
+async function delIncentive(id){
+  if(!confirm('Hapus data incentive ini?'))return;
+  try{await db.collection('incentives').doc(id).delete();showToast('Incentive dihapus.');}
+  catch(e){showToast('Gagal hapus.',true);}
 }
 
 </script>
