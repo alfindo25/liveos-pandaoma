@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -1708,7 +1707,7 @@ let SC='gmv',SD=-1,SMP='Shopee',AF={shopee:true,tiktok:true,period:'today',custo
 const loadingTimeout = setTimeout(()=>{
   document.getElementById('loading-screen').style.display='none';
   document.getElementById('login-screen').classList.add('show');
-},8000);
+},6000);
 
 auth.onAuthStateChanged(async(user)=>{
   clearTimeout(loadingTimeout);
@@ -1716,25 +1715,27 @@ auth.onAuthStateChanged(async(user)=>{
   ls.classList.add('hide');
   setTimeout(()=>ls.style.display='none',400);
   if(user){
-    // Cek status user di Firestore
-    const userDoc=await db.collection('users').doc(user.uid).get();
-    if(userDoc.exists&&userDoc.data().status==='pending'){
-      // User belum diapprove
-      await auth.signOut();
-      clearTimeout(loadingTimeout);
-      const ls=document.getElementById('loading-screen');
-      ls.classList.add('hide');setTimeout(()=>ls.style.display='none',400);
-      document.getElementById('login-screen').classList.add('show');
-      document.getElementById('l-err').style.color='var(--amber)';
-      document.getElementById('l-err').textContent='Akunmu sedang menunggu persetujuan admin (Kopan). Sabar ya!';
-      return;
-    }
-    // Kalau superuser, auto-approve jika belum ada doc
-    if(!userDoc.exists&&user.email==='alfindo.ixa.2537@gmail.com'){
-      await db.collection('users').doc(user.uid).set({
-        name:user.displayName||'Admin',email:user.email,
-        status:'approved',createdAt:new Date().toISOString()
-      });
+    // Cek status user di Firestore (wrapped in try/catch - jangan sampai crash)
+    try{
+      const userDoc=await db.collection('users').doc(user.uid).get();
+      if(userDoc.exists&&userDoc.data().status==='pending'){
+        await auth.signOut();
+        const ls=document.getElementById('loading-screen');
+        ls.classList.add('hide');setTimeout(()=>ls.style.display='none',400);
+        document.getElementById('login-screen').classList.add('show');
+        document.getElementById('l-err').style.color='var(--amber)';
+        document.getElementById('l-err').textContent='Akunmu sedang menunggu persetujuan admin (Kopan). Sabar ya!';
+        return;
+      }
+      if(!userDoc.exists&&user.email==='alfindo.ixa.2537@gmail.com'){
+        await db.collection('users').doc(user.uid).set({
+          name:user.displayName||'Admin',email:user.email,
+          status:'approved',createdAt:new Date().toISOString()
+        });
+      }
+    }catch(authErr){
+      // Kalau Firestore check gagal (misal rules belum diset), tetap lanjut
+      console.warn('User status check failed, proceeding anyway:', authErr.message);
     }
     currentUser=user;
     document.getElementById('login-screen').classList.remove('show');
@@ -1941,24 +1942,35 @@ function renderStreamerList(){
     if(!gmvMap[s.streamerId])gmvMap[s.streamerId]={gmv:0,n:0};
     gmvMap[s.streamerId].gmv+=(s.gmv||0);gmvMap[s.streamerId].n++;
   });
+  const isSU=currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
   el.innerHTML=allStreamers.map(s=>{
     const st=gmvMap[s.id]||{gmv:0,n:0};
-    const emailBadge=s.email
+    const emailHtml=s.email
       ?'<span style="font-size:10px;color:var(--blue);background:var(--blue-lt);padding:1px 6px;border-radius:8px;margin-left:4px;">'+s.email+'</span>'
-      :'<span style="color:var(--red);font-size:10px;font-weight:600;margin-left:4px;">⚠ belum ada email</span>';
+      :'<span style="color:var(--red);font-size:10px;font-weight:600;margin-left:4px;">&#9888; belum ada email</span>';
+    const statsHtml=st.n>0?'<div class="sc-stats">'+fRpS(st.gmv)+' &middot; '+st.n+' sesi</div>':'';
+    const editBtn=isSU
+      ?'<button class="edit-row" onclick="openEditStreamer(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;">Edit</button>'
+      :'';
+    const delBtn='<button class="sc-del" onclick="deleteStreamer(\''+s.id+'\',\''+s.name+'\')">'
+      +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+      +'<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>'
+      +'<path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>'
+      +'</svg></button>';
     return '<div class="streamer-card">'
       +'<div class="sc-av">'+s.name[0].toUpperCase()+'</div>'
-      +'<div class="sc-info"><div class="sc-name">'+s.name+'</div>'
-      +'<div class="sc-role">'+(s.role||'Streamer')+emailBadge+'</div>'
-      +(st.n>0?'<div class="sc-stats">'+fRpS(st.gmv)+' · '+st.n+' sesi</div>':'')
+      +'<div class="sc-info">'
+        +'<div class="sc-name">'+s.name+'</div>'
+        +'<div class="sc-role">'+(s.role||'Streamer')+emailHtml+'</div>'
+        +statsHtml
       +'</div>'
-      +'<div style="display:flex;gap:6px;flex-shrink:0;">'
-      +'<button class="edit-row" onclick="openEditStreamer(''+s.id+'')" style="font-size:11px;padding:4px 10px;">Edit</button>'
-      +'<button class="sc-del" onclick="deleteStreamer(''+s.id+'',''+s.name+'')">'
-      +'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>'
-      +'</button></div></div>';
+      +'<div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">'
+        +editBtn+delBtn
+      +'</div>'
+      +'</div>';
   }).join('');
 }
+
 
 function renderStreamerDropdown(filter){
   const dd=document.getElementById('streamer-dropdown');
