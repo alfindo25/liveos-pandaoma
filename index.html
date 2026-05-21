@@ -1283,6 +1283,7 @@ margin-bottom: 4px;
     <div class="chip tiktok on" onclick="toggleDF('tiktok')" id="df-tiktok" style="display:flex;align-items:center;gap:6px;"><img src="data:image/webp;base64,UklGRqwEAABXRUJQVlA4TJ8EAAAvXUFXEHegtpGkNrpdvDdEZMSobSSpjW4X7w0RGTFqG0lqo9vFe0NERoySRpLkaBlYvnzhd/wCABRQQAMfeEACcc6Rmf7/3nvuvbqbiOAQZNus/t7PESJiAroymKMrHNu2ljW/DQDtndqhdaidHpJ8A/jlzT+evPsudF9E/90wkiQ1PeC9D8g4Is/Ecmzbbttq2A8UBwDJoaaoUGepzVIbnOrMXgEYhG0CJNbi+fmviP47cNvGkbi9716dzeXmAQFbef/x/uNvpayoMLR2bWu0Wp9OZz1t1uvxqFW2QnN1fhNdOfnQ23lcsUBp9SowKi7jEH/0VAiQnNugDw5eBE3bKjT99xPviIFpvJ+IR4R7t6NgahKishRUdVDHcliuoEN3wdUU81kFMC4GrcgFs0IrhqxUS6MAx0VoHARdXbSNNINnF4J9Uwm+Yrg+1+57n2q3X3yF5I66EAuqQe1NJpiC3dXEBN5WSnNDnYsNJTjsjVCHWsl1YWaEHc6VuRGuIdKVVC/sixXFQPfiequ9GeoPmpsZeg+a1Awz66Tfmwal3sf35jGqmkyLmc01tXCFFRbEtG5odSumpM82XMkV5jNbnSdVsYK2IsE3vITWf4KveKXBlNaTgmVjWhNaTxEse0Nrq2DZa0SeASzbYRR4J44KdgLbs1mbj7dt8fGPKjgF2nGDTZHmYz1MFZeCjYlh2f/iygytgYEVHWjpOyb1Zpqm9UJE3/HQg+XDt8SJWiGS3NHo3+ffxwV9jhoSenGxtiSRwTuE3FMWgDSX7xTurC0tP/KAYGGCEdEKQM/YgESqT58tq4NllRhYr5ZVz+AoP2SVGFgHy0pfYM0srFdY+gJrZmG9wNLnAr82fxgyifF5HKXpYAlm502cySUecHnxdUronL1JVHS0Z8m14Om5u6nwmbnFgJ492ZWAjp7kSkAn9zc+obNzzwqQvri3BpQYl1tE7r0S6rnXhJVFhGbgntTvFIpwlZ0b4Y727uec8OvpxUl4yipxuVLtFki3SDHRDbDgmhh3qRbwtmBu3U854E3Xq9ONAN3SdkvFx2MKz2VCXXNfoJkoHNMpEbXLIgo96xn4hp4vU6RQ4sQXzffsCylQm127U4J8+2IKg2dX+eQw40u95TC3vnbUEJHm3WfnXZPqJ5zscbVcvVtfsxUO+mxDNF0Q8hJETGIWwpMioS8BTISEvIaYZjELMV1But2usJBDWVmNRlJ2MJUq0ixZXE2K01vFQ+al1ASIPpf6aiIiPVP8sz6qLK1L2lJFwX+g3woaV7T6/Uw+pPHS30Q5RPVP9i6lOqTaPfvvRTo00rz31WWjBI7oxbtjbNNSUl2p/JuSwf3719/6Vr4xtFqV6820Ua9+ndVWNH12/2/92fUKoGscQdeWg67pCV1LGbaGPXTtkOiaTdG18qJrlEbXho6tyR9dC0W6BpVs7T/pmqvSta6lawzM1naZrqk1Z8twtFc+Vb/7EnaZ0Q0TwDaqAd0gDGxjRtANccE2IgfZACJVtvFOmIZnEbepMI0mI5dxSDH4jXwT/MZUrJ61aqyezedYPbYUljUVsJX3H+8/3lYCAA==" style="width:16px;height:16px;border-radius:3px;object-fit:cover;background:#000;"/> TikTok</div>
     <div class="fdiv"></div>
     <div class="chip per on" onclick="setDF('today')" id="df-today">Hari Ini</div>
+    <div class="chip per" onclick="setDF('yesterday')" id="df-yesterday">Kemarin</div>
     <div class="chip per" onclick="setDF('week')" id="df-week">7 Hari</div>
     <div class="chip per" onclick="setDF('month')" id="df-month">30 Hari</div>
     <div class="chip per" onclick="openDetailCal()" id="df-custom">📅 Kustom</div>
@@ -1621,7 +1622,11 @@ function loadChatHistory(){
     }
   }catch(e){}
 }
-let SC='gmv',SD=-1,SMP='Shopee',AF={shopee:true,tiktok:true,dld:true,period:'today',customFrom:'',customTo:''};
+const _initNow=new Date();
+const _initToday=_initNow.getFullYear()+'-'+String(_initNow.getMonth()+1).padStart(2,'0')+'-'+String(_initNow.getDate()).padStart(2,'0');
+const _initFrom=new Date(_initNow);_initFrom.setDate(_initNow.getDate()-6);
+const _initFromStr=_initFrom.getFullYear()+'-'+String(_initFrom.getMonth()+1).padStart(2,'0')+'-'+String(_initFrom.getDate()).padStart(2,'0');
+let SC='gmv',SD=-1,SMP='Shopee',AF={shopee:true,tiktok:true,dld:true,period:'week',customFrom:_initFromStr,customTo:_initToday};
 
 // Safety timeout 8s
 const loadingTimeout = setTimeout(()=>{
@@ -2212,35 +2217,28 @@ function buildChart(data){
   if(!ctx)return;
   if(typeof Chart==='undefined'){setTimeout(()=>buildChart(data),500);return;}
 
-  // Tentukan range tanggal sebagai string YYYY-MM-DD (hindari timezone issue)
-  const today=new Date();
-  const todayStr=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-
-  let startStr,endStr;
-  if(AF.customFrom&&AF.customTo){
-    startStr=AF.customFrom; endStr=AF.customTo;
-  } else if(AF.period==='month'){
-    const s=new Date(today); s.setDate(today.getDate()-29);
-    startStr=s.getFullYear()+'-'+String(s.getMonth()+1).padStart(2,'0')+'-'+String(s.getDate()).padStart(2,'0');
-    endStr=todayStr;
-  } else {
-    // today, week, atau default — tampilkan 7 hari terakhir
-    const s=new Date(today); s.setDate(today.getDate()-6);
-    startStr=s.getFullYear()+'-'+String(s.getMonth()+1).padStart(2,'0')+'-'+String(s.getDate()).padStart(2,'0');
-    endStr=todayStr;
+  // Selalu pakai AF.customFrom/To — diset oleh setQuickRange & applyCalendar
+  if(!AF.customFrom||!AF.customTo){
+    // Fallback: default 7 hari terakhir
+    const now=new Date();
+    const todayStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    const s=new Date(now);s.setDate(now.getDate()-6);
+    AF.customFrom=s.getFullYear()+'-'+String(s.getMonth()+1).padStart(2,'0')+'-'+String(s.getDate()).padStart(2,'0');
+    AF.customTo=todayStr;
   }
 
-  // Generate semua tanggal dalam range sebagai string
+  const startStr=AF.customFrom;
+  const endStr=AF.customTo;
+
+  // Generate date list sebagai string
   const dateList=[];
   const cur=new Date(startStr+'T12:00:00');
-  const end=new Date(endStr+'T12:00:00');
-  while(cur<=end){
-    const ds=cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
-    dateList.push(ds);
+  const endD=new Date(endStr+'T12:00:00');
+  while(cur<=endD){
+    dateList.push(cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0'));
     cur.setDate(cur.getDate()+1);
   }
 
-  // Filter data sesuai AF (shopee/tiktok/dld)
   const filtered=filterData(data);
 
   const labels=dateList.map(ds=>{
@@ -2262,8 +2260,7 @@ function buildChart(data){
   if(chartInst){chartInst.destroy();chartInst=null;}
   if(!dsets.length)return;
   chartInst=new Chart(ctx,{
-    type:'line',
-    data:{labels,datasets:dsets},
+    type:'line',data:{labels,datasets:dsets},
     options:{
       responsive:true,maintainAspectRatio:false,
       plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fRp(c.raw)}}},
@@ -2699,6 +2696,11 @@ function setDF(p){
   const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
   let from='',to='';
   if(p==='today'){from=today;to=today;}
+  else if(p==='yesterday'){
+    const y=new Date(now);y.setDate(now.getDate()-1);
+    from=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+    to=from;
+  }
   else if(p==='week'){
     const s=new Date(now);s.setDate(now.getDate()-6);
     from=s.getFullYear()+'-'+String(s.getMonth()+1).padStart(2,'0')+'-'+String(s.getDate()).padStart(2,'0');
@@ -2709,7 +2711,7 @@ function setDF(p){
     to=today;
   }
   DF.period=p;DF.customFrom=from;DF.customTo=to;
-  ['today','week','month','custom'].forEach(x=>{const el=document.getElementById('df-'+x);if(el)el.classList.toggle('on',x===p);});
+  ['today','yesterday','week','month','custom'].forEach(x=>{const el=document.getElementById('df-'+x);if(el)el.classList.toggle('on',x===p);});
   const bar=document.getElementById('detail-date-bar');
   if(bar)bar.style.display='none';
   renderDetailTable();
