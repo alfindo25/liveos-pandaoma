@@ -965,8 +965,8 @@ margin-bottom: 4px;
 <div style="margin-bottom:14px"><div class="fl" style="margin-bottom:8px">Marketplace<span class="req-star">*</span></div>
 <div class="mp-sel">
 <div class="mp-opt shopee on" id="mps" onclick="selMP('Shopee')">🛍 Shopee</div>
+<div class="mp-opt dld" id="mpd" onclick="selMP('DLD')">📦 DLD</div>
 <div class="mp-opt tiktok" id="mpt" onclick="selMP('TikTok')">🎵 TikTok</div>
-<div class="mp-opt dld" id="mpd" onclick="selMP('DLD')" style="--sc-accent:#c73e1f">📦 DLD</div>
 </div></div>
 <div class="fg">
 <div class="fgi full"><label class="fl">Nama Streamer<span class="req-star">*</span></label>
@@ -1004,276 +1004,434 @@ margin-bottom: 4px;
 </div></div>
 </div>
 <div class="page" id="page-panduan">
+<div class="topbar"><div>
+  <div class="pgtitle">Panduan <span>LiveOS</span></div>
+  <div class="pgsub">Panduan lengkap penggunaan semua fitur LiveOS</div>
+</div></div>
 
+<style>
+.guide-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.guide-tab{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:700;border:1.5px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;transition:.15s;font-family:var(--font);}
+.guide-tab.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.guide-section{display:none;}.guide-section.on{display:block;}
+.guide-card{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden;}
+.guide-card-hdr{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;}
+.guide-card-hdr:hover{background:var(--surface);}
+.guide-step-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.guide-card-title{font-size:14px;font-weight:700;color:var(--navy);flex:1;}
+.guide-card-arrow{font-size:12px;color:var(--text3);transition:.2s;}
+.guide-card-body{display:none;padding:0 16px 16px 56px;font-size:13px;color:var(--text2);line-height:1.8;}
+.guide-card-body.on{display:block;}
+.guide-card-arrow.on{transform:rotate(90deg);}
+.guide-tip{background:var(--blue-lt);border-left:3px solid var(--blue);border-radius:0 6px 6px 0;padding:8px 12px;margin-top:10px;font-size:12px;color:var(--blue);font-weight:600;}
+.guide-warn{background:#fff8e6;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:8px 12px;margin-top:10px;font-size:12px;color:#92400e;font-weight:600;}
+.guide-badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;margin:0 2px;}
+.guide-badge.shopee{background:#fff1ee;color:#ee4d2d;}
+.guide-badge.tiktok{background:#e6f1fb;color:#0a7abf;}
+.guide-badge.dld{background:#fff1ee;color:#c73e1f;}
+.guide-badge.green{background:var(--green-bg);color:var(--green);}
+.guide-badge.navy{background:var(--blue-lt);color:var(--navy);}
+</style>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-badge">
-    🐼 Pandaoma · LiveOS
-  </div>
-  <h1>Panduan <span>Input Data</span><br/>Live Streaming</h1>
-  <p>Ikuti langkah berikut untuk mencatat sesi live kamu</p>
+<div class="guide-nav">
+  <button class="guide-tab on" onclick="showGuide('overview')">🏠 Overview</button>
+  <button class="guide-tab" onclick="showGuide('input')">➕ Input Data</button>
+  <button class="guide-tab" onclick="showGuide('dashboard')">📊 Dashboard</button>
+  <button class="guide-tab" onclick="showGuide('detail')">📋 Detail Sesi</button>
+  <button class="guide-tab" onclick="showGuide('incentive')">💰 Incentive</button>
+  <button class="guide-tab" onclick="showGuide('ai')">🤖 AI Chat</button>
+  <button class="guide-tab" onclick="showGuide('streamer')">👤 Data Streamer</button>
+  <button class="guide-tab" onclick="showGuide('setting')">⚙️ Setting</button>
 </div>
 
-<div class="steps" style="max-width:640px;margin:0 auto;">
-
-  <!-- STEP 1 -->
-  <div class="step-card" style="--accent:#2563eb">
-    <div class="step-header">
-      <div class="step-num">1</div>
-      <div>
-        <div class="step-title">Login ke LiveOS</div>
-        <div class="step-subtitle">Masuk dengan akun tim Pandaoma</div>
-      </div>
+<!-- OVERVIEW -->
+<div class="guide-section on" id="guide-overview">
+  <div style="background:linear-gradient(135deg,var(--navy) 0%,#1e40af 100%);border-radius:14px;padding:24px;color:#fff;margin-bottom:16px;">
+    <div style="font-size:20px;font-weight:800;margin-bottom:8px;">Selamat datang di LiveOS 👋</div>
+    <div style="font-size:13px;opacity:.85;line-height:1.7;">LiveOS adalah sistem pelacak performa live streaming Pandaoma secara real-time. Semua data tersimpan di cloud dan bisa diakses kapan saja.</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:16px;">
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;" onclick="showGuide('input');document.querySelectorAll('.guide-tab').forEach((t,i)=>t.classList.toggle('on',i===1))">
+      <div style="font-size:24px;margin-bottom:8px;">➕</div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);">Input Data</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">Input manual atau import Excel</div>
     </div>
-    <div class="step-illus" style="background:linear-gradient(135deg,#eff6ff,#dbeafe)">
-      <div class="mockup-browser">
-        <div class="browser-bar">
-          <div class="browser-dot" style="background:#ff5f57"></div>
-          <div class="browser-dot" style="background:#ffbd2e"></div>
-          <div class="browser-dot" style="background:#28c840"></div>
-          <div class="browser-url">liveos-pandaoma.vercel.app</div>
-        </div>
-        <div class="browser-body">
-          <div class="login-mockup">
-            <div class="login-logo-box">🐼</div>
-            <div class="login-title-m">LiveOS</div>
-            <div class="login-field">📧 email@pandaoma.com</div>
-            <div class="login-field">🔒 ••••••••</div>
-            <div class="login-btn-m">Masuk ke LiveOS</div>
-          </div>
-        </div>
-      </div>
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;" onclick="showGuide('dashboard');document.querySelectorAll('.guide-tab').forEach((t,i)=>t.classList.toggle('on',i===2))">
+      <div style="font-size:24px;margin-bottom:8px;">📊</div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);">Dashboard</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">Lihat GMV, grafik, dan ranking</div>
     </div>
-    <div class="tip-box info">
-      <span class="tip-icon">💡</span>
-      Belum punya akun? Klik <strong>"Daftar di sini"</strong> dan daftar menggunakan email kamu. Setelah terdaftar, langsung bisa digunakan.
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;" onclick="showGuide('ai');document.querySelectorAll('.guide-tab').forEach((t,i)=>t.classList.toggle('on',i===5))">
+      <div style="font-size:24px;margin-bottom:8px;">🤖</div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);">AI Chat</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">Analisis otomatis dari data</div>
+    </div>
+    <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;" onclick="showGuide('incentive');document.querySelectorAll('.guide-tab').forEach((t,i)=>t.classList.toggle('on',i===4))">
+      <div style="font-size:24px;margin-bottom:8px;">💰</div>
+      <div style="font-size:13px;font-weight:700;color:var(--navy);">Incentive</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">Lihat incentive bulanan kamu</div>
     </div>
   </div>
-
-  <div class="connector"></div>
-
-  <!-- STEP 2 -->
-  <div class="step-card" style="--accent:#7c3aed">
-    <div class="step-header">
-      <div class="step-num" style="background:#7c3aed;box-shadow:0 4px 12px rgba(124,58,237,.3)">2</div>
-      <div>
-        <div class="step-title">Pilih Menu "Input Data"</div>
-        <div class="step-subtitle">Ada di sidebar kiri</div>
-      </div>
-    </div>
-    <div class="step-illus" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe)">
-      <div class="sidebar-mockup">
-        <div class="sidebar-m">
-          <div class="sidebar-logo-m">🐼 LiveOS</div>
-          <div class="sidebar-item"><span class="sidebar-dot"></span> Dashboard</div>
-          <div class="sidebar-item"><span class="sidebar-dot"></span> AI Chat</div>
-          <div class="sidebar-item active"><span class="sidebar-dot"></span> Input Data</div>
-          <div class="sidebar-item" style="margin-top:6px;font-size:7px;opacity:.5">MASTER DATA</div>
-          <div class="sidebar-item"><span class="sidebar-dot"></span> Streamer</div>
-        </div>
-        <div class="content-m">
-          <div class="content-title-m">Input Data ✚</div>
-          <div style="height:60px;background:#f1f5f9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#94a3b8;">Form input sesi live...</div>
-        </div>
-      </div>
-    </div>
-    <div class="tip-box" style="background:#ede9fe;color:#5b21b6">
-      <span class="tip-icon">👆</span>
-      Di HP, menu ada di <strong>bottom bar</strong> bawah layar — ikon tanda plus (+).
-    </div>
-  </div>
-
-  <div class="connector"></div>
-
-  <!-- STEP 3 -->
-  <div class="step-card" style="--accent:#059669">
-    <div class="step-header">
-      <div class="step-num" style="background:#059669;box-shadow:0 4px 12px rgba(5,150,105,.3)">3</div>
-      <div>
-        <div class="step-title">Isi Data Sesi Live</div>
-        <div class="step-subtitle">6 field yang perlu diisi</div>
-      </div>
-    </div>
-
-    <div class="field-list" style="margin-bottom:16px">
-      <div class="field-item" style="--fi-color:#ee4d2d;--fi-bg:#fff1ee">
-        <div class="field-letter" style="background:#ee4d2d">a</div>
-        <div class="field-content">
-          <div class="field-name">Marketplace</div>
-          <div class="field-hint">Pilih platform tempat live berlangsung</div>
-          <div style="display:flex;gap:6px;margin-top:6px">
-            <span style="padding:3px 10px;border-radius:8px;background:#fff1ee;color:#ee4d2d;font-size:11px;font-weight:700;border:1.5px solid #ee4d2d">🛍️ Shopee</span>
-            <span style="padding:3px 10px;border-radius:8px;background:#e8f4fb;color:#0a7abf;font-size:11px;font-weight:700;border:1.5px solid #0a7abf">🎵 TikTok</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="field-item" style="--fi-color:#7c3aed;--fi-bg:#f5f3ff">
-        <div class="field-letter" style="background:#7c3aed">b</div>
-        <div class="field-content">
-          <div class="field-name">Nama Streamer</div>
-          <div class="field-hint">Klik dropdown → pilih nama dari daftar resmi</div>
-          <span class="field-example" style="background:#7c3aed">⚠️ Tidak bisa ketik manual — harus pilih dari dropdown</span>
-        </div>
-      </div>
-
-      <div class="field-item" style="--fi-color:#0a7abf;--fi-bg:#e8f4fb">
-        <div class="field-letter" style="background:#0a7abf">c</div>
-        <div class="field-content">
-          <div class="field-name">Tanggal</div>
-          <div class="field-hint">Tanggal sesi live dilaksanakan</div>
-          <span class="field-example" style="background:#0a7abf">Contoh: 18 Mei 2026</span>
-        </div>
-      </div>
-
-      <div class="field-item" style="--fi-color:#d97706;--fi-bg:#fef3c7">
-        <div class="field-letter" style="background:#d97706">d</div>
-        <div class="field-content">
-          <div class="field-name">Jam Mulai</div>
-          <div class="field-hint">Jam live dimulai dalam format 24 jam</div>
-          <span class="field-example" style="background:#d97706">Contoh: 19:00 atau 09:30</span>
-        </div>
-      </div>
-
-      <div class="field-item" style="--fi-color:#059669;--fi-bg:#d1fae5">
-        <div class="field-letter" style="background:#059669">e</div>
-        <div class="field-content">
-          <div class="field-name">Durasi (menit)</div>
-          <div class="field-hint">Isi dalam satuan menit, bukan jam</div>
-          <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
-            <span class="field-example" style="background:#059669">2 jam = 120</span>
-            <span class="field-example" style="background:#059669">1,5 jam = 90</span>
-            <span class="field-example" style="background:#059669">30 menit = 30</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="field-item" style="--fi-color:#2563eb;--fi-bg:#eff6ff">
-        <div class="field-letter" style="background:#2563eb">f</div>
-        <div class="field-content">
-          <div class="field-name">GMV (Rp)</div>
-          <div class="field-hint">Total omset dalam rupiah — <strong>tanpa titik atau koma</strong></div>
-          <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
-            <span class="field-example" style="background:#2563eb">Rp 3 juta = 3000000</span>
-            <span class="field-example" style="background:#2563eb">Rp 500rb = 500000</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="tip-box warn">
-      <span class="tip-icon">⚠️</span>
-      GMV diisi tanpa titik pemisah ribuan. Tulis <strong>3000000</strong> bukan <strong>3.000.000</strong>
-    </div>
-  </div>
-
-  <div class="connector"></div>
-
-  <!-- STEP 4 -->
-  <div class="step-card" style="--accent:#059669">
-    <div class="step-header">
-      <div class="step-num" style="background:#059669;box-shadow:0 4px 12px rgba(5,150,105,.3)">4</div>
-      <div>
-        <div class="step-title">Data Otomatis Tersimpan</div>
-        <div class="step-subtitle">Langsung muncul di Dashboard semua tim</div>
-      </div>
-    </div>
-    <div class="step-illus" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5)">
-      <div class="dash-mockup" style="width:100%;max-width:360px">
-        <div class="dash-cards">
-          <div class="dash-card-m" style="--cc:#059669">
-            <div class="dash-card-lbl">Total GMV</div>
-            <div class="dash-card-val">Rp 8,5jt</div>
-          </div>
-          <div class="dash-card-m" style="--cc:#ee4d2d">
-            <div class="dash-card-lbl">GMV Shopee</div>
-            <div class="dash-card-val">Rp 5jt</div>
-          </div>
-        </div>
-        <div class="dash-table-m">
-          <div class="dash-table-head">
-            <div>#</div><div>Streamer</div><div>MP</div><div>GMV</div>
-          </div>
-          <div class="dash-table-row">
-            <div class="dash-rank">1</div>
-            <div class="dash-name">Adena</div>
-            <div><span class="dash-mp">Shopee</span></div>
-            <div class="dash-gmv">5jt</div>
-          </div>
-          <div class="dash-table-row" style="background:#f0fdf4">
-            <div style="font-weight:700;color:#94a3b8">2</div>
-            <div class="dash-name">Rora</div>
-            <div><span class="dash-mp" style="background:#e8f4fb;color:#0a7abf">TikTok</span></div>
-            <div class="dash-gmv">3,5jt</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:#d1fae5;border-radius:8px;font-size:10px;font-weight:700;color:#065f46;">
-          <span>🟢</span> Terhubung · 2 sesi · Real-time
-        </div>
-      </div>
-    </div>
-
-    <div style="margin-bottom:12px">
-      <div style="font-size:12px;font-weight:700;color:#0f1f3d;margin-bottom:8px;">Ada yang salah input? Bisa diedit langsung:</div>
-      <div class="edit-highlight">
-        <div class="edit-badge">✏️ Edit & Hapus</div>
-        <div class="dash-table-row" style="background:#fff;border-radius:6px;grid-template-columns:20px 1fr 60px auto">
-          <div class="dash-rank">1</div>
-          <div class="dash-name">Adena</div>
-          <div class="dash-gmv">5jt</div>
-          <div class="action-row">
-            <div class="action-btn-m edit-btn-m">✏️ Edit</div>
-            <div class="action-btn-m del-btn-m">🗑</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="tip-box success">
-      <span class="tip-icon">✅</span>
-      Tombol Edit & Hapus <strong>hanya muncul untuk yang menginput data</strong>. Data orang lain tidak bisa kamu ubah.
-    </div>
-  </div>
-
-  <div class="connector"></div>
-
-  <!-- STEP 5 -->
-  <div class="step-card" style="--accent:#f59e0b">
-    <div class="step-header">
-      <div class="step-num" style="background:#f59e0b;box-shadow:0 4px 12px rgba(245,158,11,.3)">5</div>
-      <div>
-        <div class="step-title">Ada Bug? Hubungi Kopan</div>
-        <div class="step-subtitle">Jangan panik, langsung lapor ya!</div>
-      </div>
-    </div>
-    <div class="step-illus" style="background:linear-gradient(135deg,#fffbeb,#fef3c7)">
-      <div class="bug-card">
-        <div class="bug-icon">🐛</div>
-        <div class="bug-title">Nemu Bug?</div>
-        <div class="bug-sub">Screenshot error-nya dan langsung hubungi</div>
-        <div class="contact-chip">
-          📱 Kopan
-        </div>
-      </div>
-    </div>
-    <div class="tip-box warn">
-      <span class="tip-icon">📸</span>
-      Kalau bisa, <strong>screenshot tampilan error-nya</strong> sekalian saat melapor — supaya lebih cepat ditangani!
-    </div>
-  </div>
-
+  <div class="guide-tip">💡 Klik salah satu kartu di atas atau tab di bagian atas untuk mulai belajar fitur tertentu.</div>
 </div>
 
-<!-- FOOTER -->
-<div class="footer" style="max-width:640px;margin:40px auto 0">
-  <div class="footer-logo">🐼 LiveOS · Pandaoma</div>
-  <div class="footer-sub">Panduan Input Data Live Streaming · v1.0</div>
+<!-- INPUT DATA -->
+<div class="guide-section" id="guide-input">
+
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">1</div>
+      <div class="guide-card-title">Pilih Marketplace</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Pilih salah satu dari tiga opsi:<br/>
+      <span class="guide-badge shopee">🛍 Shopee</span> untuk sesi live di Shopee dashboard<br/>
+      <span class="guide-badge dld">📦 DLD</span> untuk penjualan Shopee yang tidak terbaca di dashboard (Di Luar Dashboard)<br/>
+      <span class="guide-badge tiktok">🎵 TikTok</span> untuk sesi live di TikTok Shop
+      <div class="guide-tip">💡 DLD dihitung masuk ke GMV Shopee di dashboard.</div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">2</div>
+      <div class="guide-card-title">Pilih Nama Streamer</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Ketik nama streamer di kolom pencarian. Nama harus dipilih dari daftar — tidak bisa diketik bebas.<br/><br/>
+      Kalau nama streamer belum ada, tambahkan dulu di menu <strong>Data Streamer</strong> (hanya admin).
+      <div class="guide-warn">⚠️ Nama streamer yang tidak ada di master data akan ditolak sistem.</div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">3</div>
+      <div class="guide-card-title">Isi Tanggal, Jam, Durasi</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      <strong>Tanggal</strong>: tanggal sesi live berlangsung (otomatis hari ini).<br/>
+      <strong>Jam Mulai</strong>: jam mulai live (format HH:MM, contoh: 19:00).<br/>
+      <strong>Durasi</strong>: total durasi live dalam menit (contoh: 120 = 2 jam).
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">4</div>
+      <div class="guide-card-title">Isi GMV dan Catatan</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      <strong>GMV</strong>: total nilai transaksi sesi live (dalam Rupiah, tanpa titik/koma). Boleh diisi 0 kalau tidak ada penjualan.<br/><br/>
+      <strong>Catatan</strong>: kondisi yang terjadi selama live — misal "flash sale", "koneksi putus", "giveaway berhasil", dll.<br/>
+      <div class="guide-tip">💡 Catatan sangat penting! AI Chat bisa merangkum dan menganalisis catatan untuk evaluasi performa.</div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">5</div>
+      <div class="guide-card-title">Import via Excel (untuk data banyak)</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      1. Klik <strong>⬇ Download Template .xlsx</strong><br/>
+      2. Buka file di Excel / Google Sheets<br/>
+      3. Isi data sesuai format kolom (jangan ubah header)<br/>
+      4. Simpan file, lalu upload di bagian Import<br/>
+      5. Cek preview → klik <strong>Import Data</strong>
+      <div class="guide-warn">⚠️ Nama streamer di Excel harus sama persis dengan yang ada di master data.</div>
+    </div>
+  </div>
 </div>
 
-
+<!-- DASHBOARD -->
+<div class="guide-section" id="guide-dashboard">
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">1</div>
+      <div class="guide-card-title">Filter Marketplace</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Di bagian atas ada 3 tombol filter marketplace: <span class="guide-badge shopee">Shopee</span> <span class="guide-badge dld">DLD</span> <span class="guide-badge tiktok">TikTok</span><br/>
+      Klik untuk toggle aktif/nonaktif. Klik lagi untuk mematikan. Bisa dikombinasikan — misal lihat Shopee+DLD saja.
+      <div class="guide-tip">💡 DLD (Di Luar Dashboard) adalah penjualan Shopee yang tidak terbaca sistem mereka — tetap dihitung di GMV Shopee.</div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">2</div>
+      <div class="guide-card-title">Filter Periode</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Pilih range waktu: <strong>Hari Ini</strong>, <strong>Kemarin</strong>, <strong>7 Hari Terakhir</strong>, <strong>30 Hari Terakhir</strong>, atau <strong>Kustom</strong> (pilih tanggal sendiri).<br/>
+      Semua metric card, grafik, dan tabel rank mengikuti filter yang dipilih.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">3</div>
+      <div class="guide-card-title">Metric Cards</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      4 kartu utama:<br/>
+      <strong>Total GMV</strong>: total semua marketplace di periode yang dipilih<br/>
+      <strong>GMV Shopee</strong>: termasuk DLD<br/>
+      <strong>GMV TikTok</strong>: khusus TikTok Shop<br/>
+      <strong>Total Sesi</strong>: jumlah sesi live sesuai filter
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">4</div>
+      <div class="guide-card-title">Grafik GMV Harian</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Grafik garis menampilkan tren GMV per hari. Merah = Shopee+DLD, Biru = TikTok.<br/>
+      Grafik mengikuti filter periode yang dipilih. Hover ke titik untuk lihat nilai detail.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">5</div>
+      <div class="guide-card-title">Rank Streamer & Rank Sesi</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      <strong>Rank Streamer Bulan Ini</strong>: ranking berdasarkan total GMV bulan berjalan.<br/>
+      <strong>Rank Sesi Live (Top 5)</strong>: 5 sesi dengan GMV tertinggi sesuai filter aktif.<br/>
+      Klik tombol <strong>Detail →</strong> untuk melihat semua sesi.
+    </div>
+  </div>
 </div>
 
+<!-- DETAIL SESI -->
+<div class="guide-section" id="guide-detail">
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">1</div>
+      <div class="guide-card-title">Filter & Urutkan Data</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Filter marketplace (Shopee/DLD/TikTok) dan periode (Hari Ini/Kemarin/7 Hari/30 Hari/Kustom).<br/>
+      Klik header kolom untuk sort: Streamer, MP, GMV, Tanggal, Jam, Durasi.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">2</div>
+      <div class="guide-card-title">Kolom Catatan</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Catatan yang panjang ditampilkan singkat. Klik tombol <strong>detail</strong> untuk baca catatan lengkap dalam popup.
+      <div class="guide-tip">💡 Isi catatan sedetail mungkin — AI Chat bisa merangkumnya untuk evaluasi.</div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">3</div>
+      <div class="guide-card-title">Edit & Hapus Sesi</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Streamer hanya bisa edit/hapus data yang mereka sendiri input.<br/>
+      Admin (superuser) bisa edit/hapus semua data.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">4</div>
+      <div class="guide-card-title">Export Excel</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Klik <strong>⬇ Export Excel</strong> untuk download semua data yang tampil (sesuai filter aktif) ke file .xlsx.<br/>
+      File berisi kolom: Streamer, Marketplace, GMV, Tanggal, Jam, Durasi, Catatan, Diinput oleh.
+    </div>
+  </div>
+</div>
+
+<!-- INCENTIVE -->
+<div class="guide-section" id="guide-incentive">
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">1</div>
+      <div class="guide-card-title">Apa itu menu Incentive?</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Menu Incentive menampilkan data incentive bulanan yang diterima setiap streamer.<br/>
+      Data ini bersifat <strong>rahasia</strong> — setiap streamer hanya bisa melihat data milik sendiri.<br/>
+      Admin bisa melihat dan menginput semua data.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">2</div>
+      <div class="guide-card-title">Cara melihat Incentive (Streamer)</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      1. Login dengan email yang sudah didaftarkan ke admin<br/>
+      2. Buka menu <strong>Incentive</strong><br/>
+      3. Data incentive kamu otomatis muncul<br/>
+      4. Gunakan filter tahun (◀ 2026 ▶) dan filter bulan untuk melihat periode tertentu<br/>
+      5. Klik beberapa bulan sekaligus untuk melihat total gabungan
+      <div class="guide-tip">💡 Akunmu harus dikaitkan dulu oleh admin ke nama streamer di Data Streamer.</div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">3</div>
+      <div class="guide-card-title">Cara input Incentive (Admin)</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      1. Buka menu <strong>Incentive</strong><br/>
+      2. Klik tombol <strong>+ Input Incentive</strong> di pojok kanan atas<br/>
+      3. Pilih streamer, bulan, tahun<br/>
+      4. Isi nominal dan catatan (opsional)<br/>
+      5. Klik <strong>💾 Simpan</strong>
+      <div class="guide-warn">⚠️ Pastikan email streamer sudah diisi di Data Streamer agar mereka bisa melihat data incentive-nya.</div>
+    </div>
+  </div>
+</div>
+
+<!-- AI CHAT -->
+<div class="guide-section" id="guide-ai">
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">1</div>
+      <div class="guide-card-title">Apa yang bisa AI Chat lakukan?</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      AI Chat bisa menganalisis data sesi live kamu secara otomatis, termasuk:<br/>
+      • Tren GMV per streamer atau marketplace<br/>
+      • Rangkuman catatan sesi dalam rentang tanggal tertentu<br/>
+      • Poin bagus dan improvement berdasarkan catatan<br/>
+      • Rekomendasi strategi ke depan<br/>
+      • Perbandingan performa antar streamer
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">2</div>
+      <div class="guide-card-title">Contoh pertanyaan ke AI</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      <span class="guide-badge navy">💬</span> "Siapa streamer terbaik bulan Mei?"<br/>
+      <span class="guide-badge navy">💬</span> "Apa saja poin bagus & improvement dari catatan tgl 1-15 Mei 2026?"<br/>
+      <span class="guide-badge navy">💬</span> "Rangkum catatan live Shopee bulan ini"<br/>
+      <span class="guide-badge navy">💬</span> "Jam berapa performa live paling tinggi?"<br/>
+      <span class="guide-badge navy">💬</span> "Bandingkan GMV Shopee vs TikTok minggu ini"
+      <div class="guide-tip">💡 Semakin detail catatan yang diisi saat input, semakin akurat analisis AI.</div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">3</div>
+      <div class="guide-card-title">Setup API Key Groq</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      AI Chat membutuhkan Groq API Key untuk berfungsi.<br/>
+      1. Buka <strong>Setting</strong><br/>
+      2. Scroll ke bagian <strong>Groq API Key</strong><br/>
+      3. Paste API key kamu → klik Simpan<br/>
+      API key gratis bisa didapatkan di <strong>console.groq.com</strong>
+    </div>
+  </div>
+</div>
+
+<!-- DATA STREAMER -->
+<div class="guide-section" id="guide-streamer">
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">1</div>
+      <div class="guide-card-title">Tambah Streamer Baru</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Hanya admin yang bisa tambah streamer.<br/>
+      1. Isi <strong>Nama Lengkap</strong> (sesuai nama yang akan dipakai saat input data)<br/>
+      2. Isi <strong>Role</strong> (contoh: Host Utama, Host Pendukung)<br/>
+      3. Isi <strong>Email Login</strong> — ini digunakan untuk akses menu Incentive<br/>
+      4. Klik <strong>Tambah Streamer</strong>
+      <div class="guide-tip">💡 Email streamer harus sama dengan email yang digunakan untuk login ke LiveOS.</div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">2</div>
+      <div class="guide-card-title">Edit Data Streamer</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Klik tombol <strong>Edit</strong> di sebelah nama streamer.<br/>
+      Bisa ubah nama, role, dan email tanpa menghapus data sesi yang sudah ada.
+      <div class="guide-warn">⚠️ Jangan hapus streamer yang sudah punya data sesi — data sesi tidak akan hilang tapi nama streamer akan kosong.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTING -->
+<div class="guide-section" id="guide-setting">
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">1</div>
+      <div class="guide-card-title">Groq API Key</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Paste API key dari console.groq.com untuk mengaktifkan AI Chat.<br/>
+      Key disimpan di browser lokal — tidak dikirim ke server.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">2</div>
+      <div class="guide-card-title">Approve User Baru (Admin)</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Setiap akun baru yang daftar butuh persetujuan admin sebelum bisa masuk.<br/>
+      Di Setting → bagian <strong>Approve User Baru</strong> → klik <strong>Approve</strong> atau <strong>Tolak</strong>.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-card-hdr" onclick="toggleGuideCard(this)">
+      <div class="guide-step-num">3</div>
+      <div class="guide-card-title">Logout</div>
+      <span class="guide-card-arrow">▶</span>
+    </div>
+    <div class="guide-card-body">
+      Scroll ke bawah di Setting → klik <strong>Logout</strong>.
+    </div>
+  </div>
+</div>
+
+<script>
+function showGuide(id){
+  document.querySelectorAll('.guide-section').forEach(s=>s.classList.remove('on'));
+  document.getElementById('guide-'+id).classList.add('on');
+}
+function toggleGuideCard(hdr){
+  const body=hdr.nextElementSibling;
+  const arrow=hdr.querySelector('.guide-card-arrow');
+  const isOpen=body.classList.contains('on');
+  body.classList.toggle('on',!isOpen);
+  arrow.classList.toggle('on',!isOpen);
+}
+</script>
+</div>
 <div class="page" id="page-detail">
 <div class="topbar">
   <div><div class="pgtitle">Detail <span>Sesi Live</span></div><div class="pgsub">Semua data sesi live — bisa difilter & diurutkan</div></div>
@@ -1320,6 +1478,44 @@ margin-bottom: 4px;
   </div>
 </div>
 </div>
+<div class="page" id="page-incentive">
+<div class="topbar">
+  <div><div class="pgtitle">💰 <span>Incentive</span></div><div class="pgsub" id="incentive-subtitle">Data incentive bulanan streamer</div></div>
+  <div id="incentive-admin-btn" style="display:none">
+    <button onclick="openIncentiveInput()" style="padding:8px 18px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);">+ Input Incentive</button>
+  </div>
+</div>
+<div style="margin-bottom:18px">
+  <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;">Filter Periode</div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button onclick="incYearNav(-1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);">&#8249;</button>
+      <span id="inc-year-label" style="font-size:16px;font-weight:800;color:var(--navy);min-width:48px;text-align:center;font-family:var(--mono);">2026</span>
+      <button onclick="incYearNav(1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border);background:#fff;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);">&#8250;</button>
+    </div>
+    <button onclick="clearMonthFilter()" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;margin-left:auto;">Reset</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:480px;" id="month-filter-btns">
+    <button class="chip" id="mf-1" onclick="toggleMonthFilter(1)">Jan</button><button class="chip" id="mf-2" onclick="toggleMonthFilter(2)">Feb</button><button class="chip" id="mf-3" onclick="toggleMonthFilter(3)">Mar</button><button class="chip" id="mf-4" onclick="toggleMonthFilter(4)">Apr</button><button class="chip" id="mf-5" onclick="toggleMonthFilter(5)">Mei</button><button class="chip" id="mf-6" onclick="toggleMonthFilter(6)">Jun</button><button class="chip" id="mf-7" onclick="toggleMonthFilter(7)">Jul</button><button class="chip" id="mf-8" onclick="toggleMonthFilter(8)">Agu</button><button class="chip" id="mf-9" onclick="toggleMonthFilter(9)">Sep</button><button class="chip" id="mf-10" onclick="toggleMonthFilter(10)">Okt</button><button class="chip" id="mf-11" onclick="toggleMonthFilter(11)">Nov</button><button class="chip" id="mf-12" onclick="toggleMonthFilter(12)">Des</button>
+  </div>
+</div>
+<div id="incentive-summary-cards"></div>
+<div id="incentive-total-bar" style="display:none;margin-bottom:12px;padding:12px 16px;background:var(--green-bg);border:1px solid #a7f3d0;border-radius:var(--radius);display:flex;align-items:center;gap:12px;">
+  <span style="font-size:13px;font-weight:700;color:var(--green)">Total Incentive: <span id="incentive-grand-total">Rp 0</span></span>
+  <span style="font-size:12px;color:var(--green);opacity:.7" id="incentive-period-label"></span>
+</div>
+<div class="tcard">
+  <div class="thdr"><div class="ct">Riwayat Incentive</div><span class="badge" id="incentive-total-badge">-</span></div>
+  <div class="twrap"><table>
+    <thead><tr>
+      <th>Streamer</th><th>Periode</th><th>Nominal</th>
+      <th>Catatan</th><th>Diinput oleh</th><th id="incentive-aksi-col" style="display:none">Aksi</th>
+    </tr></thead>
+    <tbody id="incentive-tbody"><tr><td colspan="6" class="empty">Memuat data...</td></tr></tbody>
+  </table></div>
+</div>
+</div>
+
 <div class="page" id="page-sop">
 
 <div style="max-width:760px">
@@ -1567,6 +1763,42 @@ margin-bottom: 4px;
     <div style="font-size:12px;color:var(--text3);margin-bottom:14px;" id="note-modal-meta"></div>
     <div style="background:var(--surface);border-radius:var(--radius-sm);padding:14px;font-size:13px;color:var(--text);line-height:1.7;" id="note-modal-content"></div>
     <button onclick="document.getElementById('note-modal').style.display='none'" style="margin-top:16px;width:100%;padding:10px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Tutup</button>
+  </div>
+</div>
+
+
+<!-- INCENTIVE INPUT MODAL -->
+<div id="incentive-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:460px;box-shadow:0 8px 40px rgba(15,31,61,.18);">
+    <div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
+      💰 Input Incentive
+      <button onclick="closeIncentiveInput()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);">&#215;</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div><label class="fl">Streamer</label>
+        <select class="fi" id="inc-streamer" style="cursor:pointer"><option value="">-- Pilih Streamer --</option></select>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label class="fl">Bulan</label>
+          <select class="fi" id="inc-bulan" style="cursor:pointer">
+            <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+          </select>
+        </div>
+        <div><label class="fl">Tahun</label>
+          <input class="fi" id="inc-tahun" type="number" value="2026" min="2024" max="2030"/>
+        </div>
+      </div>
+      <div><label class="fl">Nominal (Rp)<span class="req-star">*</span></label>
+        <input class="fi" id="inc-nominal" type="number" placeholder="2500000"/>
+      </div>
+      <div><label class="fl">Catatan</label>
+        <input class="fi" id="inc-catatan" type="text" placeholder="Target tercapai 110%, bonus spesial, dll"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+      <button onclick="closeIncentiveInput()" style="padding:9px 18px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">Batal</button>
+      <button onclick="saveIncentive()" style="padding:9px 20px;border-radius:var(--radius-sm);background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">💾 Simpan</button>
+    </div>
   </div>
 </div>
 
