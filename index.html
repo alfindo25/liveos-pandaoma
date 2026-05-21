@@ -903,8 +903,6 @@ margin-bottom: 4px;
 </div>
 </div>
 <div class="sync-bar syncing" id="sync-bar"><div class="sync-dot pulse" id="sync-dot"></div><span id="sync-text">Menghubungkan...</span></div>
-<div class="sync-bar syncing" id="sync-bar"><div class="sync-dot pulse" id="sync-dot"></div><span id="sync-text">Menghubungkan...</span></div>
-<div class="sync-bar syncing" id="sync-bar"><div class="sync-dot pulse" id="sync-dot"></div><span id="sync-text">Menghubungkan...</span></div>
 <div class="mgrid">
 <div class="mc" style="--cc:var(--green)"><div class="mc-ico" style="background:var(--green-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="mc-lbl">Total GMV</div><div class="mc-val" id="m-gmv">Rp 0</div><div class="mc-d" id="m-gmv-d">-</div></div>
 <div class="mc" style="--cc:var(--shopee)"><div class="mc-ico" style="background:var(--shopee-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--shopee)" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div><div class="mc-lbl">GMV Shopee</div><div class="mc-val" id="m-shopee">Rp 0</div><div class="mc-d" id="m-shopee-d">-</div></div>
@@ -2145,21 +2143,23 @@ function applyCalendar(){
 // Keep old toggleP for backward compat
 function toggleP(p){setQuickRange(p);}
 function filterData(data){
-  const now=new Date();
   return data.filter(d=>{
     if(d.mp==='Shopee'&&!AF.shopee)return false;
     if(d.mp==='TikTok'&&!AF.tiktok)return false;
     if(d.mp==='DLD'&&!AF.dld)return false;
-    const dt=d.date?new Date(d.date):new Date();
+    const ds=d.date||'';
+    if(!ds)return false;
     if(AF.customFrom&&AF.customTo){
-      const from=new Date(AF.customFrom);
-      const to=new Date(AF.customTo);
-      to.setHours(23,59,59,999);
-      return dt>=from&&dt<=to;
+      return ds>=AF.customFrom&&ds<=AF.customTo;
     }
-    if(AF.period==='today')return dt.toDateString()===now.toDateString();
-    if(AF.period==='week')return(now-dt)/864e5<=7;
-    return(now-dt)/864e5<=30;
+    // Fallback period (shouldn't reach here if setQuickRange always sets customFrom/To)
+    const now=new Date();
+    const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    const dt=new Date(ds+'T12:00:00');
+    const diffDays=Math.round((new Date(today+'T12:00:00')-dt)/864e5);
+    if(AF.period==='today')return ds===today;
+    if(AF.period==='week')return diffDays>=0&&diffDays<=6;
+    return diffDays>=0&&diffDays<=29;
   });
 }
 
@@ -2695,9 +2695,23 @@ function toggleDF(mp){
   renderDetailTable();
 }
 function setDF(p){
-  DF.period=p;DF.customFrom='';DF.customTo='';
+  const now=new Date();
+  const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+  let from='',to='';
+  if(p==='today'){from=today;to=today;}
+  else if(p==='week'){
+    const s=new Date(now);s.setDate(now.getDate()-6);
+    from=s.getFullYear()+'-'+String(s.getMonth()+1).padStart(2,'0')+'-'+String(s.getDate()).padStart(2,'0');
+    to=today;
+  }else if(p==='month'){
+    const s=new Date(now);s.setDate(now.getDate()-29);
+    from=s.getFullYear()+'-'+String(s.getMonth()+1).padStart(2,'0')+'-'+String(s.getDate()).padStart(2,'0');
+    to=today;
+  }
+  DF.period=p;DF.customFrom=from;DF.customTo=to;
   ['today','week','month','custom'].forEach(x=>{const el=document.getElementById('df-'+x);if(el)el.classList.toggle('on',x===p);});
-  document.getElementById('detail-date-bar').style.display='none';
+  const bar=document.getElementById('detail-date-bar');
+  if(bar)bar.style.display='none';
   renderDetailTable();
 }
 function openDetailCal(){
@@ -2740,19 +2754,22 @@ window.applyCalendar=function(){
 };
 
 function filterDetailData(data){
-  const now=new Date();
   return data.filter(d=>{
     if(d.mp==='Shopee'&&!DF.shopee)return false;
     if(d.mp==='TikTok'&&!DF.tiktok)return false;
     if(d.mp==='DLD'&&!DF.dld)return false;
-    const dt=d.date?new Date(d.date):new Date();
+    const ds=d.date||'';
+    if(!ds)return false;
     if(DF.customFrom&&DF.customTo){
-      const from=new Date(DF.customFrom);const to=new Date(DF.customTo);to.setHours(23,59,59);
-      return dt>=from&&dt<=to;
+      return ds>=DF.customFrom&&ds<=DF.customTo;
     }
-    if(DF.period==='today')return dt.toDateString()===now.toDateString();
-    if(DF.period==='week')return(now-dt)/864e5<=7;
-    return(now-dt)/864e5<=30;
+    const now=new Date();
+    const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    const dt=new Date(ds+'T12:00:00');
+    const diffDays=Math.round((new Date(today+'T12:00:00')-dt)/864e5);
+    if(DF.period==='today')return ds===today;
+    if(DF.period==='week')return diffDays>=0&&diffDays<=6;
+    return diffDays>=0&&diffDays<=29;
   });
 }
 
