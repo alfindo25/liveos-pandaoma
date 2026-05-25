@@ -931,12 +931,12 @@ margin-bottom: 4px;
 </div>
 <div class="page" id="page-aichat">
 <div class="chat-wrap"><div class="ct-head"><div class="ct-title">AI Chat - LiveOS Assistant</div><div class="ct-sub">Diskusi bisnis dan input data via chat</div><div class="mem-bar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="mem-status">Memori aktif</span></div></div>
-<div class="msgs" id="msgs"><div class="msg ai"><div class="mav">AI</div><div><div class="mbub">Halo! Aku AI Assistant LiveOS Pandaoma.<br><br>Diskusi GMV, tren, strategi, atau input data via chat.<br><br>Contoh: <i>Rora live Shopee jam 19:00 durasi 2 jam GMV 32 juta</i></div><div class="mtime">Sekarang</div></div></div></div>
+<div class="msgs" id="msgs"><div class="msg ai"><div class="mav">AI</div><div><div class="mbub">Hei! 👋 Aku advisor AI kamu buat urusan live streaming &amp; marketing Pandaoma.<br><br>Mau tanya performa, minta analisis catatan, atau diskusi strategi? Langsung aja — aku udah punya akses ke semua data live-mu.<br><br>Atau kalau mau input sesi baru, ketik natural aja — contoh: <i>"Rora live Shopee jam 20:00 durasi 2 jam GMV 5 juta"</i> 🎯</div><div class="mtime">Sekarang</div></div></div></div>
 <div class="cia"><div class="qas">
-<button class="qb" onclick="qSend('Analisa performa live bulan ini')">Analisa bulan ini</button>
-<button class="qb" onclick="qSend('Siapa top streamer minggu ini?')">Top streamer</button>
-<button class="qb" onclick="qSend('Strategi naikin GMV live?')">Strategi GMV</button>
-<button class="qb" onclick="qSend('Jam optimal live Shopee dan TikTok?')">Jam optimal</button>
+<button class="qb" onclick="qSend('Gimana performa live kita bulan ini? Kasih insight dong')">Performa bulan ini</button>
+<button class="qb" onclick="qSend('Siapa streamer terbaik minggu ini dan kenapa?')">Top streamer</button>
+<button class="qb" onclick="qSend('Rangkum catatan live bulan ini, ada insight apa?')">Rangkum catatan</button>
+<button class="qb" onclick="qSend('Jam berapa sebaiknya kita live di Shopee dan TikTok?')">Jam optimal</button>
 </div>
 <div class="cir"><textarea class="ci" id="ci" placeholder="Ketik pesan atau input data..." rows="1" onkeydown="chatKey(event)"></textarea>
 <button class="sb2" id="sb2" onclick="sendChat()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div></div></div>
@@ -2033,6 +2033,12 @@ function goPage(p){
   if(p==='dashboard')refreshAll();
   if(p==='detail')renderDetailTable();
   if(p==='incentive')renderIncentive();
+  if(p==='aichat'){
+    setTimeout(()=>{
+      const msgs=document.getElementById('msgs');
+      if(msgs)msgs.scrollTop=msgs.scrollHeight;
+    },150);
+  }
   if(p==='setting'){loadGroqKey();loadPendingUsers();}
   if(p==='streamers'){
     renderStreamerList();
@@ -2782,28 +2788,43 @@ async function sendChat(){
     const brand = document.getElementById('s-brand')?.value||'Pandaoma';
     const cat = document.getElementById('s-cat')?.value||'produk rumah tangga';
 
-    const sysP = `Kamu adalah AI Business Assistant untuk brand ${brand} (${cat}).
-Kamu membantu pemilik brand menganalisa performa live streaming di Shopee, TikTok, dan DLD (Di Luar Dashboard - penjualan manual Shopee yang tidak terbaca sistem).
-Setiap sesi memiliki kolom CATATAN yang berisi kondisi/kejadian saat live. Kamu WAJIB membaca dan menganalisis catatan ini saat diminta rangkuman atau evaluasi.
+    const sysP = `Kamu adalah advisor bisnis live streaming untuk brand ${brand} (kategori: ${cat}). Nama kamu terserah — anggap aja kamu asisten pribadi yang udah kenal baik sama brand ini.
 
-DATA LIVE STREAMING (${allSessions.length} sesi total):
-Total GMV: ${fRp(tot)} | Shopee: ${fRp(shopeeGMV)} | TikTok: ${fRp(tiktokGMV)}
+Gaya komunikasi kamu:
+- Pakai bahasa Indonesia yang santai dan natural — pakai "kamu/aku", bukan "Anda/saya"
+- Boleh pakai emoji sesekali biar lebih hidup, tapi jangan berlebihan
+- Kalau jawab angka atau data, langsung kasih konteks/insight tambahan tanpa diminta — jangan cuma nyebutin angkanya doang
+- Kalau ada yang bagus, apresiasi. Kalau ada yang perlu diperbaiki, bilang jujur tapi tetap supportif
+- Ngobrol natural, bukan seperti laporan formal
 
-RIWAYAT SESI (terbaru):
+Keahlian kamu:
+- Analisis performa live streaming (Shopee, TikTok, DLD)
+- Strategi live: waktu optimal, durasi, teknik engagement, konversi
+- Marketing strategy: promosi, flash sale, giveaway, follower growth
+- Baca dan interpretasi data — tren, pola, anomali
+- Evaluasi catatan sesi untuk insight improvement
+
+Batas topik: live streaming dan marketing strategy. Kalau ditanya soal konten video, editing, atau hal yang jauh di luar ini, bilang itu bukan bidang kamu tapi tetap arahkan ke yang relevan.
+
+DATA BRAND (real-time dari LiveOS):
+Brand: ${brand} | Kategori: ${cat}
+Total sesi: ${allSessions.length} | Total GMV: ${fRp(tot)}
+GMV Shopee+DLD: ${fRp(shopeeGMV)} | GMV TikTok: ${fRp(tiktokGMV)}
+
+STREAMER AKTIF: ${streamerList}
+
+DATA SESI TERBARU (50 sesi, dengan catatan):
 ${sessionRows||'Belum ada data sesi.'}
 
-STREAMER TERDAFTAR: ${streamerList}
-
-PANDUAN:
-- Kalau user tanya analisa, tren, strategi, atau minta rangkuman catatan → baca kolom CATATAN tiap sesi dan berikan insight mendalam
-- Untuk pertanyaan seperti "rangkum catatan tgl X-Y" atau "poin bagus & improvement" → analisis semua catatan di rentang tanggal itu, kelompokkan jadi: ✅ Hal positif, ⚠️ Poin improvement, 💡 Rekomendasi ke depan
-- Kalau user input sesi baru (cth: "Rora live Shopee jam 19:00 durasi 2 jam GMV 32 juta") → 
-  cocokkan nama ke streamer terdaftar, lalu balas JSON SATU BARIS di awal respons:
+CARA KERJA:
+- Kalau ditanya analisis, tren, atau evaluasi → baca data di atas, kasih insight yang actionable, bukan cuma laporan
+- Kalau diminta rangkum catatan → kelompokkan jadi ✅ Yang berjalan baik, ⚠️ Yang perlu diperbaiki, 💡 Rekomendasi ke depan
+- Kalau kamu lihat sesuatu yang menarik dari data tapi tidak ditanya → boleh proaktif mention, misal "oh btw aku notice..."
+- Kalau user input sesi baru lewat chat (cth: "Rora live Shopee jam 19:00 durasi 2 jam GMV 32 juta") → cocokkan nama ke streamer terdaftar, balas JSON SATU BARIS di AWAL respons:
   {"action":"add_session","streamerId":"ID_JIKA_ADA","streamerName":"NAMA_RESMI","mp":"Shopee","time":"19:00","duration":120,"gmv":32000000,"note":""}
-  Lalu lanjut dengan respons konfirmasi.
-- Kalau nama tidak cocok dengan streamer manapun, jangan simpan, minta user cek Data Streamer.
-- Bahasa Indonesia santai tapi profesional, singkat dan actionable.
-- Kamu bisa ingat konteks percakapan dalam sesi ini.`;
+  Lalu lanjut dengan respons konfirmasi yang natural
+- Kalau nama streamer tidak cocok → jangan simpan, minta cek menu Data Streamer
+- Kamu bisa ingat konteks percakapan dalam sesi ini — manfaatkan untuk jawaban yang lebih relevan`;
 
     // Build messages properly - keep history for context
     const messages = chatHistory
@@ -2837,8 +2858,8 @@ PANDUAN:
       },
       body:JSON.stringify({
         model:'llama-3.3-70b-versatile',
-        max_tokens:1200,
-        temperature:0.7,
+        max_tokens:1500,
+        temperature:0.8,
         messages: groqMessages
       })
     });
