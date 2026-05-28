@@ -3806,15 +3806,34 @@ function renderSKUHistory(){
   var badge=document.getElementById('sku-history-count');
   if(badge)badge.textContent=allSKUReports.length+' report';
   if(!tbody)return;
-  if(!allSKUReports.length){tbody.innerHTML='<tr><td colspan="7" class="empty">Belum ada report</td></tr>';return;}
+  if(!allSKUReports.length){
+    tbody.innerHTML='<tr><td colspan="7" class="empty">Belum ada report</td></tr>';
+    return;
+  }
   var isSU=currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
-  tbody.innerHTML=allSKUReports.map(function(r){
+  tbody.innerHTML='';
+  allSKUReports.forEach(function(r){
+    var tr=document.createElement('tr');
     var d=r.date?new Date(r.date+'T12:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'';
     var jam=(r.timeStart||'-')+(r.timeEnd?' - '+r.timeEnd:'');
     var mpCls=r.mp==='Shopee'?'mps':r.mp==='DLD'?'mpd':'mpt';
-    var delBtn=isSU?'<button class="del-row" onclick="deleteSKUReport(''+r.id+'')">&#128465;</button>':'';
-    return '<tr><td style="font-weight:600">'+d+'</td><td><span class="mpb '+mpCls+'">'+r.mp+'</span></td><td style="color:var(--text3);font-size:12px">'+jam+'</td><td>'+(r.items?.length||0)+' SKU</td><td style="font-weight:600;color:var(--green)">'+(r.totalQty||0)+' pcs</td><td style="color:var(--text3);font-size:12px">'+(r.by||'-')+'</td><td>'+delBtn+'</td></tr>';
-  }).join('');
+    tr.innerHTML=
+      '<td style="font-weight:600">'+d+'</td>'+
+      '<td><span class="mpb '+mpCls+'">'+r.mp+'</span></td>'+
+      '<td style="color:var(--text3);font-size:12px">'+jam+'</td>'+
+      '<td>'+(r.items?r.items.length:0)+' SKU</td>'+
+      '<td style="font-weight:600;color:var(--green)">'+(r.totalQty||0)+' pcs</td>'+
+      '<td style="color:var(--text3);font-size:12px">'+(r.by||'-')+'</td>'+
+      '<td></td>';
+    if(isSU){
+      var delBtn=document.createElement('button');
+      delBtn.className='del-row';
+      delBtn.textContent='🗑';
+      delBtn.addEventListener('click',function(){deleteSKUReport(r.id);});
+      tr.cells[6].appendChild(delBtn);
+    }
+    tbody.appendChild(tr);
+  });
 }
 
 async function deleteSKUReport(id){
@@ -3864,10 +3883,23 @@ function renderMasterSKUList(){
   var isSU=currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
   if(addBtn)addBtn.style.display=isSU?'block':'none';
   if(!list)return;
-  if(!allMasterSKU.length){list.innerHTML='<span style="font-size:12px;color:var(--text3);">Belum ada SKU.'+(isSU?' Tambah di bawah.':'')+'</span>';return;}
-  list.innerHTML=allMasterSKU.map(function(s){
-    return '<span class="master-sku-chip">'+s.name+(isSU?'<button onclick="deleteMasterSKU(''+s.id+'',''+s.name+'')">&#215;</button>':'')+'</span>';
-  }).join('');
+  list.innerHTML='';
+  if(!allMasterSKU.length){
+    list.innerHTML='<span style="font-size:12px;color:var(--text3);">Belum ada SKU.'+(isSU?' Tambah di bawah.':'')+'</span>';
+    return;
+  }
+  allMasterSKU.forEach(function(s){
+    var chip=document.createElement('span');
+    chip.className='master-sku-chip';
+    chip.textContent=s.name;
+    if(isSU){
+      var btn=document.createElement('button');
+      btn.textContent='×';
+      btn.addEventListener('click',function(){deleteMasterSKU(s.id,s.name);});
+      chip.appendChild(btn);
+    }
+    list.appendChild(chip);
+  });
 }
 
 async function addMasterSKU(){
