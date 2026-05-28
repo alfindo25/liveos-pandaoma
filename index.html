@@ -2775,8 +2775,77 @@ async function sendChat(){
     const today = new Date();
     const todayStr = today.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
-    // Semua sesi — tidak dibatasi
-    const sessionRows = allSessions.map((d,i) =>
+    // ── Smart filter sesi berdasarkan pertanyaan user ──
+    const userMsg = msg.toLowerCase();
+
+    // Deteksi range tanggal spesifik: "25-28 mei", "1-7 mei", "tgl 25 sampai 28"
+    const rangeMatch = userMsg.match(/(?:tgl?|tanggal)?\s*(\d{1,2})\s*[-–hinggas/d ]+(\d{1,2})\s*(jan(?:uari)?|feb(?:ruari)?|mar(?:et)?|apr(?:il)?|mei|jun(?:i)?|jul(?:i)?|agu(?:stus)?|sep(?:tember)?|okt(?:ober)?|nov(?:ember)?|des(?:ember)?)/i);
+    const singleDateMatch = userMsg.match(/(?:tgl?|tanggal)\s*(\d{1,2})\s*(jan(?:uari)?|feb(?:ruari)?|mar(?:et)?|apr(?:il)?|mei|jun(?:i)?|jul(?:i)?|agu(?:stus)?|sep(?:tember)?|okt(?:ober)?|nov(?:ember)?|des(?:ember)?)/i);
+
+    // Deteksi nama bulan saja
+    const bulanMap = {jan:1,januari:1,feb:2,februari:2,mar:3,maret:3,apr:4,april:4,mei:5,jun:6,juni:6,jul:7,juli:7,agu:8,agustus:8,sep:9,september:9,okt:10,oktober:10,nov:11,november:11,des:12,desember:12};
+    const bulanMatch = userMsg.match(/(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember|jan|feb|mar|apr|jun|jul|agu|sep|okt|nov|des)/i);
+
+    const nowDate = new Date();
+    const nowY = nowDate.getFullYear();
+    const nowStr2 = nowY+'-'+String(nowDate.getMonth()+1).padStart(2,'0')+'-'+String(nowDate.getDate()).padStart(2,'0');
+
+    let filterFrom = '', filterTo = '', filterDesc = '';
+
+    // Prioritas deteksi: range spesifik > bulan spesifik > keyword relatif > default
+    if(rangeMatch) {
+      const bulanNama = rangeMatch[3].toLowerCase().substring(0,3);
+      const bulanNum = bulanMap[bulanNama]||bulanMap[Object.keys(bulanMap).find(k=>k.startsWith(bulanNama))];
+      if(bulanNum) {
+        const d1 = String(rangeMatch[1]).padStart(2,'0');
+        const d2 = String(rangeMatch[2]).padStart(2,'0');
+        filterFrom = nowY+'-'+String(bulanNum).padStart(2,'0')+'-'+d1;
+        filterTo = nowY+'-'+String(bulanNum).padStart(2,'0')+'-'+d2;
+        filterDesc = rangeMatch[1]+'-'+rangeMatch[2]+' '+rangeMatch[3];
+      }
+    } else if(singleDateMatch) {
+      const bulanNama = singleDateMatch[2].toLowerCase().substring(0,3);
+      const bulanNum = bulanMap[bulanNama]||bulanMap[Object.keys(bulanMap).find(k=>k.startsWith(bulanNama))];
+      if(bulanNum) {
+        const d1 = String(singleDateMatch[1]).padStart(2,'0');
+        filterFrom = nowY+'-'+String(bulanNum).padStart(2,'0')+'-'+d1;
+        filterTo = filterFrom;
+        filterDesc = 'tgl '+singleDateMatch[1]+' '+singleDateMatch[2];
+      }
+    } else if(/hari ini|today|sekarang/.test(userMsg)) {
+      filterFrom = nowStr2; filterTo = nowStr2; filterDesc = 'hari ini';
+    } else if(/kemarin|yesterday/.test(userMsg)) {
+      const kem = new Date(nowDate); kem.setDate(nowDate.getDate()-1);
+      filterFrom = filterTo = kem.getFullYear()+'-'+String(kem.getMonth()+1).padStart(2,'0')+'-'+String(kem.getDate()).padStart(2,'0');
+      filterDesc = 'kemarin';
+    } else if(/minggu ini|seminggu|7 hari|tujuh hari|week/.test(userMsg)) {
+      const s7 = new Date(nowDate); s7.setDate(nowDate.getDate()-6);
+      filterFrom = s7.getFullYear()+'-'+String(s7.getMonth()+1).padStart(2,'0')+'-'+String(s7.getDate()).padStart(2,'0');
+      filterTo = nowStr2; filterDesc = '7 hari terakhir';
+    } else if(/bulan ini|sebulan|30 hari|tiga puluh hari|month/.test(userMsg)) {
+      const s30 = new Date(nowDate); s30.setDate(nowDate.getDate()-29);
+      filterFrom = s30.getFullYear()+'-'+String(s30.getMonth()+1).padStart(2,'0')+'-'+String(s30.getDate()).padStart(2,'0');
+      filterTo = nowStr2; filterDesc = '30 hari terakhir';
+    } else if(bulanMatch) {
+      const bulanNum = bulanMap[bulanMatch[1].toLowerCase()];
+      if(bulanNum) {
+        const lastDay = new Date(nowY, bulanNum, 0).getDate();
+        filterFrom = nowY+'-'+String(bulanNum).padStart(2,'0')+'-01';
+        filterTo = nowY+'-'+String(bulanNum).padStart(2,'0')+'-'+String(lastDay).padStart(2,'0');
+        filterDesc = 'bulan '+bulanMatch[1];
+      }
+    }
+
+    // Default: 7 hari terakhir
+    if(!filterFrom) {
+      const s7d = new Date(nowDate); s7d.setDate(nowDate.getDate()-6);
+      filterFrom = s7d.getFullYear()+'-'+String(s7d.getMonth()+1).padStart(2,'0')+'-'+String(s7d.getDate()).padStart(2,'0');
+      filterTo = nowStr2; filterDesc = '7 hari terakhir (default)';
+    }
+
+    // Filter sesi sesuai periode terdeteksi
+    const filteredSessions = allSessions.filter(s => s.date >= filterFrom && s.date <= filterTo);
+    const sessionRows = filteredSessions.map((d,i) =>
       (i+1)+'. '+d.streamerName+' | '+d.mp+' | '+d.date+' | jam '+(d.time||'-')+
       ' | durasi '+(d.dur?fDur(d.dur):'-')+' | GMV '+fRp(d.gmv||0)+
       (d.note?' | CATATAN: "'+d.note+'"':'')
@@ -2879,7 +2948,7 @@ ${streamerRank||'Belum ada data'}
 
 STREAMER AKTIF: ${streamerList}
 
-━━━ DATA LENGKAP SEMUA SESI ━━━
+━━━ DATA SESI (periode: ${filterDesc}, ${filteredSessions.length} sesi) ━━━
 ${sessionRows||'Belum ada data sesi.'}
 
 ━━━ CARA KERJA ━━━
