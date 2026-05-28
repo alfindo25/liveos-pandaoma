@@ -2886,6 +2886,23 @@ async function sendChat(){
     // Rata-rata GMV per sesi
     const avgGMV = allSessions.length ? Math.round(allSessions.reduce((s,d)=>s+(d.gmv||0),0)/allSessions.length) : 0;
 
+    // GMV per hari (7 hari terakhir) — sudah dihitung JS, AI tidak perlu hitung sendiri
+    const hariMap = {};
+    last7.forEach(s=>{
+      if(!hariMap[s.date]) hariMap[s.date]={gmv:0,n:0,shopee:0,tiktok:0};
+      hariMap[s.date].gmv += (s.gmv||0);
+      hariMap[s.date].n++;
+      if(s.mp==='Shopee'||s.mp==='DLD') hariMap[s.date].shopee += (s.gmv||0);
+      if(s.mp==='TikTok') hariMap[s.date].tiktok += (s.gmv||0);
+    });
+    const hariRows = Object.entries(hariMap)
+      .sort((a,b)=>a[0].localeCompare(b[0]))
+      .map(([tgl,v])=>{
+        const d=new Date(tgl+'T12:00:00');
+        const label=d.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short'});
+        return `${label}: ${fRp(v.gmv)} (${v.n} sesi${v.shopee?' | Shopee+DLD: '+fRp(v.shopee):''}${v.tiktok?' | TikTok: '+fRp(v.tiktok):''})`;
+      }).join('\n');
+
     // Jam terbaik (top 3)
     const jamMap = {};
     allSessions.filter(s=>s.time).forEach(s=>{
@@ -2937,6 +2954,8 @@ Rata-rata GMV per sesi: ${fRp(avgGMV)}
 
 7 HARI TERAKHIR (${d7Str} s/d ${nowStr}):
 GMV: ${fRp(last7GMV)} | Shopee+DLD: ${fRp(last7Shopee)} | TikTok: ${fRp(last7TikTok)} | Sesi: ${last7.length}
+Detail per hari (SUDAH DIHITUNG, JANGAN HITUNG ULANG):
+${hariRows||'Belum ada data 7 hari terakhir'}
 
 30 HARI TERAKHIR (${d30Str} s/d ${nowStr}):
 GMV: ${fRp(last30GMV)} | Shopee+DLD: ${fRp(last30Shopee)} | TikTok: ${fRp(last30TikTok)} | Sesi: ${last30.length}
@@ -2979,9 +2998,11 @@ ${sessionRows||'Belum ada data sesi.'}
       return;
     }
 
+    // Batasi history ke 4 pesan terakhir — hindari token overload
+    const recentMessages = messages.slice(-4);
     const groqMessages = [
       {role:'system', content: sysP},
-      ...messages
+      ...recentMessages
     ];
 
     let res;
