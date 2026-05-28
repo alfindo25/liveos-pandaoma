@@ -1614,16 +1614,14 @@ function toggleGuideCard(hdr){
 <div class="sr"><div><div class="sk">Kategori Produk</div></div><input class="fi" id="s-cat" style="width:160px" placeholder="Home Appliance"/></div>
 <button class="sub-btn" style="margin-top:14px;max-width:200px" onclick="saveSetting()">Simpan</button></div>
 <div class="sc2">
-<div class="stitle">AI Chat — Gemini API</div>
+<div class="stitle">AI Chat — Groq API Key</div>
 <div class="sr" style="border:none">
-  <div><div class="sk">Gemini API Key</div><div class="sdesc">Key default sudah aktif. Override di sini kalau perlu ganti — dapatkan di aistudio.google.com</div></div>
+  <div><div class="sk">Groq API Key</div><div class="sdesc">Dapatkan gratis di console.groq.com — disimpan di browser ini saja</div></div>
 </div>
 <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-  <input class="fi" id="gemini-key-input" type="password" placeholder="AIzaSy..." style="flex:1"/>
-  <button onclick="saveGeminiKey()" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">Simpan</button>
-  <button onclick="resetGeminiKey()" style="padding:8px 14px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">Reset</button>
+  <input class="fi" id="groq-key" type="password" placeholder="gsk_..." style="flex:1"/>
+  <button onclick="saveGroqKey()" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">Simpan</button>
 </div>
-<div id="gemini-key-status" style="font-size:11px;margin-top:6px;color:var(--green);font-weight:600;"></div>
 </div>
 <div class="sc2"><div class="stitle">Akun & Database</div>
 <div class="sr"><div><div class="sk">Email Aktif</div></div><div class="sv" id="set-email">-</div></div>
@@ -1905,7 +1903,7 @@ auth.onAuthStateChanged(async(user)=>{
     document.getElementById('set-email').textContent=user.email;
     document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
     loadSettings();
-    loadGeminiKey();
+    loadGroqKey();
     startListeners();
     startIncentiveListener();
     setTimeout(loadChatHistory, 800);
@@ -2032,7 +2030,7 @@ function goPage(p){
       if(msgs)msgs.scrollTop=msgs.scrollHeight;
     },150);
   }
-  if(p==='setting'){loadGeminiKey();loadPendingUsers();}
+  if(p==='setting'){loadGroqKey();loadPendingUsers();}
   if(p==='streamers'){
     renderStreamerList();
     const addForm=document.getElementById('add-streamer-form');
@@ -2711,29 +2709,16 @@ function saveGroqKey(){
   showToast('✅ Groq API key tersimpan!');
 }
 
-function loadGroqKey(){} // legacy
-
-function loadGeminiKey(){
-  const k = localStorage.getItem('liveos_gemini_key');
-  const el = document.getElementById('gemini-key-input');
-  if(el) el.value = k || '';
-  const st = document.getElementById('gemini-key-status');
-  if(st) st.textContent = k ? '✅ Menggunakan key kustom' : '✅ Menggunakan key default Pandaoma';
+function loadGroqKey(){
+  const k=localStorage.getItem('liveos_groq_key')||'';
+  const el=document.getElementById('groq-key');
+  if(el)el.value=k;
 }
-function saveGeminiKey(){
-  const k = document.getElementById('gemini-key-input')?.value?.trim();
-  if(!k){showToast('Key tidak boleh kosong!', true); return;}
-  localStorage.setItem('liveos_gemini_key', k);
-  const st = document.getElementById('gemini-key-status');
-  if(st) st.textContent = '✅ Menggunakan key kustom';
-  showToast('Gemini API Key tersimpan!');
-}
-function resetGeminiKey(){
-  localStorage.removeItem('liveos_gemini_key');
-  const el = document.getElementById('gemini-key-input'); if(el) el.value = '';
-  const st = document.getElementById('gemini-key-status');
-  if(st) st.textContent = '✅ Menggunakan key default Pandaoma';
-  showToast('Reset ke key default!');
+function saveGroqKey(){
+  const k=document.getElementById('groq-key')?.value?.trim();
+  if(!k){showToast('API key tidak boleh kosong!',true);return;}
+  localStorage.setItem('liveos_groq_key',k);
+  showToast('Groq API Key tersimpan!');
 }
 
 
@@ -2917,52 +2902,45 @@ ${sessionRows||'Belum ada data sesi.'}
       }));
 
     // Get Groq API key from settings
-    const geminiKey = localStorage.getItem('liveos_gemini_key') || 'AIzaSyA7g4LhMxN9ENdv8swZBBk265fdV166Yd4';
-
-    // Build Gemini contents
-    let gemContents = [];
-    if(messages.length === 0){
-      gemContents = [{role:'user', parts:[{text: sysP + '\n\nHalo!'}]}];
-    } else {
-      // Gabung system prompt ke pesan pertama user
-      const msgs = [...messages];
-      gemContents = msgs.map((m, i) => {
-        return {
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{text: i === 0 ? sysP + '\n\n' + m.content : m.content}]
-        };
-      });
-      // Gemini harus mulai dengan 'user'
-      if(gemContents[0]?.role === 'model') {
-        gemContents.unshift({role:'user', parts:[{text: sysP}]});
-      }
+    const groqKey = localStorage.getItem('liveos_groq_key') || '';
+    if(!groqKey){
+      te.remove();
+      addMsg('ai','⚠️ Groq API key belum diisi. Buka Setting → isi Groq API Key dulu ya!');
+      document.getElementById('sb2').disabled=false;
+      return;
     }
+
+    const groqMessages = [
+      {role:'system', content: sysP},
+      ...messages
+    ];
 
     let res;
     try {
-      res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + geminiKey, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          contents: gemContents,
-          generationConfig: {temperature: 0.8, maxOutputTokens: 1500}
-        })
+      res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
+        body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:1500,temperature:0.8,messages:groqMessages})
       });
     } catch(fetchErr) {
       te.remove();
-      addMsg('ai', '❌ Koneksi gagal. Cek internet kamu ya!');
-      document.getElementById('sb2').disabled = false;
+      addMsg('ai','❌ Koneksi gagal. Cek internet kamu ya!');
+      document.getElementById('sb2').disabled=false;
       return;
     }
-    const data = await res.json();
-    if(!res.ok || data.error || !data.candidates){
+    const data=await res.json();
+    if(!res.ok){
       te.remove();
-      const errMsg = data.error?.message || 'Coba lagi ya!';
-      addMsg('ai', '❌ ' + errMsg);
-      document.getElementById('sb2').disabled = false;
+      const errMsg=data.error?.message||'Coba lagi ya!';
+      if(res.status===429){
+        addMsg('ai','⏱️ Lagi ramai nih, tunggu sebentar (sekitar 1 menit) terus coba lagi ya!');
+      } else {
+        addMsg('ai','❌ '+errMsg);
+      }
+      document.getElementById('sb2').disabled=false;
       return;
     }
-    const reply=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    const reply=data.choices?.[0]?.message?.content||'';
     te.remove();
     const jm=reply.match(/\{"action":"add_session"[^}]*\}/);
     if(jm){
