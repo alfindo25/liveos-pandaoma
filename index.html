@@ -1614,14 +1614,16 @@ function toggleGuideCard(hdr){
 <div class="sr"><div><div class="sk">Kategori Produk</div></div><input class="fi" id="s-cat" style="width:160px" placeholder="Home Appliance"/></div>
 <button class="sub-btn" style="margin-top:14px;max-width:200px" onclick="saveSetting()">Simpan</button></div>
 <div class="sc2">
-<div class="stitle">AI Chat — Groq API Key</div>
+<div class="stitle">AI Chat — Gemini API</div>
 <div class="sr" style="border:none">
-  <div><div class="sk">Groq API Key</div><div class="sdesc">Dapatkan gratis di console.groq.com — disimpan di browser ini saja</div></div>
+  <div><div class="sk">Gemini API Key</div><div class="sdesc">Key default sudah aktif. Override di sini kalau perlu ganti — dapatkan di aistudio.google.com</div></div>
 </div>
 <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
-  <input class="fi" id="groq-key" type="password" placeholder="gsk_..." style="flex:1"/>
-  <button onclick="saveGroqKey()" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">Simpan</button>
+  <input class="fi" id="gemini-key-input" type="password" placeholder="AIzaSy..." style="flex:1"/>
+  <button onclick="saveGeminiKey()" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">Simpan</button>
+  <button onclick="resetGeminiKey()" style="padding:8px 14px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">Reset</button>
 </div>
+<div id="gemini-key-status" style="font-size:11px;margin-top:6px;color:var(--green);font-weight:600;"></div>
 </div>
 <div class="sc2"><div class="stitle">Akun & Database</div>
 <div class="sr"><div><div class="sk">Email Aktif</div></div><div class="sv" id="set-email">-</div></div>
@@ -1903,7 +1905,7 @@ auth.onAuthStateChanged(async(user)=>{
     document.getElementById('set-email').textContent=user.email;
     document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
     loadSettings();
-    loadGroqKey();
+    loadGeminiKey();
     startListeners();
     startIncentiveListener();
     setTimeout(loadChatHistory, 800);
@@ -2030,7 +2032,7 @@ function goPage(p){
       if(msgs)msgs.scrollTop=msgs.scrollHeight;
     },150);
   }
-  if(p==='setting'){loadGroqKey();loadPendingUsers();}
+  if(p==='setting'){loadGeminiKey();loadPendingUsers();}
   if(p==='streamers'){
     renderStreamerList();
     const addForm=document.getElementById('add-streamer-form');
@@ -2709,16 +2711,29 @@ function saveGroqKey(){
   showToast('✅ Groq API key tersimpan!');
 }
 
-function loadGroqKey(){
-  const k=localStorage.getItem('liveos_groq_key')||'';
-  const el=document.getElementById('groq-key');
-  if(el)el.value=k;
+function loadGroqKey(){} // legacy
+
+function loadGeminiKey(){
+  const k = localStorage.getItem('liveos_gemini_key');
+  const el = document.getElementById('gemini-key-input');
+  if(el) el.value = k || '';
+  const st = document.getElementById('gemini-key-status');
+  if(st) st.textContent = k ? '✅ Menggunakan key kustom' : '✅ Menggunakan key default Pandaoma';
 }
-function saveGroqKey(){
-  const k=document.getElementById('groq-key')?.value?.trim();
-  if(!k){showToast('API key tidak boleh kosong!',true);return;}
-  localStorage.setItem('liveos_groq_key',k);
-  showToast('Groq API Key tersimpan!');
+function saveGeminiKey(){
+  const k = document.getElementById('gemini-key-input')?.value?.trim();
+  if(!k){showToast('Key tidak boleh kosong!', true); return;}
+  localStorage.setItem('liveos_gemini_key', k);
+  const st = document.getElementById('gemini-key-status');
+  if(st) st.textContent = '✅ Menggunakan key kustom';
+  showToast('Gemini API Key tersimpan!');
+}
+function resetGeminiKey(){
+  localStorage.removeItem('liveos_gemini_key');
+  const el = document.getElementById('gemini-key-input'); if(el) el.value = '';
+  const st = document.getElementById('gemini-key-status');
+  if(st) st.textContent = '✅ Menggunakan key default Pandaoma';
+  showToast('Reset ke key default!');
 }
 
 
@@ -2774,54 +2789,126 @@ async function sendChat(){
     const streamerList = allStreamers.length
       ? allStreamers.map(s=>s.name+' ('+s.role+')').join(', ')
       : 'Belum ada streamer terdaftar.';
-    const sessionRows = allSessions.slice(0,25).map((d,i)=>
-      (i+1)+'. '+d.streamerName+' | '+(d.mp)+' | '+d.date+' | jam '+(d.time||'-')+
+    // ── Data prep untuk AI ──
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+    // Semua sesi — tidak dibatasi
+    const sessionRows = allSessions.map((d,i) =>
+      (i+1)+'. '+d.streamerName+' | '+d.mp+' | '+d.date+' | jam '+(d.time||'-')+
       ' | durasi '+(d.dur?fDur(d.dur):'-')+' | GMV '+fRp(d.gmv||0)+
       (d.note?' | CATATAN: "'+d.note+'"':'')
     ).join('\n');
+
+    // Statistik ringkasan otomatis
+    const now = new Date();
+    const nowStr = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    const d7 = new Date(now); d7.setDate(now.getDate()-6);
+    const d7Str = d7.getFullYear()+'-'+String(d7.getMonth()+1).padStart(2,'0')+'-'+String(d7.getDate()).padStart(2,'0');
+    const d30 = new Date(now); d30.setDate(now.getDate()-29);
+    const d30Str = d30.getFullYear()+'-'+String(d30.getMonth()+1).padStart(2,'0')+'-'+String(d30.getDate()).padStart(2,'0');
+
+    // GMV per streamer (all time)
+    const streamerGMV = {};
+    allSessions.forEach(s=>{
+      if(!streamerGMV[s.streamerName]) streamerGMV[s.streamerName]={gmv:0,n:0};
+      streamerGMV[s.streamerName].gmv += (s.gmv||0);
+      streamerGMV[s.streamerName].n++;
+    });
+    const streamerRank = Object.entries(streamerGMV)
+      .sort((a,b)=>b[1].gmv-a[1].gmv)
+      .map(([name,v],i)=>`${i+1}. ${name}: ${fRp(v.gmv)} (${v.n} sesi)`)
+      .join('\n');
+
+    // 7 hari terakhir
+    const last7 = allSessions.filter(s=>s.date>=d7Str&&s.date<=nowStr);
+    const last7GMV = last7.reduce((s,d)=>s+(d.gmv||0),0);
+    const last7Shopee = last7.filter(d=>d.mp==='Shopee'||d.mp==='DLD').reduce((s,d)=>s+(d.gmv||0),0);
+    const last7TikTok = last7.filter(d=>d.mp==='TikTok').reduce((s,d)=>s+(d.gmv||0),0);
+
+    // 30 hari terakhir
+    const last30 = allSessions.filter(s=>s.date>=d30Str&&s.date<=nowStr);
+    const last30GMV = last30.reduce((s,d)=>s+(d.gmv||0),0);
+    const last30Shopee = last30.filter(d=>d.mp==='Shopee'||d.mp==='DLD').reduce((s,d)=>s+(d.gmv||0),0);
+    const last30TikTok = last30.filter(d=>d.mp==='TikTok').reduce((s,d)=>s+(d.gmv||0),0);
+
+    // Rata-rata GMV per sesi
+    const avgGMV = allSessions.length ? Math.round(allSessions.reduce((s,d)=>s+(d.gmv||0),0)/allSessions.length) : 0;
+
+    // Jam terbaik (top 3)
+    const jamMap = {};
+    allSessions.filter(s=>s.time).forEach(s=>{
+      const h = s.time.split(':')[0]+'00';
+      if(!jamMap[h]) jamMap[h]={gmv:0,n:0};
+      jamMap[h].gmv+=(s.gmv||0); jamMap[h].n++;
+    });
+    const jamTerbaik = Object.entries(jamMap)
+      .sort((a,b)=>b[1].gmv-a[1].gmv)
+      .slice(0,3)
+      .map(([jam,v])=>`jam ${jam} (avg ${fRp(Math.round(v.gmv/v.n))})`)
+      .join(', ');
+
+    // Total
     const tot = allSessions.reduce((s,d)=>s+(d.gmv||0),0);
-    const shopeeGMV = allSessions.filter(d=>d.mp==='Shopee').reduce((s,d)=>s+(d.gmv||0),0);
+    const shopeeGMV = allSessions.filter(d=>d.mp==='Shopee'||d.mp==='DLD').reduce((s,d)=>s+(d.gmv||0),0);
     const tiktokGMV = allSessions.filter(d=>d.mp==='TikTok').reduce((s,d)=>s+(d.gmv||0),0);
     const brand = document.getElementById('s-brand')?.value||'Pandaoma';
     const cat = document.getElementById('s-cat')?.value||'produk rumah tangga';
+    const streamerList = allStreamers.map(s=>s.name+(s.role?' ('+s.role+')':'')).join(', ');
 
-    const sysP = `Kamu adalah advisor bisnis live streaming untuk brand ${brand} (kategori: ${cat}). Nama kamu terserah — anggap aja kamu asisten pribadi yang udah kenal baik sama brand ini.
+    const sysP = `Kamu adalah advisor bisnis live streaming untuk brand ${brand} (kategori: ${cat}). Anggap kamu asisten pribadi yang udah kenal baik sama brand ini dan selalu update sama datanya.
+
+HARI INI: ${todayStr}
 
 Gaya komunikasi kamu:
-- Pakai bahasa Indonesia yang santai dan natural — pakai "kamu/aku", bukan "Anda/saya"
-- Boleh pakai emoji sesekali biar lebih hidup, tapi jangan berlebihan
-- Kalau jawab angka atau data, langsung kasih konteks/insight tambahan tanpa diminta — jangan cuma nyebutin angkanya doang
+- Pakai bahasa Indonesia santai dan natural — pakai "kamu/aku", bukan "Anda/saya"
+- Boleh pakai emoji sesekali tapi jangan berlebihan
+- Kalau jawab angka/data, langsung kasih konteks & insight tambahan tanpa diminta
 - Kalau ada yang bagus, apresiasi. Kalau ada yang perlu diperbaiki, bilang jujur tapi tetap supportif
 - Ngobrol natural, bukan seperti laporan formal
+- Kalau user tanya soal periode tertentu (misal "7 hari terakhir" atau "kemarin"), hitung dari tanggal hari ini di atas
 
 Keahlian kamu:
-- Analisis performa live streaming (Shopee, TikTok, DLD)
+- Analisis performa live streaming (Shopee, TikTok, DLD/Di Luar Dashboard)
 - Strategi live: waktu optimal, durasi, teknik engagement, konversi
-- Marketing strategy: promosi, flash sale, giveaway, follower growth
-- Baca dan interpretasi data — tren, pola, anomali
+- Marketing strategy: promosi, flash sale, giveaway, follower growth, e-commerce ecosystem
+- Baca dan interpretasi data — tren, pola, anomali, perbandingan
 - Evaluasi catatan sesi untuk insight improvement
+- Manajemen tim streamer
 
-Batas topik: live streaming dan marketing strategy. Kalau ditanya soal konten video, editing, atau hal yang jauh di luar ini, bilang itu bukan bidang kamu tapi tetap arahkan ke yang relevan.
+Topik yang TIDAK kamu handle: konten video/editing, hal yang sama sekali tidak terkait bisnis/marketing.
+Kalau ditanya di luar topik, bilang itu bukan bidang kamu tapi tetap arahkan ke yang relevan.
 
-DATA BRAND (real-time dari LiveOS):
-Brand: ${brand} | Kategori: ${cat}
-Total sesi: ${allSessions.length} | Total GMV: ${fRp(tot)}
+━━━ RINGKASAN DATA BRAND ━━━
+Total sesi: ${allSessions.length} | Total GMV all time: ${fRp(tot)}
 GMV Shopee+DLD: ${fRp(shopeeGMV)} | GMV TikTok: ${fRp(tiktokGMV)}
+Rata-rata GMV per sesi: ${fRp(avgGMV)}
+
+7 HARI TERAKHIR (${d7Str} s/d ${nowStr}):
+GMV: ${fRp(last7GMV)} | Shopee+DLD: ${fRp(last7Shopee)} | TikTok: ${fRp(last7TikTok)} | Sesi: ${last7.length}
+
+30 HARI TERAKHIR (${d30Str} s/d ${nowStr}):
+GMV: ${fRp(last30GMV)} | Shopee+DLD: ${fRp(last30Shopee)} | TikTok: ${fRp(last30TikTok)} | Sesi: ${last30.length}
+
+JAM TERBAIK (by avg GMV): ${jamTerbaik||'Belum cukup data'}
+
+RANKING STREAMER (all time):
+${streamerRank||'Belum ada data'}
 
 STREAMER AKTIF: ${streamerList}
 
-DATA SESI TERBARU (50 sesi, dengan catatan):
+━━━ DATA LENGKAP SEMUA SESI ━━━
 ${sessionRows||'Belum ada data sesi.'}
 
-CARA KERJA:
-- Kalau ditanya analisis, tren, atau evaluasi → baca data di atas, kasih insight yang actionable, bukan cuma laporan
+━━━ CARA KERJA ━━━
+- Kalau ditanya analisis/tren/evaluasi → baca data di atas, kasih insight actionable
 - Kalau diminta rangkum catatan → kelompokkan jadi ✅ Yang berjalan baik, ⚠️ Yang perlu diperbaiki, 💡 Rekomendasi ke depan
-- Kalau kamu lihat sesuatu yang menarik dari data tapi tidak ditanya → boleh proaktif mention, misal "oh btw aku notice..."
-- Kalau user input sesi baru lewat chat (cth: "Rora live Shopee jam 19:00 durasi 2 jam GMV 32 juta") → cocokkan nama ke streamer terdaftar, balas JSON SATU BARIS di AWAL respons:
+- Kalau lihat sesuatu menarik dari data tapi tidak ditanya → proaktif mention, misal "oh btw aku notice..."
+- Kalau user input sesi baru via chat → cocokkan nama ke streamer terdaftar, balas JSON SATU BARIS di AWAL respons:
   {"action":"add_session","streamerId":"ID_JIKA_ADA","streamerName":"NAMA_RESMI","mp":"Shopee","time":"19:00","duration":120,"gmv":32000000,"note":""}
-  Lalu lanjut dengan respons konfirmasi yang natural
+  Lalu lanjut dengan konfirmasi natural
 - Kalau nama streamer tidak cocok → jangan simpan, minta cek menu Data Streamer
-- Kamu bisa ingat konteks percakapan dalam sesi ini — manfaatkan untuk jawaban yang lebih relevan`;
+- Manfaatkan konteks percakapan sebelumnya untuk jawaban yang lebih relevan`;
 
     // Build messages properly - keep history for context
     const messages = chatHistory
@@ -2833,61 +2920,52 @@ CARA KERJA:
       }));
 
     // Get Groq API key from settings
-    const groqKey = localStorage.getItem('liveos_groq_key') || '';
+    const geminiKey = localStorage.getItem('liveos_gemini_key') || 'AIzaSyA7g4LhMxN9ENdv8swZBBk265fdV166Yd4';
 
-    const groqMessages = [
-      {role:'system', content: sysP},
-      ...messages
-    ];
-
-    // Auto-retry kalau rate limit
-    let res, retried = false;
-    try {
-      res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
-        body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:1500,temperature:0.8,messages:groqMessages})
+    // Build Gemini contents
+    let gemContents = [];
+    if(messages.length === 0){
+      gemContents = [{role:'user', parts:[{text: sysP + '\n\nHalo!'}]}];
+    } else {
+      // Gabung system prompt ke pesan pertama user
+      const msgs = [...messages];
+      gemContents = msgs.map((m, i) => {
+        return {
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{text: i === 0 ? sysP + '\n\n' + m.content : m.content}]
+        };
       });
-      // Kalau rate limit, tunggu 3 detik dan retry sekali
-      if(res.status===429 && !retried){
-        retried=true;
-        te.remove();
-        const retryMsg=document.createElement('div');
-        retryMsg.className='msg ai';
-        retryMsg.innerHTML='<div class="mav">AI</div><div><div class="mbub">⏱️ Sebentar ya, lagi nunggu rate limit reset...</div></div>';
-        document.getElementById('msgs').appendChild(retryMsg);
-        document.getElementById('msgs').scrollTop=document.getElementById('msgs').scrollHeight;
-        await new Promise(r=>setTimeout(r,3000));
-        retryMsg.remove();
-        const te2=document.createElement('div');
-        te2.className='msg ai typing';
-        te2.innerHTML='<div class="mav">AI</div><div><div class="mbub">...</div></div>';
-        document.getElementById('msgs').appendChild(te2);
-        res = await fetch('https://api.groq.com/openai/v1/chat/completions',{
-          method:'POST',
-          headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
-          body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:1500,temperature:0.8,messages:groqMessages})
-        });
+      // Gemini harus mulai dengan 'user'
+      if(gemContents[0]?.role === 'model') {
+        gemContents.unshift({role:'user', parts:[{text: sysP}]});
       }
+    }
+
+    let res;
+    try {
+      res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + geminiKey, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          contents: gemContents,
+          generationConfig: {temperature: 0.8, maxOutputTokens: 1500}
+        })
+      });
     } catch(fetchErr) {
       te.remove();
-      addMsg('ai','❌ Koneksi gagal. Cek internet kamu ya!');
-      document.getElementById('sb2').disabled=false;
+      addMsg('ai', '❌ Koneksi gagal. Cek internet kamu ya!');
+      document.getElementById('sb2').disabled = false;
       return;
     }
-    const data=await res.json();
-    if(!res.ok){
+    const data = await res.json();
+    if(!res.ok || data.error || !data.candidates){
       te.remove();
-      const errMsg=data.error?.message||'Coba lagi ya!';
-      if(data.error?.code===429||res.status===429){
-        addMsg('ai','⏱️ Rate limit Groq. Tunggu sebentar lalu kirim lagi ya!');
-      } else {
-        addMsg('ai','❌ '+errMsg);
-      }
-      document.getElementById('sb2').disabled=false;
+      const errMsg = data.error?.message || 'Coba lagi ya!';
+      addMsg('ai', '❌ ' + errMsg);
+      document.getElementById('sb2').disabled = false;
       return;
     }
-    const reply=data.choices?.[0]?.message?.content||'Maaf, ada error.';
+    const reply=data.candidates?.[0]?.content?.parts?.[0]?.text||'';
     te.remove();
     const jm=reply.match(/\{"action":"add_session"[^}]*\}/);
     if(jm){
