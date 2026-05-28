@@ -2786,9 +2786,6 @@ async function sendChat(){
   const te=showTyping();
   document.getElementById('sb2').disabled=true;
   try{
-    const streamerList = allStreamers.length
-      ? allStreamers.map(s=>s.name+' ('+s.role+')').join(', ')
-      : 'Belum ada streamer terdaftar.';
     // ── Data prep untuk AI ──
     const today = new Date();
     const todayStr = today.toLocaleDateString('id-ID', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
