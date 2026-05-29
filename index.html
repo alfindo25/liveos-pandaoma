@@ -802,6 +802,32 @@ margin-bottom: 4px;
 .header h1 { font-size: 24px; }
 .step-card { padding: 18px; }
 }
+
+/* SKU */
+.sku-table-header{display:grid;grid-template-columns:40px 1fr 100px 36px;gap:8px;padding:0 4px;margin-bottom:6px;}
+.sku-th{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;}
+.sku-form-row{display:grid;grid-template-columns:40px 1fr 100px 36px;gap:8px;align-items:center;padding:6px 4px;border-bottom:1px solid var(--border);}
+.sku-no{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-sm);background:var(--surface);font-size:12px;font-weight:600;color:var(--text2);}
+.sku-suggest-wrap{position:relative;min-width:0;}
+.sku-suggest-wrap .fi{width:100%;}
+.sku-suggest-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:200;max-height:160px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.sku-suggest-item{padding:8px 12px;font-size:13px;cursor:pointer;color:var(--text);}
+.sku-suggest-item:hover{background:var(--surface);}
+.sku-del-btn{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);cursor:pointer;color:var(--text3);font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.sku-del-btn:hover{background:var(--red-bg);color:var(--red);border-color:var(--red);}
+.sku-add-btn{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--blue);cursor:pointer;padding:10px 4px;font-weight:600;background:none;border:none;font-family:var(--font);}
+.sku-qty{text-align:center !important;}
+.sku-rank-bar{display:flex;align-items:center;gap:8px;}
+.sku-bar-bg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.sku-bar-fill{height:100%;border-radius:3px;background:var(--blue);}
+.master-sku-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text);margin:3px;}
+.master-sku-chip button{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0;line-height:1;}
+@media(max-width:600px){
+.sku-table-header{grid-template-columns:24px 1fr 70px 28px;gap:5px;padding:0 2px;}
+.sku-form-row{grid-template-columns:24px 1fr 70px 28px;gap:5px;padding:5px 2px;}
+.sku-no{width:24px;height:24px;font-size:10px;}
+.sku-del-btn{width:28px;height:28px;font-size:12px;}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -857,7 +883,8 @@ margin-bottom: 4px;
 <button class="ni" onclick="goPage('produk')" data-page="produk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
 <button class="ni" onclick="goPage('panduan')" data-page="panduan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan LiveOS</button>
 <div class="nsec" style="margin-top:6px">Master Data</div>
-<button class="ni" onclick="goPage('streamers')" data-page="streamers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Data Streamer</button>
+<button class="ni" onclick="goPage('streamers')" data-page="streamers">
+      <button class="ni" onclick="goPage('master-sku')" data-page="master-sku" id="ni-master-sku" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10M7 12h10M7 17h6"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Master SKU</button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Data Streamer</button>
 <div class="nsec" style="margin-top:6px">Lainnya</div>
 <button class="ni" onclick="goPage('setting')" data-page="setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Setting</button>
 </div>
@@ -880,7 +907,7 @@ margin-bottom: 4px;
 <div id="mob-more-drawer" style="display:none;position:fixed;bottom:60px;left:0;right:0;background:var(--navy);border-radius:16px 16px 0 0;z-index:200;padding:12px 0 8px;">
   <div style="width:36px;height:3px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 12px;"></div>
   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:0 8px;">
-<div class="mob-drawer-item" onclick="goPage('sku');closeMobMore()" id="md-sku"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><span>Report SKU</span></div><div class="mob-drawer-item" onclick="goPage('incentive');closeMobMore()" id="md-incentive"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span>Incentive</span></div><div class="mob-drawer-item" onclick="goPage('sop');closeMobMore()" id="md-sop"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span>SOP Live</span></div><div class="mob-drawer-item" onclick="goPage('produk');closeMobMore()" id="md-produk"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><span>Product Know.</span></div><div class="mob-drawer-item" onclick="goPage('panduan');closeMobMore()" id="md-panduan"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div><span>Panduan LiveOS</span></div><div class="mob-drawer-item" onclick="goPage('streamers');closeMobMore()" id="md-streamers"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span>Data Streamer</span></div><div class="mob-drawer-item" onclick="goPage('setting');closeMobMore()" id="md-setting"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><span>Setting</span></div>
+<div class="mob-drawer-item" onclick="goPage('sku');closeMobMore()" id="md-sku"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><span>Report SKU</span></div><div class="mob-drawer-item" onclick="goPage('incentive');closeMobMore()" id="md-incentive"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><span>Incentive</span></div><div class="mob-drawer-item" onclick="goPage('sop');closeMobMore()" id="md-sop"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span>SOP Live</span></div><div class="mob-drawer-item" onclick="goPage('produk');closeMobMore()" id="md-produk"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div><span>Product Know.</span></div><div class="mob-drawer-item" onclick="goPage('panduan');closeMobMore()" id="md-panduan"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div><span>Panduan LiveOS</span></div><div class="mob-drawer-item" onclick="goPage('streamers');closeMobMore()" id="md-streamers"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span>Data Streamer</span></div><div class="mob-drawer-item" onclick="goPage('setting');closeMobMore()" id="md-setting"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><span>Setting</span></div><div class="mob-drawer-item" onclick="goPage('master-sku');closeMobMore()" id="md-master-sku" style="display:none;"><div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h10M7 12h10M7 17h6"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div><span>Master SKU</span></div>
   </div>
 </div>
 <main id="main">
@@ -1577,17 +1604,21 @@ function toggleGuideCard(hdr){
   </div>
 </div>
 <div class="fc" style="margin-top:12px;">
-  <div class="fct" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-    <span>Daftar SKU</span><span style="font-size:12px;color:var(--text3)" id="sku-row-count">0 SKU</span>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div class="fct" style="margin-bottom:0;">Daftar SKU</div>
+    <span style="font-size:12px;color:var(--text3);font-weight:600;" id="sku-row-count">0 SKU</span>
   </div>
-  <div style="display:grid;grid-template-columns:36px 1fr 90px 30px;gap:8px;margin-bottom:8px;">
-    <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;text-align:center;">No</div>
-    <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;">Nama SKU</div>
-    <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;">QTY</div>
+  <div class="sku-table-header">
+    <div class="sku-th" style="text-align:center;">No</div>
+    <div class="sku-th">Nama SKU</div>
+    <div class="sku-th" style="text-align:center;">QTY</div>
     <div></div>
   </div>
   <div id="sku-rows-container"></div>
-  <button class="sku-add-btn" onclick="addSKURow()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Tambah SKU</button>
+  <button class="sku-add-btn" onclick="addSKURow()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Tambah SKU
+  </button>
 </div>
 <button onclick="saveSKUReport()" class="sub-btn" style="margin-top:16px;">&#128190; Simpan Report</button>
 </div>
@@ -1603,6 +1634,25 @@ function toggleGuideCard(hdr){
     <thead><tr><th>Tanggal</th><th>Platform</th><th>Jam</th><th>Jml SKU</th><th>Total QTY</th><th>Diinput oleh</th><th></th></tr></thead>
     <tbody id="sku-history-tbody"><tr><td colspan="7" class="empty">Belum ada report</td></tr></tbody>
   </table></div>
+</div>
+</div>
+
+<div class="page" id="page-master-sku">
+<div class="topbar">
+  <div><div class="pgtitle">&#127991; <span>Master SKU</span></div><div class="pgsub">Kelola daftar SKU untuk auto-suggest report</div></div>
+</div>
+<div class="fc">
+  <div class="fct" style="margin-bottom:12px;">Daftar Master SKU</div>
+  <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">SKU yang terdaftar di sini akan muncul sebagai auto-suggest saat input Report SKU. Hanya admin yang bisa mengelola.</div>
+  <div id="add-sku-form-page" style="display:none;margin-bottom:16px;">
+    <div style="display:flex;gap:8px;">
+      <input class="fi" id="new-sku-name-page" type="text" placeholder="Nama SKU lengkap..." style="flex:1"/>
+      <button onclick="addMasterSKUPage()" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">Simpan</button>
+      <button onclick="document.getElementById('add-sku-form-page').style.display='none'" style="padding:8px 14px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font);">Batal</button>
+    </div>
+  </div>
+  <div id="master-sku-list-page" style="display:flex;flex-wrap:wrap;gap:6px;min-height:40px;margin-bottom:16px;"></div>
+  <button id="show-add-sku-page-btn" onclick="document.getElementById('add-sku-form-page').style.display='flex';document.getElementById('new-sku-name-page').focus();" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:none;">+ Tambah SKU</button>
 </div>
 </div>
 
@@ -1997,6 +2047,13 @@ auth.onAuthStateChanged(async(user)=>{
     startListeners();
     startIncentiveListener();
     startSKUListeners();
+    // Show Master SKU menu only for superuser
+    if(currentUser.email==='alfindo.ixa.2537@gmail.com'){
+      const niMSKU=document.getElementById('ni-master-sku');
+      if(niMSKU)niMSKU.style.display='flex';
+      const mdMSKU=document.getElementById('md-master-sku');
+      if(mdMSKU)mdMSKU.style.display='flex';
+    }
     setTimeout(loadChatHistory, 800);
     // Re-render streamer list after currentUser is confirmed (for isSU check)
     setTimeout(renderStreamerList, 1500);
@@ -2117,6 +2174,7 @@ function goPage(p){
   if(p==='incentive')renderIncentive();
   if(p==='sku'){initSKUForm();}
   if(p==='sku-history')renderSKUHistory();
+  if(p==='master-sku')renderMasterSKUPage();
   if(p==='aichat'){
     setTimeout(()=>{
       const msgs=document.getElementById('msgs');
@@ -3590,6 +3648,7 @@ function startSKUListeners(){
   db.collection('master_sku').orderBy('name').onSnapshot(function(snap){
     allMasterSKU=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     renderMasterSKUList();
+    if(document.getElementById('page-master-sku').classList.contains('active'))renderMasterSKUPage();
   });
 }
 
@@ -3620,9 +3679,9 @@ function addSKURow(){
   var div=document.createElement('div');
   div.className='sku-form-row';div.id=rId;
   div.innerHTML='<div class="sku-no">'+skuRowCount+'</div>'
-    +'<div class="sku-suggest-wrap"><input class="fi" placeholder="Nama SKU..." style="width:100%" id="i'+rId+'"/>'
+    +'<div class="sku-suggest-wrap"><input class="fi" placeholder="Nama SKU..." id="i'+rId+'"/>'
     +'<div class="sku-suggest-list" id="'+sId+'" style="display:none"></div></div>'
-    +'<input class="fi" type="number" placeholder="0" min="0" style="text-align:center"/>'
+    +'<input class="fi sku-qty" type="number" placeholder="0" min="0"/>'
     +'<button class="sku-del-btn" data-r="'+rId+'">&#215;</button>';
   cont.appendChild(div);
   var inp=div.querySelector('#i'+rId);
@@ -3739,6 +3798,46 @@ async function addMasterSKU(){
 async function deleteMasterSKU(id,name){
   if(!confirm('Hapus SKU "'+name+'"?'))return;
   try{await db.collection('master_sku').doc(id).delete();showToast(name+' dihapus.');}catch(e){showToast('Gagal.',true);}
+}
+
+
+function renderMasterSKUPage(){
+  const list=document.getElementById('master-sku-list-page');
+  const addBtn=document.getElementById('show-add-sku-page-btn');
+  const isSU=currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
+  if(addBtn)addBtn.style.display=isSU?'inline-flex':'none';
+  if(!list)return;
+  list.innerHTML='';
+  if(!allMasterSKU.length){
+    list.innerHTML='<span style="font-size:13px;color:var(--text3);">Belum ada SKU terdaftar.'+(isSU?' Tambah lewat tombol di atas.':'')+'</span>';
+    return;
+  }
+  allMasterSKU.forEach(function(s){
+    var chip=document.createElement('span');
+    chip.className='master-sku-chip';
+    chip.textContent=s.name;
+    if(isSU){
+      var btn=document.createElement('button');
+      btn.textContent='x';
+      btn.title='Hapus '+s.name;
+      btn.addEventListener('click',function(){deleteMasterSKU(s.id,s.name);});
+      chip.appendChild(btn);
+    }
+    list.appendChild(chip);
+  });
+}
+
+async function addMasterSKUPage(){
+  var nameEl=document.getElementById('new-sku-name-page');
+  var name=nameEl&&nameEl.value.trim();
+  if(!name){showToast('Nama SKU wajib!',true);return;}
+  if(allMasterSKU.find(function(s){return s.name.toLowerCase()===name.toLowerCase();})){showToast(name+' sudah ada!',true);return;}
+  try{
+    await db.collection('master_sku').add({name:name,addedBy:(currentUser&&currentUser.displayName)||'',createdAt:new Date().toISOString()});
+    if(nameEl)nameEl.value='';
+    document.getElementById('add-sku-form-page').style.display='none';
+    showToast('SKU '+name+' ditambahkan!');
+  }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
 </script>
