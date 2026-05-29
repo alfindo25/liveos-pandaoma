@@ -890,6 +890,7 @@ margin-bottom: 4px;
 <button class="ni" onclick="goPage('aichat')" data-page="aichat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</button>
 <button class="ni" onclick="goPage('inputdata')" data-page="inputdata"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Input Data</button>
       <button class="ni" onclick="goPage('sku')" data-page="sku"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Report SKU</button>
+      <button class="ni" onclick="goPage('sku-history')" data-page="sku-history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Detail Report SKU</button>
 <button class="ni" onclick="goPage('incentive')" data-page="incentive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Incentive</button>
       <button class="ni" onclick="goPage('sop')" data-page="sop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
 <button class="ni" onclick="goPage('produk')" data-page="produk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
@@ -3799,32 +3800,16 @@ function renderSKUHistory(){
 async function deleteSKUReport(id){if(!confirm('Hapus report ini?'))return;try{await db.collection('sku_reports').doc(id).delete();showToast('Report dihapus.');}catch(e){showToast('Gagal.',true);}}
 
 function refreshSKUWidget(){
-  // Sinkron filter dengan dashboard AF
-  var now3=new Date();
-  var todayS3=now3.getFullYear()+'-'+String(now3.getMonth()+1).padStart(2,'0')+'-'+String(now3.getDate()).padStart(2,'0');
-  var ystD=new Date(now3);ystD.setDate(now3.getDate()-1);
-  var ystS3=ystD.getFullYear()+'-'+String(ystD.getMonth()+1).padStart(2,'0')+'-'+String(ystD.getDate()).padStart(2,'0');
-  var d7D=new Date(now3);d7D.setDate(now3.getDate()-6);
-  var d7S3=d7D.getFullYear()+'-'+String(d7D.getMonth()+1).padStart(2,'0')+'-'+String(d7D.getDate()).padStart(2,'0');
-  var d30D=new Date(now3);d30D.setDate(now3.getDate()-29);
-  var d30S3=d30D.getFullYear()+'-'+String(d30D.getMonth()+1).padStart(2,'0')+'-'+String(d30D.getDate()).padStart(2,'0');
-
-  var skuFrom='', skuTo='';
-  if(AF.mp!==undefined){
-    // Use same date range as dashboard filter
-    if(AF.customFrom&&AF.customTo){skuFrom=AF.customFrom;skuTo=AF.customTo;}
-    else if(AF.period==='today'){skuFrom=skuTo=todayS3;}
-    else if(AF.period==='yesterday'){skuFrom=skuTo=ystS3;}
-    else if(AF.period==='7d'){skuFrom=d7S3;skuTo=todayS3;}
-    else if(AF.period==='30d'){skuFrom=d30S3;skuTo=todayS3;}
-    else{skuFrom=d7S3;skuTo=todayS3;} // default 7 hari
-  } else {
-    skuFrom=d7S3;skuTo=todayS3;
-  }
-
+  // Filter SKU sinkron dengan dashboard (pakai AF.customFrom/customTo)
   var filtered=allSKUReports.filter(function(r){
     if(!r.date)return false;
-    return r.date>=skuFrom&&r.date<=skuTo;
+    if(AF.customFrom&&AF.customTo){
+      return r.date>=AF.customFrom&&r.date<=AF.customTo;
+    }
+    // Default: hari ini
+    var now3=new Date();
+    var todayS3=now3.getFullYear()+'-'+String(now3.getMonth()+1).padStart(2,'0')+'-'+String(now3.getDate()).padStart(2,'0');
+    return r.date===todayS3;
   });
 
   // ── Recap: Top SKU ──
