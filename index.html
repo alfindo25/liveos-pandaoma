@@ -2986,15 +2986,6 @@ INSTRUKSI: Tampilkan TOTAL GMV periode (bukan per hari kecuali diminta). Dari ca
     console.error(e);
   }
   document.getElementById('sb2').disabled=false;
-}\n?/g,'').trim();
-    addMsg('ai',clean);
-    // Push to history with correct role
-    chatHistory.push({role:'ai',content:clean,time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})});
-    saveChatHistory();
-    const msgCount = chatHistory.filter(m=>m.role==='user').length;
-    document.getElementById('mem-status').textContent='Memori aktif — '+msgCount+' pesan tersimpan';
-  }catch(err){te.remove();addMsg('ai','Error: '+err.message);}
-  document.getElementById('sb2').disabled=false;
 }
 
 function addMsg(role,text){
