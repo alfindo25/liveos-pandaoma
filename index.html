@@ -848,17 +848,18 @@ margin-bottom: 4px;
 <div class="snav">
 <div class="nsec">Menu</div>
 <button class="ni active" onclick="goPage('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
-<button class="ni" onclick="goPage('detail')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Detail Sesi</button>
-<button class="ni" onclick="goPage('aichat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</button>
-<button class="ni" onclick="goPage('inputdata')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Input Data</button>
-<button class="ni" onclick="goPage('incentive')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Incentive</button>
-      <button class="ni" onclick="goPage('sop')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
-<button class="ni" onclick="goPage('produk')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
-<button class="ni" onclick="goPage('panduan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan LiveOS</button>
+<button class="ni" onclick="goPage('detail')" data-page="detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Detail Sesi</button>
+<button class="ni" onclick="goPage('aichat')" data-page="aichat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</button>
+<button class="ni" onclick="goPage('inputdata')" data-page="inputdata"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Input Data</button>
+      <button class="ni" onclick="goPage('sku')" data-page="sku"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Report SKU</button>
+<button class="ni" onclick="goPage('incentive')" data-page="incentive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Incentive</button>
+      <button class="ni" onclick="goPage('sop')" data-page="sop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
+<button class="ni" onclick="goPage('produk')" data-page="produk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
+<button class="ni" onclick="goPage('panduan')" data-page="panduan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan LiveOS</button>
 <div class="nsec" style="margin-top:6px">Master Data</div>
-<button class="ni" onclick="goPage('streamers')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Data Streamer</button>
+<button class="ni" onclick="goPage('streamers')" data-page="streamers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Data Streamer</button>
 <div class="nsec" style="margin-top:6px">Lainnya</div>
-<button class="ni" onclick="goPage('setting')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Setting</button>
+<button class="ni" onclick="goPage('setting')" data-page="setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Setting</button>
 </div>
 <div class="sbot"><div class="suser">
 <div class="sav" id="s-av">?</div>
@@ -928,9 +929,9 @@ margin-bottom: 4px;
 <th onclick="sortT('duration')">Durasi <span class="si">↕</span></th>
 <th>Diinput oleh</th><th></th>
 </tr></thead><tbody id="tbody"><tr><td colspan="9" class="empty">Menghubungkan...</td></tr></tbody></table></div></div>
-</div>
 
-<div class="tcard" id="top-sku-widget" style="margin-top:16px;">
+
+<div class="tcard" id="top-sku-widget" style="margin-top:16px;display:none;">
   <div class="thdr" style="display:flex;align-items:center;justify-content:space-between;">
     <div class="ct">Top SKU Terlaris</div>
     <span class="badge" id="sku-widget-period">sesuai filter</span>
@@ -944,6 +945,8 @@ margin-bottom: 4px;
     <thead><tr><th>#</th><th>Nama SKU</th><th>Total QTY</th><th>Distribusi</th></tr></thead>
     <tbody id="sku-widget-tbody"><tr><td colspan="4" class="empty">Belum ada data SKU</td></tr></tbody>
   </table></div>
+</div>
+
 </div>
 
 <div class="page" id="page-aichat">
@@ -2097,8 +2100,8 @@ function goPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.ni,.mni,.mob-drawer-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
-  const pages=['dashboard','detail','aichat','inputdata','sku','sku-history','incentive','sop','produk','panduan','streamers','setting'];
-  document.querySelectorAll('.ni')[pages.indexOf(p)]?.classList.add('active');
+  // Highlight sidebar by data-page attribute
+  document.querySelectorAll('.ni[data-page="'+p+'"]').forEach(el=>el.classList.add('active'));
   const mn=document.getElementById('mn-'+p);
   if(mn)mn.classList.add('active');
   const drawerPages=['incentive','sop','produk','panduan','streamers','setting'];
@@ -2120,6 +2123,9 @@ function goPage(p){
       if(msgs)msgs.scrollTop=msgs.scrollHeight;
     },150);
   }
+  // Show SKU widget only on dashboard
+  const skuW=document.getElementById('top-sku-widget');
+  if(skuW)skuW.style.display=p==='dashboard'?'block':'none';
   if(p==='setting'){loadGroqKey();loadPendingUsers();}
   if(p==='streamers'){
     renderStreamerList();
