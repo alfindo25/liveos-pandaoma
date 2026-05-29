@@ -804,6 +804,18 @@ margin-bottom: 4px;
 }
 
 /* SKU */
+
+/* SKU Detail Widget */
+.sku-session-block{border-bottom:.5px solid var(--border);padding:10px 0;}
+.sku-session-block:last-child{border-bottom:none;}
+.sku-session-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--surface);border-radius:var(--radius-sm);margin-bottom:6px;}
+.sku-session-time{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text);}
+.sku-session-meta{font-size:12px;color:var(--text3);}
+.sku-session-items{padding:0 8px;}
+.sku-session-item{display:flex;align-items:center;justify-content:space-between;padding:5px 6px;border-bottom:.5px solid var(--border);font-size:13px;}
+.sku-session-item:last-child{border-bottom:none;}
+.sku-qty-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--blue-lt);color:var(--navy);}
+
 .sku-table-header{display:grid;grid-template-columns:40px 1fr 100px 36px;gap:8px;padding:0 4px;margin-bottom:6px;}
 .sku-th{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;}
 .sku-form-row{display:grid;grid-template-columns:40px 1fr 100px 36px;gap:8px;align-items:center;padding:6px 4px;border-bottom:1px solid var(--border);}
@@ -963,15 +975,27 @@ margin-bottom: 4px;
     <div class="ct">Top SKU Terlaris</div>
     <span class="badge" id="sku-widget-period">sesuai filter</span>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 16px;">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 16px 4px;">
     <div class="mc"><div class="mc-lbl">Total SKU</div><div class="mc-val" id="sku-w-total">-</div></div>
     <div class="mc"><div class="mc-lbl">Total QTY</div><div class="mc-val" id="sku-w-qty">-</div></div>
     <div class="mc"><div class="mc-lbl">SKU paling laris</div><div class="mc-val" style="font-size:13px;" id="sku-w-top">-</div></div>
   </div>
-  <div class="twrap"><table>
-    <thead><tr><th>#</th><th>Nama SKU</th><th>Total QTY</th><th>Distribusi</th></tr></thead>
-    <tbody id="sku-widget-tbody"><tr><td colspan="4" class="empty">Belum ada data SKU</td></tr></tbody>
-  </table></div>
+  <div style="max-height:280px;overflow-y:auto;" class="twrap">
+    <table>
+      <thead><tr><th>#</th><th>Nama SKU</th><th>Total QTY</th><th>Distribusi</th></tr></thead>
+      <tbody id="sku-widget-tbody"><tr><td colspan="4" class="empty">Belum ada data SKU</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="tcard" id="sku-detail-widget" style="margin-top:12px;display:none;">
+  <div class="thdr" style="display:flex;align-items:center;justify-content:space-between;">
+    <div class="ct">Detail SKU per Sesi</div>
+    <span class="badge" id="sku-detail-count">0 report</span>
+  </div>
+  <div id="sku-detail-list" style="padding:4px 0;">
+    <div class="empty" style="padding:16px;">Belum ada report SKU</div>
+  </div>
 </div>
 
 </div>
@@ -2184,6 +2208,8 @@ function goPage(p){
   // Show SKU widget only on dashboard
   const skuW=document.getElementById('top-sku-widget');
   if(skuW)skuW.style.display=p==='dashboard'?'block':'none';
+  const skuDW=document.getElementById('sku-detail-widget');
+  if(skuDW)skuDW.style.display=p==='dashboard'?'block':'none';
   if(p==='setting'){loadGroqKey();loadPendingUsers();}
   if(p==='streamers'){
     renderStreamerList();
@@ -3752,24 +3778,120 @@ function renderSKUHistory(){
 async function deleteSKUReport(id){if(!confirm('Hapus report ini?'))return;try{await db.collection('sku_reports').doc(id).delete();showToast('Report dihapus.');}catch(e){showToast('Gagal.',true);}}
 
 function refreshSKUWidget(){
-  var filtered=allSKUReports.filter(function(r){if(!r.date)return false;if(AF.customFrom&&AF.customTo)return r.date>=AF.customFrom&&r.date<=AF.customTo;return true;});
+  var filtered=allSKUReports.filter(function(r){
+    if(!r.date)return false;
+    if(AF.customFrom&&AF.customTo)return r.date>=AF.customFrom&&r.date<=AF.customTo;
+    return true;
+  });
+
+  // ── Recap: Top SKU ──
   var skuMap={};
-  filtered.forEach(function(r){(r.items||[]).forEach(function(item){if(!skuMap[item.name])skuMap[item.name]={qty:0};skuMap[item.name].qty+=item.qty;});});
+  filtered.forEach(function(r){
+    (r.items||[]).forEach(function(item){
+      if(!skuMap[item.name])skuMap[item.name]={qty:0};
+      skuMap[item.name].qty+=item.qty;
+    });
+  });
   var sorted=Object.entries(skuMap).sort(function(a,b){return b[1].qty-a[1].qty;});
   var tot2=sorted.reduce(function(s,e){return s+e[1].qty;},0);
   var maxQ=sorted.length?sorted[0][1].qty:1;
-  var wT=document.getElementById('sku-w-total');var wQ=document.getElementById('sku-w-qty');var wTop=document.getElementById('sku-w-top');
-  if(wT)wT.textContent=sorted.length+' SKU';if(wQ)wQ.textContent=tot2+' pcs';if(wTop)wTop.textContent=sorted.length?sorted[0][0]:'-';
-  var tbody=document.getElementById('sku-widget-tbody');if(!tbody)return;
-  if(!sorted.length){tbody.innerHTML='<tr><td colspan="4" class="empty">Belum ada data SKU</td></tr>';return;}
-  var medals=['&#127945;','&#127946;','&#127947;'];tbody.innerHTML='';
-  sorted.slice(0,8).forEach(function(entry,i){
-    var nm=entry[0],v=entry[1];var pct=Math.round(v.qty/tot2*100);var bw=Math.round(v.qty/maxQ*100);
-    var tr=document.createElement('tr');
-    tr.innerHTML='<td style="font-weight:700">'+(medals[i]||i+1)+'</td><td style="font-weight:600">'+nm+'</td>'
-      +'<td style="font-weight:700;color:var(--green)">'+v.qty+' pcs</td>'
-      +'<td><div class="sku-rank-bar"><div class="sku-bar-bg"><div class="sku-bar-fill" style="width:'+bw+'%"></div></div><span style="font-size:11px;color:var(--text3)">'+pct+'%</span></div></td>';
-    tbody.appendChild(tr);
+
+  var wT=document.getElementById('sku-w-total');
+  var wQ=document.getElementById('sku-w-qty');
+  var wTop=document.getElementById('sku-w-top');
+  if(wT)wT.textContent=sorted.length+' SKU';
+  if(wQ)wQ.textContent=tot2+' pcs';
+  if(wTop)wTop.textContent=sorted.length?sorted[0][0]:'-';
+
+  var tbody=document.getElementById('sku-widget-tbody');
+  if(tbody){
+    if(!sorted.length){
+      tbody.innerHTML='<tr><td colspan="4" class="empty">Belum ada data SKU periode ini</td></tr>';
+    } else {
+      var medals=['&#127945;','&#127946;','&#127947;'];
+      tbody.innerHTML='';
+      sorted.forEach(function(entry,i){
+        var nm=entry[0],v=entry[1];
+        var pct=Math.round(v.qty/tot2*100);
+        var bw=Math.round(v.qty/maxQ*100);
+        var tr=document.createElement('tr');
+        tr.innerHTML='<td style="font-weight:700">'+(medals[i]||i+1)+'</td>'
+          +'<td style="font-weight:600">'+nm+'</td>'
+          +'<td style="font-weight:700;color:var(--green)">'+v.qty+' pcs</td>'
+          +'<td><div class="sku-rank-bar"><div class="sku-bar-bg"><div class="sku-bar-fill" style="width:'+bw+'%"></div></div>'
+          +'<span style="font-size:11px;color:var(--text3)">'+pct+'%</span></div></td>';
+        tbody.appendChild(tr);
+      });
+    }
+  }
+
+  // ── Detail per Sesi ──
+  var detailList=document.getElementById('sku-detail-list');
+  var detailCount=document.getElementById('sku-detail-count');
+  if(detailCount)detailCount.textContent=filtered.length+' report';
+
+  // Show/hide detail widget
+  var detailWidget=document.getElementById('sku-detail-widget');
+
+  if(!detailList)return;
+  if(!filtered.length){
+    detailList.innerHTML='<div class="empty" style="padding:16px;">Belum ada report SKU periode ini</div>';
+    return;
+  }
+
+  // Sort: by timeStart ascending, same time → Shopee/DLD before TikTok
+  var mpOrder={'Shopee':0,'DLD':1,'TikTok':2};
+  function toMins(t){
+    if(!t)return 9999;
+    var p=t.split(':');
+    return parseInt(p[0]||0)*60+parseInt(p[1]||0);
+  }
+  var sortedReports=[].concat(filtered).sort(function(a,b){
+    var ma=toMins(a.timeStart), mb=toMins(b.timeStart);
+    if(ma!==mb)return ma-mb;
+    // same time: Shopee/DLD first, TikTok last
+    var oa=mpOrder[a.mp]!==undefined?mpOrder[a.mp]:1;
+    var ob=mpOrder[b.mp]!==undefined?mpOrder[b.mp]:1;
+    return oa-ob;
+  });
+
+  detailList.innerHTML='';
+  sortedReports.forEach(function(r){
+    var block=document.createElement('div');
+    block.className='sku-session-block';
+
+    var jam=(r.timeStart||'?')+' – '+(r.timeEnd||'?');
+    var mpCls=r.mp==='Shopee'?'mps':r.mp==='DLD'?'mpd':'mpt';
+    var totalQty=(r.items||[]).reduce(function(s,i){return s+i.qty;},0);
+    var skuCount=r.items?r.items.length:0;
+    var d=r.date?new Date(r.date+'T12:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short'}):'-';
+
+    var hdr=document.createElement('div');
+    hdr.className='sku-session-hdr';
+    hdr.innerHTML='<div class="sku-session-time">'
+      +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
+      +jam
+      +' <span class="mpb '+mpCls+'" style="font-size:11px;">'+r.mp+'</span>'
+      +' <span style="font-size:11px;color:var(--text3);font-weight:400;">'+d+'</span>'
+      +'</div>'
+      +'<span class="sku-session-meta">'+skuCount+' SKU · '+totalQty+' pcs</span>';
+    block.appendChild(hdr);
+
+    var itemsDiv=document.createElement('div');
+    itemsDiv.className='sku-session-items';
+    if(!r.items||!r.items.length){
+      itemsDiv.innerHTML='<div class="sku-session-item"><span style="color:var(--text3);font-size:12px;">Tidak ada SKU tercatat</span></div>';
+    } else {
+      r.items.forEach(function(item){
+        var row=document.createElement('div');
+        row.className='sku-session-item';
+        row.innerHTML='<span class="sku-name">'+item.name+'</span>'
+          +'<span class="sku-qty-badge">'+item.qty+' pcs</span>';
+        itemsDiv.appendChild(row);
+      });
+    }
+    block.appendChild(itemsDiv);
+    detailList.appendChild(block);
   });
 }
 
