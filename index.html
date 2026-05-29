@@ -3943,7 +3943,11 @@ function refreshSKUWidget(){
   if(sortedReports.length>5){
     var moreBtn=document.createElement('div');
     moreBtn.style.cssText='text-align:center;padding:10px;';
-    moreBtn.innerHTML='<button onclick="goPage('sku-history')" style="padding:7px 20px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">Lihat Semua ('+sortedReports.length+' report) &#8594;</button>';
+        var btn=document.createElement('button');
+    btn.style.cssText='padding:7px 20px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);margin:4px auto;display:block;';
+    btn.textContent='Lihat Semua ('+sortedReports.length+' report) →';
+    btn.addEventListener('click',function(){goPage('sku-history');});
+    moreBtn.appendChild(btn);
     detailList.appendChild(moreBtn);
   }
 }
