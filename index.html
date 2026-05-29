@@ -1678,6 +1678,27 @@ function toggleGuideCard(hdr){
   <div><div class="pgtitle">&#128203; <span>Detail Report SKU</span></div><div class="pgsub">Semua report SKU yang sudah diinput</div></div>
   <button onclick="goPage('sku')" style="padding:7px 16px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);">+ Input Baru</button>
 </div>
+
+<div class="filter-bar" id="sku-hist-filter-bar">
+  <div class="filter-chips">
+    <div class="chip shopee on" id="skuh-fs" onclick="skuHistFilter('mp','Shopee')">&#128717; Shopee</div>
+    <div class="chip dld on" id="skuh-fd" onclick="skuHistFilter('mp','DLD')">&#128230; DLD</div>
+    <div class="chip tiktok on" id="skuh-ft" onclick="skuHistFilter('mp','TikTok')">&#127925; TikTok</div>
+    <div class="chip-sep"></div>
+    <div class="chip on" id="skuh-p-today" onclick="skuHistFilter('period','today')">Hari Ini</div>
+    <div class="chip" id="skuh-p-yesterday" onclick="skuHistFilter('period','yesterday')">Kemarin</div>
+    <div class="chip" id="skuh-p-7d" onclick="skuHistFilter('period','7d')">7 Hari</div>
+    <div class="chip" id="skuh-p-30d" onclick="skuHistFilter('period','30d')">30 Hari</div>
+    <div class="chip" id="skuh-p-custom" onclick="skuHistFilter('period','custom')">&#128197; Kustom</div>
+    <div id="skuh-custom-wrap" style="display:none;align-items:center;gap:6px;">
+      <input type="date" id="skuh-date-from" class="fi" style="height:30px;font-size:12px;padding:0 8px;width:130px;" onchange="skuHistApplyCustom()"/>
+      <span style="color:var(--text3);font-size:12px;">–</span>
+      <input type="date" id="skuh-date-to" class="fi" style="height:30px;font-size:12px;padding:0 8px;width:130px;" onchange="skuHistApplyCustom()"/>
+    </div>
+    <button onclick="skuHistReset()" style="margin-left:auto;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:var(--font);">&#215; Reset</button>
+  </div>
+</div>
+
 <div class="tcard">
   <div class="thdr"><div class="ct">Semua Report</div><span class="badge" id="sku-history-count">0 report</span></div>
   <div class="twrap"><table>
@@ -3790,10 +3811,22 @@ function renderSKUHistory(){
     tbody.innerHTML='<tr><td colspan="6" class="empty">Belum ada report</td></tr>';
     return;
   }
+  // Apply SKUH filter
+  var skuhRange=typeof skuHistGetDateRange==='function'?skuHistGetDateRange():{from:'',to:''};
+  var filtered2=allSKUReports.filter(function(r){
+    if(!r.date)return false;
+    if(r.mp==='Shopee'&&!SKUH.shopee)return false;
+    if(r.mp==='DLD'&&!SKUH.dld)return false;
+    if(r.mp==='TikTok'&&!SKUH.tiktok)return false;
+    if(skuhRange.from&&skuhRange.to)return r.date>=skuhRange.from&&r.date<=skuhRange.to;
+    return true;
+  });
+  if(badge)badge.textContent=filtered2.length+' report';
+
   // Sort: timeStart ascending, same time Shopee/DLD first
   function toMins2(t){if(!t)return 9999;var p=t.split(':');return parseInt(p[0]||0)*60+parseInt(p[1]||0);}
   var mpOrd={'Shopee':0,'DLD':1,'TikTok':2};
-  var sorted=[].concat(allSKUReports).sort(function(a,b){
+  var sorted=[].concat(filtered2).sort(function(a,b){
     var da=a.date||'',db=b.date||'';
     if(da!==db)return da>db?-1:1; // newest date first
     var ma=toMins2(a.timeStart),mb=toMins2(b.timeStart);
@@ -4138,6 +4171,68 @@ async function saveSKUEdit(){
     showToast('Report SKU diperbarui!');
     closeSKUEditModal();
   }catch(e){showToast('Gagal simpan: '+e.message,true);}
+}
+
+
+// ══ Detail Report SKU Filter ══
+var SKUH = {shopee:true,dld:true,tiktok:true,period:'today',customFrom:'',customTo:''};
+
+function skuHistFilter(type, val){
+  if(type==='mp'){
+    if(val==='Shopee') SKUH.shopee=!SKUH.shopee;
+    if(val==='DLD') SKUH.dld=!SKUH.dld;
+    if(val==='TikTok') SKUH.tiktok=!SKUH.tiktok;
+    document.getElementById('skuh-fs').className='chip shopee'+(SKUH.shopee?' on':'');
+    document.getElementById('skuh-fd').className='chip dld'+(SKUH.dld?' on':'');
+    document.getElementById('skuh-ft').className='chip tiktok'+(SKUH.tiktok?' on':'');
+  } else {
+    SKUH.period=val;
+    ['today','yesterday','7d','30d','custom'].forEach(function(p){
+      var el=document.getElementById('skuh-p-'+p);
+      if(el)el.className='chip'+(p===val?' on':'');
+    });
+    var cw=document.getElementById('skuh-custom-wrap');
+    if(cw)cw.style.display=val==='custom'?'flex':'none';
+    if(val!=='custom'){SKUH.customFrom='';SKUH.customTo='';}
+  }
+  renderSKUHistory();
+}
+
+function skuHistApplyCustom(){
+  var f=document.getElementById('skuh-date-from');
+  var t=document.getElementById('skuh-date-to');
+  SKUH.customFrom=f?f.value:'';
+  SKUH.customTo=t?t.value:'';
+  renderSKUHistory();
+}
+
+function skuHistReset(){
+  SKUH={shopee:true,dld:true,tiktok:true,period:'today',customFrom:'',customTo:''};
+  ['shopee','dld','tiktok'].forEach(function(m){
+    var map={shopee:'skuh-fs',dld:'skuh-fd',tiktok:'skuh-ft'};
+    var el=document.getElementById(map[m]);
+    if(el)el.className='chip '+(m==='shopee'?'shopee':m==='dld'?'dld':'tiktok')+' on';
+  });
+  ['today','yesterday','7d','30d','custom'].forEach(function(p){
+    var el=document.getElementById('skuh-p-'+p);
+    if(el)el.className='chip'+(p==='today'?' on':'');
+  });
+  var cw=document.getElementById('skuh-custom-wrap');
+  if(cw)cw.style.display='none';
+  renderSKUHistory();
+}
+
+function skuHistGetDateRange(){
+  var now=new Date();
+  var pad=function(n){return String(n).padStart(2,'0');};
+  var fmt=function(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+  var today=fmt(now);
+  if(SKUH.period==='today') return {from:today,to:today};
+  if(SKUH.period==='yesterday'){var y=new Date(now);y.setDate(now.getDate()-1);var ys=fmt(y);return {from:ys,to:ys};}
+  if(SKUH.period==='7d'){var s=new Date(now);s.setDate(now.getDate()-6);return {from:fmt(s),to:today};}
+  if(SKUH.period==='30d'){var s=new Date(now);s.setDate(now.getDate()-29);return {from:fmt(s),to:today};}
+  if(SKUH.period==='custom'&&SKUH.customFrom&&SKUH.customTo) return {from:SKUH.customFrom,to:SKUH.customTo};
+  return {from:today,to:today};
 }
 
 </script>
