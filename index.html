@@ -816,6 +816,31 @@ margin-bottom: 4px;
 .sku-session-item:last-child{border-bottom:none;}
 .sku-qty-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--blue-lt);color:var(--navy);}
 
+
+/* SKU Detail Widget v2 */
+.sku-sess-block{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:start;padding:12px 0;border-bottom:.5px solid var(--border);}
+.sku-sess-block:last-of-type{border-bottom:none;}
+.sku-sess-num{width:24px;height:24px;border-radius:50%;background:var(--surface);font-size:11px;font-weight:700;color:var(--text2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sku-sess-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;}
+.sku-sess-time{font-size:13px;font-weight:700;color:var(--text);}
+.sku-sess-tgl{font-size:11px;color:var(--text3);}
+.sku-bullet-list{display:flex;flex-direction:column;gap:3px;}
+.sku-bullet-item{display:flex;align-items:center;gap:6px;font-size:13px;}
+.sku-bullet{width:4px;height:4px;border-radius:50%;background:var(--text3);flex-shrink:0;}
+.sku-bullet-name{flex:1;color:var(--text);}
+.sku-bullet-qty{font-size:12px;font-weight:600;color:var(--navy);min-width:44px;text-align:right;}
+.sku-act-btns{display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+.sku-btn-edit{padding:5px 10px;border-radius:var(--radius-sm);border:1.5px solid var(--blue);background:var(--blue-lt);color:var(--navy);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;}
+.sku-btn-del{padding:5px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text3);font-size:12px;cursor:pointer;text-align:center;font-family:var(--font);}
+.sku-lihat-semua{text-align:center;padding-top:12px;border-top:.5px solid var(--border);margin-top:4px;}
+
+/* SKU Edit Modal */
+#sku-edit-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;align-items:center;justify-content:center;padding:20px;}
+#sku-edit-modal.open{display:flex;}
+.sku-modal-inner{background:var(--white);border-radius:14px;padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(15,31,61,.18);}
+.sku-modal-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;}
+.sku-modal-close{background:none;border:none;cursor:pointer;font-size:22px;color:var(--text3);line-height:1;}
+
 .sku-table-header{display:grid;grid-template-columns:40px 1fr 100px 36px;gap:8px;padding:0 4px;margin-bottom:6px;}
 .sku-th{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;}
 .sku-form-row{display:grid;grid-template-columns:40px 1fr 100px 36px;gap:8px;align-items:center;padding:6px 4px;border-bottom:1px solid var(--border);}
@@ -3782,7 +3807,12 @@ function renderSKUHistory(){
     var mpCls=r.mp==='Shopee'?'mps':r.mp==='DLD'?'mpd':'mpt';
     var skuDetail=(r.items||[]).map(function(i){return i.name+' ('+i.qty+')'}).join(', ');
     var delBtn=document.createElement('button');
-    delBtn.className='del-row';
+    var editBtn2=document.createElement('button');
+    editBtn2.className='edit-row';editBtn2.innerHTML='&#9998;';editBtn2.title='Edit';
+    editBtn2.style.marginRight='4px';
+    editBtn2.addEventListener('click',(function(rr){return function(){openSKUEditModal(rr);};})(r));
+    tr.cells[5].appendChild(editBtn2);
+        delBtn.className='del-row';
     delBtn.innerHTML='&#128465;';
     delBtn.title='Hapus report ini';
     delBtn.addEventListener('click',function(){deleteSKUReport(r.id);});
@@ -3884,47 +3914,55 @@ function refreshSKUWidget(){
   });
 
   detailList.innerHTML='';
-  // Max 5 di dashboard, tombol lihat semua
-  var showAll=(sortedReports.length<=5);
   var displayReports=sortedReports.slice(0,5);
-  displayReports.forEach(function(r){
+  displayReports.forEach(function(r,idx){
     var block=document.createElement('div');
-    block.className='sku-session-block';
-
+    block.className='sku-sess-block';
     var jam=(r.timeStart||'?')+' – '+(r.timeEnd||'?');
     var mpCls=r.mp==='Shopee'?'mps':r.mp==='DLD'?'mpd':'mpt';
-    var totalQty=(r.items||[]).reduce(function(s,i){return s+i.qty;},0);
-    var skuCount=r.items?r.items.length:0;
-    var d=r.date?new Date(r.date+'T12:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short'}):'-';
-
-    var hdr=document.createElement('div');
-    hdr.className='sku-session-hdr';
-    hdr.innerHTML='<div class="sku-session-time">'
-      +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'
-      +jam
-      +' <span class="mpb '+mpCls+'" style="font-size:11px;">'+r.mp+'</span>'
-      +' <span style="font-size:11px;color:var(--text3);font-weight:400;">'+d+'</span>'
-      +'</div>'
-      +'<span class="sku-session-meta">'+skuCount+' SKU · '+totalQty+' pcs</span>';
-    block.appendChild(hdr);
-
-    var itemsDiv=document.createElement('div');
-    itemsDiv.className='sku-session-items';
+    var d=r.date?new Date(r.date+'T12:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short'}):'';
+    var numEl=document.createElement('div');
+    numEl.className='sku-sess-num';numEl.textContent=idx+1;
+    block.appendChild(numEl);
+    var content=document.createElement('div');
+    var meta=document.createElement('div');
+    meta.className='sku-sess-meta';
+    meta.innerHTML='<span class="sku-sess-time">'+jam+'</span>'
+      +'<span class="mpb '+mpCls+'" style="font-size:11px;">'+r.mp+'</span>'
+      +'<span class="sku-sess-tgl">'+d+'</span>';
+    content.appendChild(meta);
+    var bulletList=document.createElement('div');
+    bulletList.className='sku-bullet-list';
     if(!r.items||!r.items.length){
-      itemsDiv.innerHTML='<div class="sku-session-item"><span style="color:var(--text3);font-size:12px;">Tidak ada SKU tercatat</span></div>';
+      bulletList.innerHTML='<span style="font-size:12px;color:var(--text3);">Tidak ada SKU</span>';
     } else {
       r.items.forEach(function(item){
         var row=document.createElement('div');
-        row.className='sku-session-item';
-        row.innerHTML='<span class="sku-name">'+item.name+'</span>'
-          +'<span class="sku-qty-badge">'+item.qty+' pcs</span>';
-        itemsDiv.appendChild(row);
+        row.className='sku-bullet-item';
+        row.innerHTML='<div class="sku-bullet"></div>'
+          +'<span class="sku-bullet-name">'+item.name+'</span>'
+          +'<span class="sku-bullet-qty">'+item.qty+' pcs</span>';
+        bulletList.appendChild(row);
       });
     }
-    block.appendChild(itemsDiv);
+    content.appendChild(bulletList);
+    block.appendChild(content);
+    var acts=document.createElement('div');
+    acts.className='sku-act-btns';
+    var editBtn=document.createElement('button');
+    editBtn.className='sku-btn-edit';
+    editBtn.innerHTML='&#9998; Edit';
+    editBtn.addEventListener('click',function(){openSKUEditModal(r);});
+    var delBtn=document.createElement('button');
+    delBtn.className='sku-btn-del';
+    delBtn.innerHTML='&#128465;';
+    delBtn.title='Hapus';
+    delBtn.addEventListener('click',function(){deleteSKUReport(r.id);});
+    acts.appendChild(editBtn);acts.appendChild(delBtn);
+    block.appendChild(acts);
     detailList.appendChild(block);
   });
-  // Tombol lihat semua jika > 5
+    // Tombol lihat semua jika > 5
   if(sortedReports.length>5){
     var moreBtn=document.createElement('div');
     moreBtn.style.cssText='text-align:center;padding:10px;';
@@ -4004,7 +4042,147 @@ async function addMasterSKUPage(){
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
+
+// ══ SKU EDIT MODAL ══
+var skuEditId='';
+var skuEditMP='Shopee';
+var skuEditRowCount=0;
+
+function openSKUEditModal(r){
+  skuEditId=r.id;
+  skuEditMP=r.mp||'Shopee';
+  // Fill form
+  var dateEl=document.getElementById('sku-edit-date');
+  if(dateEl)dateEl.value=r.date||'';
+  selSKUEditMP(skuEditMP);
+  var startEl=document.getElementById('sku-edit-start');
+  var endEl=document.getElementById('sku-edit-end');
+  if(startEl)startEl.value=r.timeStart||'';
+  if(endEl)endEl.value=r.timeEnd||'';
+  // Fill SKU rows
+  var cont=document.getElementById('sku-edit-rows');
+  if(cont){cont.innerHTML='';skuEditRowCount=0;}
+  (r.items||[]).forEach(function(item){addSKUEditRow(item.name,item.qty);});
+  if(!r.items||!r.items.length)addSKUEditRow();
+  // Open modal
+  var modal=document.getElementById('sku-edit-modal');
+  if(modal)modal.style.display='flex';
+}
+
+function closeSKUEditModal(){
+  var modal=document.getElementById('sku-edit-modal');
+  if(modal)modal.style.display='none';
+  skuEditId='';
+}
+
+function selSKUEditMP(mp){
+  skuEditMP=mp;
+  document.getElementById('sku-edit-mps').className='mp-opt shopee'+(mp==='Shopee'?' on':'');
+  document.getElementById('sku-edit-mpd').className='mp-opt dld'+(mp==='DLD'?' on':'');
+  document.getElementById('sku-edit-mpt').className='mp-opt tiktok'+(mp==='TikTok'?' on':'');
+}
+
+function addSKUEditRow(name,qty){
+  skuEditRowCount++;
+  var cont=document.getElementById('sku-edit-rows');if(!cont)return;
+  var rId='sker'+Date.now()+skuEditRowCount;
+  var sId='skes'+rId;
+  var div=document.createElement('div');
+  div.className='sku-form-row';div.id=rId;
+  div.innerHTML='<div class="sku-no">'+skuEditRowCount+'</div>'
+    +'<div class="sku-suggest-wrap"><input class="fi" placeholder="Nama SKU..." id="ei'+rId+'" value="'+(name||'')+'"/>'
+    +'<div class="sku-suggest-list" id="'+sId+'" style="display:none"></div></div>'
+    +'<input class="fi sku-qty" type="number" placeholder="0" min="0" value="'+(qty||0)+'"/>'
+    +'<button class="sku-del-btn" data-r="'+rId+'">&#215;</button>';
+  cont.appendChild(div);
+  var inp=div.querySelector('#ei'+rId);
+  inp.addEventListener('input',function(){showSKUSuggest(this,sId);});
+  inp.addEventListener('focus',function(){showSKUSuggest(this,sId);});
+  inp.addEventListener('blur',function(){setTimeout(function(){var s=document.getElementById(sId);if(s)s.style.display='none';},200);});
+  div.querySelector('[data-r]').addEventListener('click',function(){
+    document.getElementById(this.getAttribute('data-r')).remove();
+    renumberEditRows();
+  });
+}
+
+function renumberEditRows(){
+  document.querySelectorAll('#sku-edit-rows .sku-form-row').forEach(function(r,i){
+    var n=r.querySelector('.sku-no');if(n)n.textContent=i+1;
+  });
+}
+
+async function saveSKUEdit(){
+  if(!skuEditId){showToast('ID report tidak ditemukan!',true);return;}
+  var date=document.getElementById('sku-edit-date')&&document.getElementById('sku-edit-date').value;
+  if(!date){showToast('Tanggal wajib diisi!',true);return;}
+  var rows=document.querySelectorAll('#sku-edit-rows .sku-form-row');
+  var items=[];
+  rows.forEach(function(r){
+    var ins=r.querySelectorAll('input');
+    var nm=ins[0]&&ins[0].value.trim();
+    var qty=parseInt(ins[1]&&ins[1].value)||0;
+    if(nm&&qty>0)items.push({name:nm,qty:qty});
+  });
+  if(!items.length){showToast('Minimal 1 SKU dengan QTY > 0!',true);return;}
+  var ts=document.getElementById('sku-edit-start');
+  var te2=document.getElementById('sku-edit-end');
+  try{
+    await db.collection('sku_reports').doc(skuEditId).update({
+      date:date,mp:skuEditMP,
+      timeStart:ts&&ts.value||'',
+      timeEnd:te2&&te2.value||'',
+      items:items,
+      totalQty:items.reduce(function(s,i){return s+i.qty;},0),
+      updatedAt:new Date().toISOString()
+    });
+    showToast('Report SKU diperbarui!');
+    closeSKUEditModal();
+  }catch(e){showToast('Gagal simpan: '+e.message,true);}
+}
+
 </script>
 
+
+<div id="sku-edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;align-items:center;justify-content:center;padding:20px;">
+  <div class="sku-modal-inner" style="background:var(--white);border-radius:14px;padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;">
+    <div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;">
+      &#9998; Edit Report SKU
+      <button onclick="closeSKUEditModal()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--text3);line-height:1;">&#215;</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div class="fgi"><label class="fl">Tanggal<span class="req-star">*</span></label><input class="fi" id="sku-edit-date" type="date"/></div>
+      <div class="fgi">
+        <label class="fl">Platform<span class="req-star">*</span></label>
+        <div class="mp-sel" style="margin-top:0">
+          <div class="mp-opt shopee on" id="sku-edit-mps" onclick="selSKUEditMP('Shopee')">&#128717; Shopee</div>
+          <div class="mp-opt dld" id="sku-edit-mpd" onclick="selSKUEditMP('DLD')">&#128230; DLD</div>
+          <div class="mp-opt tiktok" id="sku-edit-mpt" onclick="selSKUEditMP('TikTok')">&#127925; TikTok</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div class="fgi"><label class="fl">Jam mulai</label><input class="fi" id="sku-edit-start" type="time"/></div>
+      <div class="fgi"><label class="fl">Jam selesai</label><input class="fi" id="sku-edit-end" type="time"/></div>
+    </div>
+    <div style="margin-bottom:8px;">
+      <label class="fl" style="margin-bottom:8px;display:block;">Daftar SKU</label>
+      <div class="sku-table-header">
+        <div class="sku-th" style="text-align:center;">No</div>
+        <div class="sku-th">Nama SKU</div>
+        <div class="sku-th" style="text-align:center;">QTY</div>
+        <div></div>
+      </div>
+      <div id="sku-edit-rows"></div>
+      <button class="sku-add-btn" onclick="addSKUEditRow()" style="margin-top:4px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Tambah SKU
+      </button>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px;border-top:.5px solid var(--border);padding-top:16px;">
+      <button onclick="closeSKUEditModal()" style="padding:9px 18px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">Batal</button>
+      <button onclick="saveSKUEdit()" style="padding:9px 22px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
