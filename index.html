@@ -3974,7 +3974,14 @@ function renderSKUHistory(){
     var d=r.date?new Date(r.date+'T12:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'';
     var jam=(r.timeStart||'-')+(r.timeEnd?' – '+r.timeEnd:'');
     var mpCls=r.mp==='Shopee'?'mps':r.mp==='DLD'?'mpd':'mpt';
-    var skuDetail=(r.items||[]).map(function(i){return i.name+' ('+i.qty+')'}).join(', ');
+    var skuListHTML=(r.items||[]).map(function(i){
+      var isHighQty=i.qty>=3;
+      return '<div style="display:flex;align-items:center;gap:6px;padding:1px 0;">'
+        +'<span style="width:4px;height:4px;border-radius:50%;background:var(--text3);flex-shrink:0;margin-top:1px;"></span>'
+        +'<span style="font-size:12px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+i.name+'</span>'
+        +'<span style="font-size:11px;font-weight:600;color:'+(isHighQty?'var(--blue)':'var(--text3)')+';flex-shrink:0;margin-left:4px;">'+i.qty+' pcs</span>'
+        +'</div>';
+    }).join('');
     var editBtn2=document.createElement('button');
     editBtn2.className='edit-row';editBtn2.innerHTML='&#9998;';editBtn2.title='Edit';
     editBtn2.style.marginRight='4px';
@@ -3987,7 +3994,7 @@ function renderSKUHistory(){
     tr.innerHTML='<td style="font-weight:600">'+d+'</td>'
       +'<td><span class="mpb '+mpCls+'">'+r.mp+'</span></td>'
       +'<td style="color:var(--text3);font-size:12px;white-space:nowrap;">'+jam+'</td>'
-      +'<td style="font-size:12px;color:var(--text2);max-width:240px;">'+skuDetail+'</td>'
+      +'<td style="max-width:260px;padding-top:6px;padding-bottom:6px;">'+skuListHTML+'</td>'
       +'<td style="color:var(--text3);font-size:12px;">'+(r.by||'-')+'</td>'
       +'<td></td>';
     tr.cells[5].appendChild(editBtn2);
