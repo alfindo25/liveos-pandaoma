@@ -2834,6 +2834,7 @@ async function delSess(id){
 
 function refreshAll(){
   refreshMetrics(allSessions);refreshTop3(allSessions);buildChart(allSessions);renderTable(filterData(allSessions));renderStreamerList();
+  if(typeof refreshSKUWidget==='function')refreshSKUWidget();
 }
 
 function selMP(mp){
