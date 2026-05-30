@@ -2459,7 +2459,6 @@ async function saveEditStreamer(){
   const name=document.getElementById('es-name').value.trim();
   const role=document.getElementById('es-role').value.trim();
   const nik=document.getElementById('es-nik')?.value?.trim()||'';
-  const nik=document.getElementById('es-nik')?.value?.trim()||'';
   const email=document.getElementById('es-email').value.trim();
   if(!id){showToast('Error: ID tidak ditemukan.',true);return;}
   if(!name){showToast('Nama wajib diisi!',true);return;}
@@ -2467,6 +2466,7 @@ async function saveEditStreamer(){
     await db.collection('streamers').doc(id).update({
       name,
       role:role||'Streamer',
+      nik,
       email:email||'',
       updatedAt:new Date().toISOString()
     });
