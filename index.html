@@ -1676,14 +1676,14 @@ function toggleGuideCard(hdr){
 <div class="page" id="page-sku-history">
 <div class="topbar">
   <div><div class="pgtitle">&#128203; <span>Detail Report SKU</span></div><div class="pgsub">Semua report SKU yang sudah diinput</div></div>
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-    <div class="mp-opt shopee on" id="skuh-fs" onclick="skuHistFilter('mp','Shopee')" style="cursor:pointer;font-size:13px;">&#128717; Shopee</div>
-    <div class="mp-opt dld on" id="skuh-fd" onclick="skuHistFilter('mp','DLD')" style="cursor:pointer;font-size:13px;">&#128230; DLD</div>
-    <div class="mp-opt tiktok on" id="skuh-ft" onclick="skuHistFilter('mp','TikTok')" style="cursor:pointer;font-size:13px;">&#127925; TikTok</div>
-    <div style="width:1px;height:24px;background:var(--border);"></div>
-    <button class="chip on" id="skuh-p-today" onclick="skuHistFilter('period','today')">Hari Ini</button>
+  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+    <button class="chip shopee on" id="skuh-fs" onclick="skuHistFilter('mp','Shopee')">&#128717; Shopee</button>
+    <button class="chip dld on" id="skuh-fd" onclick="skuHistFilter('mp','DLD')">&#128230; DLD</button>
+    <button class="chip tiktok on" id="skuh-ft" onclick="skuHistFilter('mp','TikTok')">&#127925; TikTok</button>
+    <div style="width:1px;height:20px;background:var(--border);margin:0 2px;"></div>
+    <button class="chip" id="skuh-p-today" onclick="skuHistFilter('period','today')">Hari Ini</button>
     <button class="chip" id="skuh-p-yesterday" onclick="skuHistFilter('period','yesterday')">Kemarin</button>
-    <button class="chip" id="skuh-p-7d" onclick="skuHistFilter('period','7d')">7 Hari</button>
+    <button class="chip on" id="skuh-p-7d" onclick="skuHistFilter('period','7d')">7 Hari</button>
     <button class="chip" id="skuh-p-30d" onclick="skuHistFilter('period','30d')">30 Hari</button>
     <button class="chip" id="skuh-p-custom" onclick="skuHistFilter('period','custom')">&#128197; Kustom</button>
     <div id="skuh-custom-wrap" style="display:none;align-items:center;gap:6px;">
@@ -1691,7 +1691,7 @@ function toggleGuideCard(hdr){
       <span style="color:var(--text3);font-size:12px;">–</span>
       <input type="date" id="skuh-date-to" class="fi" style="height:30px;font-size:12px;padding:0 8px;width:130px;" onchange="skuHistApplyCustom()"/>
     </div>
-    <button onclick="skuHistReset()" class="chip" style="color:var(--red);border-color:var(--red);">&#215; Reset</button>
+    <button onclick="skuHistReset()" style="padding:3px 10px;border-radius:20px;border:1.5px solid var(--red);background:none;font-size:12px;color:var(--red);cursor:pointer;font-family:var(--font);">&#215; Reset</button>
     <button onclick="goPage('sku')" style="padding:7px 16px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);">+ Input Baru</button>
   </div>
 </div>
@@ -4175,7 +4175,7 @@ async function saveSKUEdit(){
 
 
 // ══ Detail Report SKU Filter ══
-var SKUH = {shopee:true,dld:true,tiktok:true,period:'today',customFrom:'',customTo:''};
+var SKUH = {shopee:true,dld:true,tiktok:true,period:'7d',customFrom:'',customTo:''};
 
 function skuHistFilter(type, val){
   if(type==='mp'){
@@ -4208,14 +4208,12 @@ function skuHistApplyCustom(){
 
 function skuHistReset(){
   SKUH={shopee:true,dld:true,tiktok:true,period:'today',customFrom:'',customTo:''};
-  ['shopee','dld','tiktok'].forEach(function(m){
-    var map={shopee:'skuh-fs',dld:'skuh-fd',tiktok:'skuh-ft'};
-    var el=document.getElementById(map[m]);
-    if(el)el.className='chip '+(m==='shopee'?'shopee':m==='dld'?'dld':'tiktok')+' on';
-  });
+  var elFs=document.getElementById('skuh-fs');if(elFs)elFs.className='chip shopee on';
+  var elFd=document.getElementById('skuh-fd');if(elFd)elFd.className='chip dld on';
+  var elFt=document.getElementById('skuh-ft');if(elFt)elFt.className='chip tiktok on';
   ['today','yesterday','7d','30d','custom'].forEach(function(p){
     var el=document.getElementById('skuh-p-'+p);
-    if(el)el.className='chip'+(p==='today'?' on':'');
+    if(el)el.className='chip'+(p==='7d'?' on':'');
   });
   var cw=document.getElementById('skuh-custom-wrap');
   if(cw)cw.style.display='none';
