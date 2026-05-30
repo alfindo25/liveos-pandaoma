@@ -2439,6 +2439,7 @@ async function saveEditStreamer(){
     await db.collection('streamers').doc(id).update({
       name,
       role:role||'Streamer',
+      nik:esNik.trim(),
       email:email||'',
       updatedAt:new Date().toISOString()
     });
@@ -2478,6 +2479,7 @@ function renderStreamerList(){
       +'<div class="sc-info">'
         +'<div class="sc-name">'+s.name+'</div>'
         +'<div class="sc-role">'+(s.role||'Streamer')+emailHtml+'</div>'
+        +(s.nik?'<div style="font-size:10px;color:var(--text3);margin-top:1px;">NIK: <span style="font-family:monospace;background:var(--surface);padding:1px 5px;border-radius:4px;color:var(--text2);">'+s.nik+'</span></div>':'')
         +statsHtml
       +'</div>'
       +'<div style="display:flex;gap:6px;flex-shrink:0;align-items:center;">'
