@@ -70,7 +70,7 @@ body{font-family:var(--font);background:var(--off);color:var(--text);min-height:
 .pgtitle{font-size:21px;font-weight:800;color:var(--navy);letter-spacing:-.3px;}.pgtitle span{color:var(--blue);}
 .pgsub{font-size:12px;color:var(--text2);margin-top:3px;font-weight:500;}
 .filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-.chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text2);transition:all .15s;}
+.chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--text2);transition:all .15s;pointer-events:auto;user-select:none;}
 .chip.shopee.on{background:var(--shopee-bg);border-color:var(--shopee);color:var(--shopee);}
 .chip.tiktok.on{background:var(--tiktok-bg);border-color:var(--tiktok);color:var(--tiktok);}
 .chip.dld.on{background:#fff1ee;border-color:#c73e1f;color:#c73e1f;}
@@ -2128,6 +2128,7 @@ auth.onAuthStateChanged(async(user)=>{
     setTimeout(loadChatHistory, 800);
     // Re-render streamer list after currentUser is confirmed (for isSU check)
     setTimeout(renderStreamerList, 1500);
+    goPage('dashboard');
   }else{
     currentUser=null;
     document.getElementById('login-screen').classList.add('show');
@@ -3803,12 +3804,12 @@ async function saveSKUReport(){
 
 function renderSKUHistory(){
   var tbody=document.getElementById('sku-history-tbody');
-  var badge=document.getElementById('sku-history-count');
-  if(badge)badge.textContent=allSKUReports.length+' report';
   if(!tbody)return;
   tbody.innerHTML='';
   if(!allSKUReports.length){
     tbody.innerHTML='<tr><td colspan="6" class="empty">Belum ada report</td></tr>';
+    var badge0=document.getElementById('sku-history-count');
+    if(badge0)badge0.textContent='0 report';
     return;
   }
   // Apply SKUH filter
@@ -3821,6 +3822,7 @@ function renderSKUHistory(){
     if(skuhRange.from&&skuhRange.to)return r.date>=skuhRange.from&&r.date<=skuhRange.to;
     return true;
   });
+  var badge=document.getElementById('sku-history-count');
   if(badge)badge.textContent=filtered2.length+' report';
 
   // Sort: timeStart ascending, same time Shopee/DLD first
