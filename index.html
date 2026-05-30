@@ -1676,28 +1676,27 @@ function toggleGuideCard(hdr){
 <div class="page" id="page-sku-history">
 <div class="topbar">
   <div><div class="pgtitle">&#128203; <span>Detail Report SKU</span></div><div class="pgsub">Semua report SKU yang sudah diinput</div></div>
-  <button onclick="goPage('sku')" style="padding:7px 16px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);">+ Input Baru</button>
-</div>
-
-<div class="filter-bar" id="sku-hist-filter-bar">
-  <div class="filter-chips">
-    <div class="chip shopee on" id="skuh-fs" onclick="skuHistFilter('mp','Shopee')">&#128717; Shopee</div>
-    <div class="chip dld on" id="skuh-fd" onclick="skuHistFilter('mp','DLD')">&#128230; DLD</div>
-    <div class="chip tiktok on" id="skuh-ft" onclick="skuHistFilter('mp','TikTok')">&#127925; TikTok</div>
-    <div class="chip-sep"></div>
-    <div class="chip on" id="skuh-p-today" onclick="skuHistFilter('period','today')">Hari Ini</div>
-    <div class="chip" id="skuh-p-yesterday" onclick="skuHistFilter('period','yesterday')">Kemarin</div>
-    <div class="chip" id="skuh-p-7d" onclick="skuHistFilter('period','7d')">7 Hari</div>
-    <div class="chip" id="skuh-p-30d" onclick="skuHistFilter('period','30d')">30 Hari</div>
-    <div class="chip" id="skuh-p-custom" onclick="skuHistFilter('period','custom')">&#128197; Kustom</div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <div class="mp-opt shopee on" id="skuh-fs" onclick="skuHistFilter('mp','Shopee')" style="cursor:pointer;font-size:13px;">&#128717; Shopee</div>
+    <div class="mp-opt dld on" id="skuh-fd" onclick="skuHistFilter('mp','DLD')" style="cursor:pointer;font-size:13px;">&#128230; DLD</div>
+    <div class="mp-opt tiktok on" id="skuh-ft" onclick="skuHistFilter('mp','TikTok')" style="cursor:pointer;font-size:13px;">&#127925; TikTok</div>
+    <div style="width:1px;height:24px;background:var(--border);"></div>
+    <button class="chip on" id="skuh-p-today" onclick="skuHistFilter('period','today')">Hari Ini</button>
+    <button class="chip" id="skuh-p-yesterday" onclick="skuHistFilter('period','yesterday')">Kemarin</button>
+    <button class="chip" id="skuh-p-7d" onclick="skuHistFilter('period','7d')">7 Hari</button>
+    <button class="chip" id="skuh-p-30d" onclick="skuHistFilter('period','30d')">30 Hari</button>
+    <button class="chip" id="skuh-p-custom" onclick="skuHistFilter('period','custom')">&#128197; Kustom</button>
     <div id="skuh-custom-wrap" style="display:none;align-items:center;gap:6px;">
       <input type="date" id="skuh-date-from" class="fi" style="height:30px;font-size:12px;padding:0 8px;width:130px;" onchange="skuHistApplyCustom()"/>
       <span style="color:var(--text3);font-size:12px;">–</span>
       <input type="date" id="skuh-date-to" class="fi" style="height:30px;font-size:12px;padding:0 8px;width:130px;" onchange="skuHistApplyCustom()"/>
     </div>
-    <button onclick="skuHistReset()" style="margin-left:auto;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:var(--font);">&#215; Reset</button>
+    <button onclick="skuHistReset()" class="chip" style="color:var(--red);border-color:var(--red);">&#215; Reset</button>
+    <button onclick="goPage('sku')" style="padding:7px 16px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);">+ Input Baru</button>
   </div>
 </div>
+
+
 
 <div class="tcard">
   <div class="thdr"><div class="ct">Semua Report</div><span class="badge" id="sku-history-count">0 report</span></div>
