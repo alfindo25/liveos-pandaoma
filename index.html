@@ -3841,13 +3841,12 @@ function renderSKUHistory(){
     var jam=(r.timeStart||'-')+(r.timeEnd?' – '+r.timeEnd:'');
     var mpCls=r.mp==='Shopee'?'mps':r.mp==='DLD'?'mpd':'mpt';
     var skuDetail=(r.items||[]).map(function(i){return i.name+' ('+i.qty+')'}).join(', ');
-    var delBtn=document.createElement('button');
     var editBtn2=document.createElement('button');
     editBtn2.className='edit-row';editBtn2.innerHTML='&#9998;';editBtn2.title='Edit';
     editBtn2.style.marginRight='4px';
     editBtn2.addEventListener('click',(function(rr){return function(){openSKUEditModal(rr);};})(r));
-    tr.cells[5].appendChild(editBtn2);
-        delBtn.className='del-row';
+    var delBtn=document.createElement('button');
+    delBtn.className='del-row';
     delBtn.innerHTML='&#128465;';
     delBtn.title='Hapus report ini';
     delBtn.addEventListener('click',function(){deleteSKUReport(r.id);});
@@ -3857,6 +3856,7 @@ function renderSKUHistory(){
       +'<td style="font-size:12px;color:var(--text2);max-width:240px;">'+skuDetail+'</td>'
       +'<td style="color:var(--text3);font-size:12px;">'+(r.by||'-')+'</td>'
       +'<td></td>';
+    tr.cells[5].appendChild(editBtn2);
     tr.cells[5].appendChild(delBtn);
     tbody.appendChild(tr);
   });
