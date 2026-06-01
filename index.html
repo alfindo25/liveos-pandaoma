@@ -1847,6 +1847,12 @@ function toggleGuideCard(hdr){
   <div id="ij-import-result" style="display:none;"></div>
   <button id="ij-import-btn" onclick="saveIJImport()" style="display:none;padding:9px 22px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128190; Import Semua Data</button>
 </div>
+<div class="fc" style="margin-top:14px;border:1.5px solid #fee2e2;border-radius:var(--radius-sm);padding:16px;">
+  <div class="fct" style="color:var(--red);font-size:13px;margin-bottom:8px;">&#9888; Bersihkan Data Jadwal Tidak Valid</div>
+  <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Hapus semua data jadwal yang <b>timeStart</b>-nya tidak sesuai slot resmi (06:00, 09:00, 14:00, 22:00). Data yang tidak sesuai tidak akan muncul di grid jadwal.</div>
+  <button onclick="bulkDeleteInvalidSchedules()" style="padding:8px 18px;border-radius:var(--radius-sm);background:#dc2626;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128465; Hapus Data Tidak Valid</button>
+  <div id="bulk-delete-result" style="margin-top:10px;font-size:12px;"></div>
+</div>
 </div>
 
 <div class="page" id="page-sop">
@@ -2836,8 +2842,9 @@ function buildChart(data){
     const d=new Date(ds+'T12:00:00');
     return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
   });
-  const shD=dateList.map(ds=>filtered.filter(x=>(x.mp==='Shopee'||x.mp==='DLD')&&x.date===ds).reduce((s,x)=>s+(x.gmv||0),0));
-  const tkD=dateList.map(ds=>filtered.filter(x=>x.mp==='TikTok'&&x.date===ds).reduce((s,x)=>s+(x.gmv||0),0));
+  function normDate(d){if(!d)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(d))return d;const dt=new Date(d);if(isNaN(dt))return d;return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');}
+  const shD=dateList.map(ds=>filtered.filter(x=>(x.mp==='Shopee'||x.mp==='DLD')&&normDate(x.date)===ds).reduce((s,x)=>s+(x.gmv||0),0));
+  const tkD=dateList.map(ds=>filtered.filter(x=>x.mp==='TikTok'&&normDate(x.date)===ds).reduce((s,x)=>s+(x.gmv||0),0));
 
   const hasData=[...shD,...tkD].some(v=>v>0);
   const chartEmpty=document.getElementById('chart-empty');
@@ -4643,8 +4650,9 @@ function onIJFileChange(event){
         if(tgl instanceof Date){
           dateStr=tgl.getFullYear()+'-'+String(tgl.getMonth()+1).padStart(2,'0')+'-'+String(tgl.getDate()).padStart(2,'0');
         } else {dateStr=String(tgl).trim();}
-        var sIn=row[3]?String(row[3]).trim():'';
-        var sOut=row[4]?String(row[4]).trim():'';
+        function parseExcelTime(val){if(!val&&val!==0)return '';if(typeof val==='number'){var totalMins=Math.round(val*24*60);var h=Math.floor(totalMins/60)%24;var m=totalMins%60;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');}var s=String(val).trim();if(/^\d{1,2}:\d{2}$/.test(s)){var parts=s.split(':');return parts[0].padStart(2,'0')+':'+parts[1].padStart(2,'0');}return s;}
+        var sIn=parseExcelTime(row[3]);
+        var sOut=parseExcelTime(row[4]);
         var isOff=String(row[5]||'').trim();
         var status=(isOff==='1')?'off':'masuk';
         var streamer=allStreamers.find(function(s){return s.nik===nik;});
@@ -4709,6 +4717,33 @@ function exportJadwalTemplate(){
   var wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Worksheet');
   XLSX.writeFile(wb,'template-jadwal-liveos.xlsx');
+}
+
+// ═══ BULK DELETE INVALID SCHEDULES ═══
+async function bulkDeleteInvalidSchedules(){
+  var validSlots=['06:00','09:00','14:00','22:00'];
+  var resultEl=document.getElementById('bulk-delete-result');
+  if(!confirm('Yakin hapus semua jadwal dengan timeStart di luar slot resmi (06:00, 09:00, 14:00, 22:00)?'))return;
+  if(resultEl)resultEl.innerHTML='<span style="color:var(--text2);">Memproses...</span>';
+  try{
+    var snap=await db.collection('schedules').get();
+    var toDelete=snap.docs.filter(function(d){
+      var ts=d.data().timeStart;
+      return ts&&validSlots.indexOf(ts)===-1;
+    });
+    if(!toDelete.length){
+      if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; Tidak ada data tidak valid ditemukan.</span>';
+      return;
+    }
+    var batch=db.batch();
+    toDelete.forEach(function(d){batch.delete(d.ref);});
+    await batch.commit();
+    if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; '+toDelete.length+' data tidak valid berhasil dihapus.</span>';
+    showToast(toDelete.length+' jadwal tidak valid dihapus!');
+  }catch(e){
+    if(resultEl)resultEl.innerHTML='<span style="color:var(--red);">&#10007; Gagal: '+e.message+'</span>';
+    showToast('Gagal hapus: '+e.message,true);
+  }
 }
 
 // ═══ EDIT JADWAL ═══
