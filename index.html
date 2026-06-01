@@ -1124,19 +1124,7 @@ margin-bottom: 4px;
 <div class="fgi"><label class="fl">Email Login Streamer<span class="req-star">*</span></label><input class="fi" id="ns-email" type="email" placeholder="rora@pandaoma.com"/></div>
 </div>
 <button class="sub-btn" style="margin-top:12px" id="add-streamer-btn" onclick="addStreamer()">Tambah Streamer</button></div>
-<div class="fc" id="master-sku-section" style="margin-top:12px;">
-  <div class="fct" style="margin-bottom:10px;">Master Data SKU</div>
-  <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Daftar SKU untuk auto-suggest. Hanya admin yang bisa kelola.</div>
-  <div id="add-sku-form" style="display:none;margin-bottom:12px;">
-    <div style="display:flex;gap:8px;">
-      <input class="fi" id="new-sku-name" type="text" placeholder="Nama SKU..." style="flex:1"/>
-      <button onclick="addMasterSKU()" style="padding:8px 16px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Tambah</button>
-      <button onclick="document.getElementById('add-sku-form').style.display='none'" style="padding:8px 12px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font);">Batal</button>
-    </div>
-  </div>
-  <div id="master-sku-list" style="display:flex;flex-wrap:wrap;gap:4px;min-height:32px;"></div>
-  <button id="show-add-sku-btn" onclick="document.getElementById('add-sku-form').style.display='flex'" style="margin-top:10px;padding:6px 14px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--blue);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);display:none;">+ Tambah SKU</button>
-</div>
+
 <div class="fc" style="margin-bottom:0">
 <div class="fct" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
 <span>Daftar Streamer Aktif</span><span class="badge" id="streamer-count">0 orang</span>
@@ -1742,19 +1730,32 @@ function toggleGuideCard(hdr){
 <div class="page" id="page-master-sku">
 <div class="topbar">
   <div><div class="pgtitle">&#127991; <span>Master SKU</span></div><div class="pgsub">Kelola daftar SKU untuk auto-suggest report</div></div>
+  <div><button id="show-add-sku-page-btn" onclick="toggleAddSKUForm()" style="padding:7px 18px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:none;">+ Tambah SKU</button></div>
 </div>
 <div class="fc">
-  <div class="fct" style="margin-bottom:12px;">Daftar Master SKU</div>
-  <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">SKU yang terdaftar di sini akan muncul sebagai auto-suggest saat input Report SKU. Hanya admin yang bisa mengelola.</div>
-  <div id="add-sku-form-page" style="display:none;margin-bottom:16px;">
-    <div style="display:flex;gap:8px;">
-      <input class="fi" id="new-sku-name-page" type="text" placeholder="Nama SKU lengkap..." style="flex:1"/>
-      <button onclick="addMasterSKUPage()" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">Simpan</button>
-      <button onclick="document.getElementById('add-sku-form-page').style.display='none'" style="padding:8px 14px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font);">Batal</button>
+  <div id="add-sku-form-page" style="display:none;margin-bottom:16px;padding:14px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);">
+    <div class="fct" style="font-size:13px;margin-bottom:12px;" id="sku-form-title">Tambah SKU Baru</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div class="fgi"><label class="fl">Kode SKU <span class="req-star">*</span></label>
+        <input class="fi" id="new-sku-code-page" type="text" placeholder="cth. PD-IRON-VULGA" style="font-size:13px;"/>
+      </div>
+      <div class="fgi"><label class="fl">Nama Produk</label>
+        <input class="fi" id="new-sku-prodname-page" type="text" placeholder="cth. Setrika Vulga Series" style="font-size:13px;"/>
+      </div>
+    </div>
+    <input type="hidden" id="edit-sku-id-page" value=""/>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="cancelSKUForm()" style="padding:8px 14px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font);">Batal</button>
+      <button onclick="saveMasterSKUPage()" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Simpan</button>
     </div>
   </div>
-  <div id="master-sku-list-page" style="display:flex;flex-wrap:wrap;gap:6px;min-height:40px;margin-bottom:16px;"></div>
-  <button id="show-add-sku-page-btn" onclick="document.getElementById('add-sku-form-page').style.display='flex';document.getElementById('new-sku-name-page').focus();" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:none;">+ Tambah SKU</button>
+  <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">SKU terdaftar akan muncul sebagai auto-suggest saat input Report SKU. Hanya superuser yang bisa mengelola.</div>
+  <div class="twrap">
+    <table id="master-sku-table">
+      <thead><tr><th>#</th><th>Kode SKU</th><th>Nama Produk</th><th>Ditambahkan oleh</th><th id="master-sku-aksi-col" style="display:none;">Aksi</th></tr></thead>
+      <tbody id="master-sku-list-page"><tr><td colspan="5" class="empty">Memuat...</td></tr></tbody>
+    </table>
+  </div>
 </div>
 </div>
 
@@ -2387,7 +2388,7 @@ function goPage(p){
   if(p==='detail')renderDetailTable();
   if(p==='incentive')renderIncentive();
   if(p==='sku'){initSKUForm();}
-  if(p==='jadwal'){renderJadwalGrid();}
+  if(p==='jadwal'){renderJadwalGrid();renderJadwalDetail();}
   if(p==='input-jadwal'){initIJForm();}
   if(p==='sku-history')renderSKUHistory();
   if(p==='master-sku')renderMasterSKUPage();
@@ -3993,11 +3994,14 @@ function renderSKUHistory(){
     var mpCls=r.mp==='Shopee'?'mps':r.mp==='DLD'?'mpd':'mpt';
     var skuListHTML=(r.items||[]).map(function(i){
       var isHighQty=i.qty>=3;
-      return '<div style="display:flex;align-items:center;gap:6px;padding:1px 0;">'
+      var msku=allMasterSKU.find(function(x){return x.name===i.name;});
+      var prodLine=msku&&msku.prodName?'<div style="font-size:10px;color:var(--text3);margin-left:10px;margin-top:0px;">'+msku.prodName+'</div>':'';
+      return '<div style="padding:2px 0;">'
+        +'<div style="display:flex;align-items:center;gap:6px;">'
         +'<span style="width:4px;height:4px;border-radius:50%;background:var(--text3);flex-shrink:0;margin-top:1px;"></span>'
         +'<span style="font-size:12px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+i.name+'</span>'
         +'<span style="font-size:11px;font-weight:600;color:'+(isHighQty?'var(--blue)':'var(--text3)')+';flex-shrink:0;margin-left:4px;">'+i.qty+' pcs</span>'
-        +'</div>';
+        +'</div>'+prodLine+'</div>';
     }).join('');
     var editBtn2=document.createElement('button');
     editBtn2.className='edit-row';editBtn2.innerHTML='&#9998;';editBtn2.title='Edit';
@@ -4066,8 +4070,10 @@ function refreshSKUWidget(){
         var pct=Math.round(v.qty/tot2*100);
         var bw=Math.round(v.qty/maxQ*100);
         var tr=document.createElement('tr');
+        var msku=allMasterSKU.find(function(x){return x.name===nm;});
+        var prodNameDisp=msku&&msku.prodName?'<div style="font-size:10px;color:var(--text3);margin-top:1px;">'+msku.prodName+'</div>':'';
         tr.innerHTML='<td style="font-weight:700">'+(medals[i]||i+1)+'</td>'
-          +'<td style="font-weight:600">'+nm+'</td>'
+          +'<td style="font-weight:600">'+nm+prodNameDisp+'</td>'
           +'<td style="font-weight:700;color:var(--green)">'+v.qty+' pcs</td>'
           +'<td><div class="sku-rank-bar"><div class="sku-bar-bg"><div class="sku-bar-fill" style="width:'+bw+'%"></div></div>'
           +'<span style="font-size:11px;color:var(--text3)">'+pct+'%</span></div></td>';
@@ -4168,27 +4174,14 @@ function refreshSKUWidget(){
   }
 }
 
+// renderMasterSKUList: legacy stub - section sudah dipindah ke Master SKU page
 function renderMasterSKUList(){
-  var list=document.getElementById('master-sku-list');var addBtn=document.getElementById('show-add-sku-btn');
-  var isSU=currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
-  if(addBtn)addBtn.style.display=isSU?'block':'none';if(!list)return;list.innerHTML='';
-  if(!allMasterSKU.length){list.innerHTML='<span style="font-size:12px;color:var(--text3);">Belum ada SKU.'+(isSU?' Tambah di bawah.':'')+'</span>';return;}
-  allMasterSKU.forEach(function(s){
-    var chip=document.createElement('span');chip.className='master-sku-chip';chip.textContent=s.name;
-    if(isSU){var btn=document.createElement('button');btn.textContent='x';btn.addEventListener('click',function(){deleteMasterSKU(s.id,s.name);});chip.appendChild(btn);}
-    list.appendChild(chip);
-  });
+  if(document.getElementById('page-master-sku')&&document.getElementById('page-master-sku').classList.contains('active')){
+    renderMasterSKUPage();
+  }
 }
 
-async function addMasterSKU(){
-  var nameEl=document.getElementById('new-sku-name');var name=nameEl&&nameEl.value.trim();
-  if(!name){showToast('Nama SKU wajib!',true);return;}
-  if(allMasterSKU.find(function(s){return s.name.toLowerCase()===name.toLowerCase();})){showToast(name+' sudah ada!',true);return;}
-  try{
-    await db.collection('master_sku').add({name:name,addedBy:(currentUser&&currentUser.displayName)||'',createdAt:new Date().toISOString()});
-    if(nameEl)nameEl.value='';document.getElementById('add-sku-form').style.display='none';showToast('SKU '+name+' ditambahkan!');
-  }catch(e){showToast('Gagal: '+e.message,true);}
-}
+async function addMasterSKU(){saveMasterSKUPage();}
 
 async function deleteMasterSKU(id,name){
   if(!confirm('Hapus SKU "'+name+'"?'))return;
@@ -4197,43 +4190,94 @@ async function deleteMasterSKU(id,name){
 
 
 function renderMasterSKUPage(){
-  const list=document.getElementById('master-sku-list-page');
-  const addBtn=document.getElementById('show-add-sku-page-btn');
-  const isSU=currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
-  if(addBtn)addBtn.style.display=isSU?'inline-flex':'none';
-  if(!list)return;
-  list.innerHTML='';
+  var tbody=document.getElementById('master-sku-list-page');
+  var addBtn=document.getElementById('show-add-sku-page-btn');
+  var aksiCol=document.getElementById('master-sku-aksi-col');
+  var isSU=currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
+  if(addBtn)addBtn.style.display=isSU?'inline-block':'none';
+  if(aksiCol)aksiCol.style.display=isSU?'':'none';
+  if(!tbody)return;
+  tbody.innerHTML='';
   if(!allMasterSKU.length){
-    list.innerHTML='<span style="font-size:13px;color:var(--text3);">Belum ada SKU terdaftar.'+(isSU?' Tambah lewat tombol di atas.':'')+'</span>';
+    tbody.innerHTML='<tr><td colspan="5" class="empty">Belum ada SKU terdaftar.'+(isSU?' Klik + Tambah SKU untuk menambahkan.':'')+'</td></tr>';
     return;
   }
-  allMasterSKU.forEach(function(s){
-    var chip=document.createElement('span');
-    chip.className='master-sku-chip';
-    chip.textContent=s.name;
+  allMasterSKU.forEach(function(s,i){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td style="color:var(--text3);font-size:12px;">'+(i+1)+'</td>'
+      +'<td style="font-weight:700;font-family:monospace;font-size:13px;">'+s.name+'</td>'
+      +'<td style="color:var(--text2);font-size:13px;">'+(s.prodName||'<span style="color:var(--text3);font-style:italic;">—</span>')+'</td>'
+      +'<td style="font-size:12px;color:var(--text3);">'+(s.addedBy||'-')+'</td>'
+      +'<td style="'+(isSU?'':'display:none;')+'"></td>';
     if(isSU){
-      var btn=document.createElement('button');
-      btn.textContent='x';
-      btn.title='Hapus '+s.name;
-      btn.addEventListener('click',function(){deleteMasterSKU(s.id,s.name);});
-      chip.appendChild(btn);
+      var editBtn=document.createElement('button');
+      editBtn.className='edit-row';editBtn.innerHTML='&#9998;';editBtn.title='Edit';editBtn.style.marginRight='4px';
+      editBtn.addEventListener('click',(function(ss){return function(){openEditSKUMaster(ss);};})(s));
+      var delBtn=document.createElement('button');
+      delBtn.className='del-row';delBtn.innerHTML='&#128465;';delBtn.title='Hapus '+s.name;
+      delBtn.addEventListener('click',(function(ss){return function(){deleteMasterSKU(ss.id,ss.name);};})(s));
+      tr.cells[4].appendChild(editBtn);
+      tr.cells[4].appendChild(delBtn);
     }
-    list.appendChild(chip);
+    tbody.appendChild(tr);
   });
 }
 
-async function addMasterSKUPage(){
-  var nameEl=document.getElementById('new-sku-name-page');
-  var name=nameEl&&nameEl.value.trim();
-  if(!name){showToast('Nama SKU wajib!',true);return;}
-  if(allMasterSKU.find(function(s){return s.name.toLowerCase()===name.toLowerCase();})){showToast(name+' sudah ada!',true);return;}
+function toggleAddSKUForm(){
+  var form=document.getElementById('add-sku-form-page');
+  var title=document.getElementById('sku-form-title');
+  if(!form)return;
+  document.getElementById('edit-sku-id-page').value='';
+  document.getElementById('new-sku-code-page').value='';
+  document.getElementById('new-sku-prodname-page').value='';
+  if(title)title.textContent='Tambah SKU Baru';
+  form.style.display=form.style.display==='none'?'block':'none';
+  if(form.style.display==='block')document.getElementById('new-sku-code-page').focus();
+}
+
+function cancelSKUForm(){
+  document.getElementById('add-sku-form-page').style.display='none';
+  document.getElementById('edit-sku-id-page').value='';
+  document.getElementById('new-sku-code-page').value='';
+  document.getElementById('new-sku-prodname-page').value='';
+}
+
+function openEditSKUMaster(s){
+  var form=document.getElementById('add-sku-form-page');
+  var title=document.getElementById('sku-form-title');
+  if(!form)return;
+  document.getElementById('edit-sku-id-page').value=s.id;
+  document.getElementById('new-sku-code-page').value=s.name;
+  document.getElementById('new-sku-prodname-page').value=s.prodName||'';
+  if(title)title.textContent='Edit SKU';
+  form.style.display='block';
+  document.getElementById('new-sku-code-page').focus();
+}
+
+async function saveMasterSKUPage(){
+  var codeEl=document.getElementById('new-sku-code-page');
+  var prodEl=document.getElementById('new-sku-prodname-page');
+  var editId=document.getElementById('edit-sku-id-page').value;
+  var code=codeEl&&codeEl.value.trim().toUpperCase();
+  var prodName=prodEl&&prodEl.value.trim();
+  if(!code){showToast('Kode SKU wajib!',true);return;}
+  var existing=allMasterSKU.find(function(s){return s.name.toLowerCase()===code.toLowerCase()&&s.id!==editId;});
+  if(existing){showToast(code+' sudah ada!',true);return;}
   try{
-    await db.collection('master_sku').add({name:name,addedBy:(currentUser&&currentUser.displayName)||'',createdAt:new Date().toISOString()});
-    if(nameEl)nameEl.value='';
-    document.getElementById('add-sku-form-page').style.display='none';
-    showToast('SKU '+name+' ditambahkan!');
+    var data={name:code,prodName:prodName,addedBy:(currentUser&&currentUser.displayName)||'',createdAt:new Date().toISOString()};
+    if(editId){
+      await db.collection('master_sku').doc(editId).update({name:code,prodName:prodName});
+      showToast('SKU '+code+' diperbarui!');
+    } else {
+      await db.collection('master_sku').add(data);
+      showToast('SKU '+code+' ditambahkan!');
+    }
+    cancelSKUForm();
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
+
+// Legacy — tidak dipakai lagi tapi dijaga agar tidak error
+async function addMasterSKUPage(){saveMasterSKUPage();}
 
 
 // ══ SKU EDIT MODAL ══
