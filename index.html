@@ -1781,18 +1781,24 @@ function toggleGuideCard(hdr){
   </div>
 </div>
 <div class="tcard" style="margin-top:14px;">
-  <div class="thdr" style="display:flex;align-items:center;justify-content:space-between;">
+  <div class="thdr" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
     <div class="ct">Detail Jadwal</div>
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <select id="jadwal-filter-streamer" class="fi" style="height:30px;font-size:12px;padding:0 8px;width:160px;" onchange="renderJadwalDetail()">
         <option value="">Semua Streamer</option>
       </select>
       <span class="badge" id="jadwal-detail-count">0 jadwal</span>
+      <button id="jadwal-mass-btn" onclick="toggleJadwalMassMode()" style="display:none;padding:5px 12px;border-radius:var(--radius-sm);border:1.5px solid var(--blue);background:transparent;color:var(--blue);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">&#9745; Pilih &amp; Hapus</button>
     </div>
+  </div>
+  <div id="jadwal-mass-bar" style="display:none;align-items:center;gap:10px;padding:8px 12px;background:#fef2f2;border-bottom:1px solid #fecaca;">
+    <input type="checkbox" id="jadwal-select-all" onchange="toggleSelectAllJadwal(this)" style="width:15px;height:15px;cursor:pointer;"/>
+    <label for="jadwal-select-all" style="font-size:12px;font-weight:600;cursor:pointer;">Pilih Semua</label>
+    <button id="jadwal-mass-delete-confirm" onclick="confirmMassDeleteJadwal()" style="padding:5px 14px;border-radius:var(--radius-sm);background:#dc2626;border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">Hapus 0 Jadwal</button>
   </div>
   <div class="twrap"><table>
     <thead><tr><th>#</th><th>Nama</th><th>Tanggal</th><th>Jam Mulai</th><th>Jam Berakhir</th><th>Status</th><th>Diinput oleh</th><th>Aksi</th></tr></thead>
-    <tbody id="jadwal-detail-tbody"><tr><td colspan="8" class="empty">Belum ada data</td></tr></tbody>
+    <tbody id="jadwal-detail-tbody"><tr><td colspan="9" class="empty">Belum ada data</td></tr></tbody>
   </table></div>
 </div>
 </div>
@@ -1850,7 +1856,10 @@ function toggleGuideCard(hdr){
 <div class="fc" style="margin-top:14px;border:1.5px solid #fee2e2;border-radius:var(--radius-sm);padding:16px;">
   <div class="fct" style="color:var(--red);font-size:13px;margin-bottom:8px;">&#9888; Bersihkan Data Jadwal Tidak Valid</div>
   <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Hapus semua data jadwal yang <b>timeStart</b>-nya tidak sesuai slot resmi (06:00, 09:00, 14:00, 22:00). Data yang tidak sesuai tidak akan muncul di grid jadwal.</div>
-  <button onclick="bulkDeleteInvalidSchedules()" style="padding:8px 18px;border-radius:var(--radius-sm);background:#dc2626;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128465; Hapus Data Tidak Valid</button>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <button onclick="bulkDeleteInvalidSchedules()" style="padding:8px 18px;border-radius:var(--radius-sm);background:#dc2626;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128465; Hapus Data Tidak Valid</button>
+    <button onclick="deleteAllSchedules()" style="padding:8px 18px;border-radius:var(--radius-sm);background:#7f1d1d;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#9888; Reset Semua Jadwal</button>
+  </div>
   <div id="bulk-delete-result" style="margin-top:10px;font-size:12px;"></div>
 </div>
 </div>
@@ -2848,15 +2857,16 @@ function buildChart(data){
 
   const hasData=[...shD,...tkD].some(v=>v>0);
   const chartEmpty=document.getElementById('chart-empty');
-  if(chartEmpty)chartEmpty.style.display=hasData?'none':'block';
-  ctx.style.display=hasData?'block':'none';
+  if(chartEmpty)chartEmpty.style.display=hasData?'none':'flex';
+  ctx.style.display='block';
+
+  if(chartInst){chartInst.destroy();chartInst=null;}
 
   const dsets=[];
   if(AF.shopee||AF.dld)dsets.push({label:'Shopee+DLD',data:shD,borderColor:'#ee4d2d',backgroundColor:'rgba(238,77,45,.07)',tension:.4,fill:true,pointRadius:3,pointHoverRadius:5});
   if(AF.tiktok)dsets.push({label:'TikTok',data:tkD,borderColor:'#0a7abf',backgroundColor:'rgba(10,122,191,.07)',tension:.4,fill:true,pointRadius:3,pointHoverRadius:5,borderDash:[4,2]});
 
-  if(chartInst){chartInst.destroy();chartInst=null;}
-  if(!dsets.length)return;
+  if(!hasData||!dsets.length)return;
   chartInst=new Chart(ctx,{
     type:'line',data:{labels,datasets:dsets},
     options:{
@@ -4393,6 +4403,7 @@ var allSlotJam = [];
 function startJadwalListeners(){
   db.collection('schedules').orderBy('date','asc').onSnapshot(function(snap){
     allSchedules = snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    jadwalMassMode=false;jadwalSelected.clear();
     if(document.getElementById('page-jadwal').classList.contains('active')){
       renderJadwalGrid(); renderJadwalDetail();
     }
@@ -4479,34 +4490,50 @@ function renderJadwalGrid(){
   if(cnt){var u=new Set(ms.map(function(s){return s.streamerName;}));cnt.textContent=u.size+' streamer';}
 }
 
+var jadwalMassMode=false;
+var jadwalSelected=new Set();
+
 function renderJadwalDetail(){
   var tbody=document.getElementById('jadwal-detail-tbody');
   var cnt=document.getElementById('jadwal-detail-count');
   if(!tbody)return;
   var range=jadwalDateRange();
+  // Isi dropdown streamer selalu fresh
   var fsel=document.getElementById('jadwal-filter-streamer');
+  if(fsel){
+    var prev=fsel.value;
+    var names=[...new Set(allSchedules.map(function(s){return s.streamerName;}))].filter(Boolean).sort();
+    fsel.innerHTML='<option value="">Semua Streamer</option>';
+    names.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;fsel.appendChild(o);});
+    fsel.value=prev;
+  }
   var fname=fsel?fsel.value:'';
+  var p=function(n){return String(n).padStart(2,'0');};
+  function normD(d){if(!d)return '';if(/^\d{4}-\d{2}-\d{2}$/.test(d))return d;var dt=new Date(d);if(isNaN(dt))return d;return dt.getFullYear()+'-'+p(dt.getMonth()+1)+'-'+p(dt.getDate());}
   var data=allSchedules.filter(function(s){
-    if(s.date<range.from||s.date>range.to)return false;
+    var nd=normD(s.date);
+    if(nd<range.from||nd>range.to)return false;
     if(fname&&s.streamerName!==fname)return false;
     return true;
-  }).sort(function(a,b){return a.date>b.date?1:a.date<b.date?-1:0;});
+  }).sort(function(a,b){var na=normD(a.date),nb=normD(b.date);return na>nb?1:na<nb?-1:0;});
   if(cnt)cnt.textContent=data.length+' jadwal';
   tbody.innerHTML='';
-  if(!data.length){tbody.innerHTML='<tr><td colspan="8" class="empty">Belum ada data jadwal bulan ini</td></tr>';return;}
-  if(fsel&&fsel.options.length<=1){
-    var names=[...new Set(allSchedules.map(function(s){return s.streamerName;}))].sort();
-    names.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;fsel.appendChild(o);});
-  }
+  if(!data.length){tbody.innerHTML='<tr><td colspan="9" class="empty">Belum ada data jadwal bulan ini</td></tr>';return;}
   var isSU=currentUser&&currentUser.email==='alfindo.ixa.2537@gmail.com';
+  // Update mass delete button visibility
+  var massBtn=document.getElementById('jadwal-mass-btn');
+  if(massBtn)massBtn.style.display=(isSU||currentUser)?'inline-block':'none';
   data.forEach(function(s,i){
     var tr=document.createElement('tr');
-    var d=s.date?new Date(s.date+'T12:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'';
+    var d=s.date?new Date(normD(s.date)+'T12:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}):'';
     var canEdit=isSU||(currentUser&&currentUser.email===s.inputBy);
     var stEl=s.status==='masuk'
       ?'<span style="background:var(--green-lt);color:var(--green);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;">Masuk</span>'
       :'<span style="background:var(--red-bg);color:var(--red);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;">Off</span>';
-    tr.innerHTML='<td style="color:var(--text3);">'+(i+1)+'</td>'
+    var cbCell=jadwalMassMode&&canEdit
+      ?'<td style="text-align:center;"><input type="checkbox" class="jadwal-cb" data-id="'+s.id+'" '+(jadwalSelected.has(s.id)?'checked':'')+'style="width:15px;height:15px;cursor:pointer;"/></td>'
+      :'<td style="color:var(--text3);">'+(i+1)+'</td>';
+    tr.innerHTML=cbCell
       +'<td style="font-weight:600;">'+s.streamerName+'</td>'
       +'<td>'+d+'</td>'
       +'<td style="font-size:12px;">'+(s.status==='masuk'?s.timeStart||'\u2014':'\u2014')+'</td>'
@@ -4514,7 +4541,15 @@ function renderJadwalDetail(){
       +'<td>'+stEl+'</td>'
       +'<td style="font-size:12px;color:var(--text3);">'+(s.inputByName||'-')+'</td>'
       +'<td></td>';
-    if(canEdit){
+    if(jadwalMassMode){
+      // checkbox handler
+      var cb=tr.cells[0].querySelector('.jadwal-cb');
+      if(cb){cb.addEventListener('change',function(){
+        if(this.checked)jadwalSelected.add(this.dataset.id);
+        else jadwalSelected.delete(this.dataset.id);
+        updateMassDeleteCount();
+      });}
+    } else if(canEdit){
       var eb=document.createElement('button');eb.className='edit-row';eb.innerHTML='&#9998;';eb.title='Edit';eb.style.marginRight='4px';
       eb.addEventListener('click',(function(ss){return function(){openJadwalEditModal(ss);};})(s));
       var db2=document.createElement('button');db2.className='del-row';db2.innerHTML='&#128465;';db2.title='Hapus';
@@ -4523,6 +4558,52 @@ function renderJadwalDetail(){
     }
     tbody.appendChild(tr);
   });
+  updateMassDeleteCount();
+}
+
+function updateMassDeleteCount(){
+  var btn=document.getElementById('jadwal-mass-delete-confirm');
+  if(btn)btn.textContent='Hapus '+jadwalSelected.size+' Jadwal';
+  var selectAllCb=document.getElementById('jadwal-select-all');
+  if(selectAllCb){
+    var cbs=document.querySelectorAll('.jadwal-cb');
+    selectAllCb.checked=cbs.length>0&&[...cbs].every(function(c){return c.checked;});
+  }
+}
+
+function toggleJadwalMassMode(){
+  jadwalMassMode=!jadwalMassMode;
+  jadwalSelected.clear();
+  var btn=document.getElementById('jadwal-mass-btn');
+  if(btn)btn.textContent=jadwalMassMode?'❌ Batal Pilih':'☑ Pilih & Hapus';
+  var massBar=document.getElementById('jadwal-mass-bar');
+  if(massBar)massBar.style.display=jadwalMassMode?'flex':'none';
+  renderJadwalDetail();
+}
+
+function toggleSelectAllJadwal(cb){
+  var cbs=document.querySelectorAll('.jadwal-cb');
+  cbs.forEach(function(c){
+    c.checked=cb.checked;
+    if(cb.checked)jadwalSelected.add(c.dataset.id);
+    else jadwalSelected.delete(c.dataset.id);
+  });
+  updateMassDeleteCount();
+}
+
+async function confirmMassDeleteJadwal(){
+  if(!jadwalSelected.size){showToast('Pilih jadwal dulu!',true);return;}
+  if(!confirm('Hapus '+jadwalSelected.size+' jadwal yang dipilih?'))return;
+  try{
+    var batch=db.batch();
+    jadwalSelected.forEach(function(id){batch.delete(db.collection('schedules').doc(id));});
+    await batch.commit();
+    showToast(jadwalSelected.size+' jadwal berhasil dihapus!');
+    jadwalSelected.clear();
+    jadwalMassMode=false;
+    var btn=document.getElementById('jadwal-mass-btn');if(btn)btn.textContent='☑ Pilih & Hapus';
+    var massBar=document.getElementById('jadwal-mass-bar');if(massBar)massBar.style.display='none';
+  }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
 async function deleteJadwal(id){
@@ -4729,7 +4810,7 @@ async function bulkDeleteInvalidSchedules(){
     var snap=await db.collection('schedules').get();
     var toDelete=snap.docs.filter(function(d){
       var ts=d.data().timeStart;
-      return ts&&validSlots.indexOf(ts)===-1;
+      return !ts||validSlots.indexOf(ts)===-1;
     });
     if(!toDelete.length){
       if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; Tidak ada data tidak valid ditemukan.</span>';
@@ -4740,6 +4821,33 @@ async function bulkDeleteInvalidSchedules(){
     await batch.commit();
     if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; '+toDelete.length+' data tidak valid berhasil dihapus.</span>';
     showToast(toDelete.length+' jadwal tidak valid dihapus!');
+  }catch(e){
+    if(resultEl)resultEl.innerHTML='<span style="color:var(--red);">&#10007; Gagal: '+e.message+'</span>';
+    showToast('Gagal hapus: '+e.message,true);
+  }
+}
+
+async function deleteAllSchedules(){
+  if(!confirm('⚠️ HAPUS SEMUA DATA JADWAL? Aksi ini tidak bisa dibatalkan!'))return;
+  if(!confirm('Konfirmasi sekali lagi — semua jadwal akan dihapus permanen?'))return;
+  var resultEl=document.getElementById('bulk-delete-result');
+  if(resultEl)resultEl.innerHTML='<span style="color:var(--text2);">Memproses...</span>';
+  try{
+    var snap=await db.collection('schedules').get();
+    if(!snap.docs.length){
+      if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; Tidak ada data jadwal.</span>';
+      return;
+    }
+    // Firestore batch max 500 docs
+    var chunks=[];
+    for(var i=0;i<snap.docs.length;i+=400)chunks.push(snap.docs.slice(i,i+400));
+    for(var c=0;c<chunks.length;c++){
+      var batch=db.batch();
+      chunks[c].forEach(function(d){batch.delete(d.ref);});
+      await batch.commit();
+    }
+    if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; '+snap.docs.length+' jadwal berhasil dihapus semua.</span>';
+    showToast('Semua jadwal ('+snap.docs.length+') berhasil dihapus!');
   }catch(e){
     if(resultEl)resultEl.innerHTML='<span style="color:var(--red);">&#10007; Gagal: '+e.message+'</span>';
     showToast('Gagal hapus: '+e.message,true);
