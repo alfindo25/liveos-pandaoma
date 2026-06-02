@@ -1062,7 +1062,16 @@ margin-bottom: 4px;
 </div>
 <div class="crow">
 <div class="card"><div class="ch"><div class="ct">Grafik GMV Harian</div><div class="leg"><div class="li"><div class="ld" style="background:var(--shopee)"></div>Shopee</div><div class="li"><div class="ld" style="background:var(--tiktok)"></div>TikTok</div></div></div><div class="cb"><canvas id="mainChart"></canvas><div id="chart-empty">Belum ada data. Input sesi live dulu!</div></div></div>
-<div class="card" style="display:flex;flex-direction:column;max-height:420px;"><div class="ch"><div class="ct">🏆 Rank Streamer Bulan Ini</div></div><div id="top3-list" style="overflow-y:auto;flex:1;"><div class="empty" style="padding:24px">Belum ada data</div></div></div>
+<div class="card" style="display:flex;flex-direction:column;max-height:420px;">
+  <div class="ch" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+    <div class="ct">🏆 Rank Streamer</div>
+    <select id="rank-streamer-month" onchange="refreshTop3WithMonth(allSessions)" style="font-size:11px;padding:3px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-family:var(--font);max-width:120px;"></select>
+  </div>
+  <div id="top3-list" style="overflow-y:auto;flex:1;">
+    <div class="empty" style="padding:24px">Belum ada data</div>
+  </div>
+  <div style="text-align:center;padding:4px 0;border-top:0.5px solid var(--border);font-size:10px;color:var(--text3);">scroll untuk lihat semua</div>
+</div>
 </div>
 <div class="tcard"><div class="thdr" style="display:flex;align-items:center;justify-content:space-between;"><div class="ct">Rank Sesi Live <span style="font-size:11px;color:var(--text3);font-weight:500;">(Top 5)</span></div>
           <div style="display:flex;align-items:center;gap:8px;">
@@ -2846,32 +2855,89 @@ function refreshMetrics(data){
   document.getElementById('tcount').textContent=f.length+' sesi';
 }
 
-function refreshTop3(data){
-  const now=new Date();
-  const m=data.filter(d=>{const dt=new Date(d.date||new Date());return dt.getMonth()===now.getMonth()&&dt.getFullYear()===now.getFullYear();});
-  const by={};
-  m.forEach(d=>{
+function initRankStreamerMonthDropdown(data){
+  var sel=document.getElementById('rank-streamer-month');
+  if(!sel)return;
+  // kumpulkan semua bulan unik dari data
+  var months={};
+  data.forEach(function(d){
+    if(!d.date)return;
+    var dt=new Date(d.date+'T12:00:00');
+    if(isNaN(dt))return;
+    var key=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');
+    months[key]={year:dt.getFullYear(),month:dt.getMonth()};
+  });
+  var now=new Date();
+  var curKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  if(!months[curKey])months[curKey]={year:now.getFullYear(),month:now.getMonth()};
+  var sorted=Object.keys(months).sort().reverse();
+  var prev=sel.value;
+  sel.innerHTML='';
+  var monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  sorted.forEach(function(k){
+    var o=document.createElement('option');
+    o.value=k;
+    var p=months[k]||{year:parseInt(k.split('-')[0]),month:parseInt(k.split('-')[1])-1};
+    o.textContent=monthNames[p.month]+' '+p.year;
+    sel.appendChild(o);
+  });
+  if(prev&&sorted.indexOf(prev)>=0)sel.value=prev;
+  else sel.value=curKey;
+}
+
+function refreshTop3WithMonth(data){
+  var sel=document.getElementById('rank-streamer-month');
+  var selVal=sel?sel.value:'';
+  var filterYear,filterMonth;
+  if(selVal){
+    var parts=selVal.split('-');
+    filterYear=parseInt(parts[0]);
+    filterMonth=parseInt(parts[1])-1;
+  } else {
+    var now=new Date();
+    filterYear=now.getFullYear();
+    filterMonth=now.getMonth();
+  }
+  var m=data.filter(function(d){
+    if(!d.date)return false;
+    var dt=new Date(d.date+'T12:00:00');
+    if(isNaN(dt))return false;
+    return dt.getMonth()===filterMonth&&dt.getFullYear()===filterYear;
+  });
+  var by={};
+  m.forEach(function(d){
     if(!by[d.streamerName])by[d.streamerName]={name:d.streamerName,gmv:0,n:0};
     by[d.streamerName].gmv+=(d.gmv||0);
     by[d.streamerName].n++;
   });
-  const sorted=Object.values(by).sort((a,b)=>b.gmv-a.gmv);
-  const c=document.getElementById('top3-list');
-  if(!sorted.length){c.innerHTML='<div class="empty" style="padding:24px">Belum ada data bulan ini</div>';return;}
-  c.innerHTML=sorted.map((s,i)=>{
-    let rankDisplay;
+  var sorted=Object.values(by).sort(function(a,b){return b.gmv-a.gmv;});
+  var c=document.getElementById('top3-list');
+  var scrollHint=document.querySelector('#top3-list + div');
+  if(!sorted.length){
+    c.innerHTML='<div class="empty" style="padding:24px">Belum ada data bulan ini</div>';
+    if(scrollHint)scrollHint.style.display='none';
+    return;
+  }
+  if(scrollHint)scrollHint.style.display=sorted.length>4?'block':'none';
+  c.innerHTML=sorted.map(function(s,i){
+    var rankDisplay;
     if(i===0)rankDisplay='🥇';
     else if(i===1)rankDisplay='🥈';
     else if(i===2)rankDisplay='🥉';
     else rankDisplay='<span style="font-size:12px;font-weight:800;color:#94a3b8;font-family:var(--mono)">'+(i+1)+'</span>';
-    const gmvColor=i<3?'var(--green)':'var(--text2)';
-    const rowBg=i===0?'background:#f0fdf4;':i===1?'background:#f8fafc;':i===2?'background:#fefce8;':'';
+    var gmvColor=i<3?'var(--green)':'var(--text2)';
+    var rowBg=i===0?'background:#f0fdf4;':i===1?'background:#f8fafc;':i===2?'background:#fefce8;':'';
     return '<div class="pi" style="'+rowBg+'">'
       +'<div class="pr">'+rankDisplay+'</div>'
       +'<div class="pinfo"><div class="pname">'+s.name+'</div><div class="psub">'+s.n+' sesi</div></div>'
       +'<div class="pgmv" style="color:'+gmvColor+'">'+fRpS(s.gmv)+'</div>'
       +'</div>';
   }).join('');
+}
+
+function refreshTop3(data){
+  initRankStreamerMonthDropdown(data);
+  refreshTop3WithMonth(data);
 }
 
 function buildChart(data){
