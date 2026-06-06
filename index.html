@@ -2410,6 +2410,7 @@ auth.onAuthStateChanged(async(user)=>{
     startIncentiveListener();
     startSKUListeners();
     startJadwalListeners();
+    startTargetListener();
     // Show Master SKU menu only for superuser
     if(currentUser.email==='alfindo.ixa.2537@gmail.com'){
       const niMSKU=document.getElementById('ni-master-sku');
