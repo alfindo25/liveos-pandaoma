@@ -940,6 +940,7 @@ margin-bottom: 4px;
 <div class="nsec">Menu</div>
 <button class="ni active" onclick="goPage('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
 <button class="ni" onclick="goPage('detail')" data-page="detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Detail Sesi</button>
+<button class="ni" onclick="goPage('target')" data-page="target"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Target</button>
 <button class="ni" onclick="goPage('aichat')" data-page="aichat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</button>
 <button class="ni" onclick="goPage('inputdata')" data-page="inputdata"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Input Data</button>
       <button class="ni" onclick="goPage('sku')" data-page="sku"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Report SKU</button>
@@ -984,6 +985,11 @@ margin-bottom: 4px;
     <div class="mob-drawer-item" onclick="goPage('sku-history');closeMobMore()" id="md-sku-history">
       <div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
       <span>Detail Report</span>
+    </div>
+
+    <div class="mob-drawer-item" onclick="goPage('target');closeMobMore()" id="md-target">
+      <div class="mob-drawer-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div>
+      <span>Target</span>
     </div>
 
     <div class="mob-drawer-item" onclick="goPage('incentive');closeMobMore()" id="md-incentive">
@@ -1060,6 +1066,29 @@ margin-bottom: 4px;
 <div class="mc" style="--cc:var(--tiktok)"><div class="mc-ico" style="background:var(--tiktok-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--tiktok)" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="mc-lbl">GMV TikTok</div><div class="mc-val" id="m-tiktok">Rp 0</div><div class="mc-d" id="m-tiktok-d">-</div></div>
 <div class="mc" style="--cc:var(--amber)"><div class="mc-ico" style="background:var(--amber-bg)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="mc-lbl">Total Sesi</div><div class="mc-val" id="m-sessions">0</div><div class="mc-d" id="m-sessions-d">-</div></div>
 </div>
+
+<div class="tcard" id="dashboard-target-widget" style="margin-bottom:14px;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text);">🎯 Target Bulanan <span id="target-bulan-label" style="font-weight:500;color:var(--text3);font-size:12px;"></span></div>
+        <button id="btn-edit-target-bulanan" onclick="openEditTargetBulanan()" style="display:none;font-size:11px;padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;" id="target-bulanan-bars"></div>
+    </div>
+
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text);">📅 Double Date <span id="target-dd-label" style="font-weight:500;color:var(--text3);font-size:12px;"></span></div>
+        <button id="btn-edit-target-dd" onclick="openEditTargetDD()" style="display:none;font-size:11px;padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;" id="target-dd-bars"></div>
+    </div>
+
+  </div>
+</div>
+
 <div class="crow">
 <div class="card"><div class="ch"><div class="ct">Grafik GMV Harian</div><div class="leg"><div class="li"><div class="ld" style="background:var(--shopee)"></div>Shopee</div><div class="li"><div class="ld" style="background:var(--tiktok)"></div>TikTok</div></div></div><div class="cb"><canvas id="mainChart"></canvas><div id="chart-empty">Belum ada data. Input sesi live dulu!</div></div></div>
 <div class="card" style="display:flex;flex-direction:column;max-height:420px;">
@@ -2053,6 +2082,62 @@ function toggleGuideCard(hdr){
 <div class="sc2" style="border-color:#fca5a5"><div class="stitle" style="color:var(--red)">Zona Bahaya</div>
 <div class="sr" style="border:none"><div><div class="sk">Keluar dari akun</div></div><button class="dbtn" onclick="doLogout()">Logout</button></div></div>
 </div>
+<div class="page" id="page-target">
+<div class="topbar">
+  <div><div class="pgtitle">🎯 <span>Target</span></div><div class="pgsub">History pencapaian target bulanan dan double date</div></div>
+</div>
+
+<div class="fc" style="margin-bottom:14px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+    <div class="fct">Target Bulanan</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="position:relative;">
+        <button onclick="toggleTargetMonthDropdown()" style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font);min-width:180px;justify-content:space-between;">
+          <span id="target-month-dropdown-label">Pilih bulan...</span>
+          <span>▾</span>
+        </button>
+        <div id="target-month-dropdown" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);z-index:50;min-width:200px;box-shadow:0 4px 16px rgba(0,0,0,.1);max-height:280px;overflow-y:auto;">
+          <div style="padding:6px 10px;font-size:11px;color:var(--text3);border-bottom:1px solid var(--border);">Pilih maks 6 bulan</div>
+          <div id="target-month-list" style="padding:4px 0;"></div>
+        </div>
+      </div>
+      <button id="btn-edit-target-bulanan-page" onclick="openEditTargetBulanan()" style="display:none;font-size:12px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit Target</button>
+    </div>
+  </div>
+  <div class="twrap">
+    <table id="target-bulanan-table" style="min-width:560px;">
+      <thead><tr>
+        <th style="width:110px;">BULAN</th>
+        <th>SHOPEE</th>
+        <th>TIKTOK</th>
+        <th>TOTAL GMV</th>
+        <th style="width:110px;text-align:center;">STATUS</th>
+      </tr></thead>
+      <tbody id="target-bulanan-tbody"><tr><td colspan="5" class="empty">Pilih bulan untuk melihat data</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="fc">
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+    <div class="fct">History Double Date</div>
+    <button id="btn-edit-target-dd-page" onclick="openEditTargetDD()" style="display:none;font-size:12px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit Target</button>
+  </div>
+  <div class="twrap">
+    <table id="target-dd-table" style="min-width:560px;">
+      <thead><tr>
+        <th style="width:100px;">TANGGAL</th>
+        <th>SHOPEE</th>
+        <th>TIKTOK</th>
+        <th>TOTAL GMV</th>
+        <th style="width:120px;text-align:center;">STATUS</th>
+      </tr></thead>
+      <tbody id="target-dd-tbody"><tr><td colspan="5" class="empty">Belum ada data</td></tr></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
 </main>
 </div>
 <!-- EDIT MODAL -->
@@ -2455,6 +2540,7 @@ function goPage(p){
   if(p==='jadwal'){renderJadwalGrid();renderJadwalDetail();}
   if(p==='input-jadwal'){initIJForm();}
   if(p==='sku-history')renderSKUHistory();
+  if(p==='target'){renderTargetPage();}
   if(p==='master-sku')renderMasterSKUPage();
   if(p==='aichat'){
     setTimeout(()=>{
@@ -3107,6 +3193,7 @@ async function delSess(id){
 
 function refreshAll(){
   refreshMetrics(allSessions);refreshTop3(allSessions);buildChart(allSessions);renderTable(filterData(allSessions));renderStreamerList();
+  renderDashboardTargetWidget();
   if(typeof refreshSKUWidget==='function')refreshSKUWidget();
 }
 
@@ -4963,6 +5050,416 @@ function exportJadwalTemplate(){
   var wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Worksheet');
   XLSX.writeFile(wb,'template-jadwal-liveos.xlsx');
+}
+
+// ═══ TARGET SYSTEM ═══
+var allTargets=[];
+var targetMonthSelected=[];
+
+function startTargetListener(){
+  db.collection('targets').onSnapshot(function(snap){
+    allTargets=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    renderDashboardTargetWidget();
+    if(document.getElementById('page-target')&&document.getElementById('page-target').classList.contains('active')){
+      renderTargetPage();
+    }
+  });
+}
+
+function isTargetEditor(){
+  if(!currentUser)return false;
+  var su=currentUser.email==='alfindo.ixa.2537@gmail.com';
+  var adena=currentUser.email==='adenawahyu05@gmail.com';
+  return su||adena;
+}
+
+// ── Helpers ──
+function getDoubleDate(now){
+  now=now||new Date();
+  var m=now.getMonth()+1;
+  var y=now.getFullYear();
+  var dd=new Date(y,m-1,m);
+  return dd;
+}
+
+function getNextDoubleDate(now){
+  now=now||new Date();
+  var dd=getDoubleDate(now);
+  if(now>dd){
+    var nm=now.getMonth()+2;
+    var ny=now.getFullYear();
+    if(nm>12){nm=1;ny++;}
+    dd=new Date(ny,nm-1,nm);
+  }
+  return dd;
+}
+
+function getDiffDays(a,b){
+  return Math.ceil((b-a)/(1000*60*60*24));
+}
+
+function fPct(v,t){
+  if(!t||t<=0)return '0%';
+  return Math.round(v/t*100)+'%';
+}
+
+function statusBadge(pct,done){
+  if(!done){
+    if(pct>=100)return '<span style="font-size:11px;font-weight:600;color:#085041;background:#E1F5EE;padding:2px 8px;border-radius:4px;">✓ Tercapai</span>';
+    if(pct>=70)return '<span style="font-size:11px;font-weight:600;color:#854F0B;background:#FAEEDA;padding:2px 8px;border-radius:4px;">On Track</span>';
+    return '<span style="font-size:11px;font-weight:600;color:#791F1F;background:#FCEBEB;padding:2px 8px;border-radius:4px;">✗ Tidak Tercapai</span>';
+  }
+  // bulan masih berjalan
+  if(pct>=100)return '<span style="font-size:11px;font-weight:600;color:#085041;background:#E1F5EE;padding:2px 8px;border-radius:4px;">✓ Tercapai</span>';
+  if(pct>=50)return '<span style="font-size:11px;font-weight:600;color:#854F0B;background:#FAEEDA;padding:2px 8px;border-radius:4px;">On Track</span>';
+  return '<span style="font-size:11px;font-weight:600;color:#633806;background:#FAEEDA;padding:2px 8px;border-radius:4px;">Perlu Kejar</span>';
+}
+
+function progressBar(pct,color){
+  var w=Math.min(pct,100);
+  var c=color||'var(--blue)';
+  return '<div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:3px;">'
+    +'<div style="height:100%;width:'+w+'%;background:'+c+';border-radius:3px;transition:width .4s;"></div></div>';
+}
+
+// ── Dashboard Widget ──
+function renderDashboardTargetWidget(){
+  var now=new Date();
+  var m=now.getMonth()+1;
+  var y=now.getFullYear();
+  var monthKey=y+'-'+String(m).padStart(2,'0');
+  var monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+  // Edit button visibility
+  var canEdit=isTargetEditor();
+  var btnB=document.getElementById('btn-edit-target-bulanan');
+  var btnD=document.getElementById('btn-edit-target-dd');
+  if(btnB)btnB.style.display=canEdit?'inline-block':'none';
+  if(btnD)btnD.style.display=canEdit?'inline-block':'none';
+
+  // Label bulan
+  var lbl=document.getElementById('target-bulan-label');
+  if(lbl)lbl.textContent='— '+monthNames[m-1]+' '+y;
+
+  // Ambil target bulan ini
+  var tBulan=allTargets.find(function(t){return t.type==='bulanan'&&t.key===monthKey;});
+
+  // Hitung GMV bulan ini dari allSessions
+  var sessMonth=allSessions.filter(function(s){
+    if(!s.date)return false;
+    var dt=new Date(s.date+'T12:00:00');
+    return dt.getMonth()+1===m&&dt.getFullYear()===y;
+  });
+  var gmvShopee=sessMonth.filter(function(s){return s.mp==='Shopee'||s.mp==='DLD';}).reduce(function(a,s){return a+(s.gmv||0);},0);
+  var gmvTiktok=sessMonth.filter(function(s){return s.mp==='TikTok';}).reduce(function(a,s){return a+(s.gmv||0);},0);
+  var gmvTotal=gmvShopee+gmvTiktok;
+
+  var tS=tBulan?tBulan.shopee:0;
+  var tT=tBulan?tBulan.tiktok:0;
+  var tTotal=(tS||0)+(tT||0);
+
+  var pS=tS?Math.round(gmvShopee/tS*100):0;
+  var pT=tT?Math.round(gmvTiktok/tT*100):0;
+  var pTot=tTotal?Math.round(gmvTotal/tTotal*100):0;
+
+  var barsEl=document.getElementById('target-bulanan-bars');
+  if(barsEl){
+    if(!tBulan){
+      barsEl.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Target belum diset.'+(canEdit?' Klik Edit.':'')+'</div>';
+    } else {
+      barsEl.innerHTML=
+        '<div><div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--text2);">Shopee</span><span><b>'+fRpS(gmvShopee)+'</b> / '+fRpS(tS)+' <span style="color:var(--shopee);font-weight:600;">'+pS+'%</span></span></div>'+progressBar(pS,'var(--shopee)')+'</div>'
+        +'<div><div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--text2);">TikTok</span><span><b>'+fRpS(gmvTiktok)+'</b> / '+fRpS(tT)+' <span style="color:var(--tiktok);font-weight:600;">'+pT+'%</span></span></div>'+progressBar(pT,'var(--tiktok)')+'</div>'
+        +'<div style="border-top:1px solid var(--border);padding-top:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--text);font-weight:600;">Total</span><span><b>'+fRpS(gmvTotal)+'</b> / '+fRpS(tTotal)+' <span style="color:var(--amber);font-weight:600;">'+pTot+'%</span></span></div>'+progressBar(pTot,'var(--amber)')+'</div>';
+    }
+  }
+
+  // ── Double Date Widget ──
+  var ddNext=getNextDoubleDate(now);
+  var ddM=ddNext.getMonth()+1;
+  var ddY=ddNext.getFullYear();
+  var ddKey=ddY+'-'+String(ddM).padStart(2,'0');
+  var diffDays=getDiffDays(now,ddNext);
+  var isToday=ddNext.toDateString()===now.toDateString();
+  var isPast=ddNext<now&&!isToday;
+
+  var ddLabel=document.getElementById('target-dd-label');
+  if(ddLabel)ddLabel.innerHTML='— '+ddM+'.'+ddM+'.'+(String(ddY).slice(2))+(diffDays>=0&&diffDays<=10&&!isPast?' <span style="font-size:10px;background:#FAEEDA;color:#854F0B;padding:1px 6px;border-radius:4px;">H-'+diffDays+'</span>':'');
+
+  var tDD=allTargets.find(function(t){return t.type==='doubledate'&&t.key===ddKey;});
+
+  // GMV hari double date (hari H saja)
+  var ddDateStr=ddY+'-'+String(ddM).padStart(2,'0')+'-'+String(ddM).padStart(2,'0');
+  var sessDD=allSessions.filter(function(s){return s.date===ddDateStr;});
+  var ddShopee=sessDD.filter(function(s){return s.mp==='Shopee'||s.mp==='DLD';}).reduce(function(a,s){return a+(s.gmv||0);},0);
+  var ddTiktok=sessDD.filter(function(s){return s.mp==='TikTok';}).reduce(function(a,s){return a+(s.gmv||0);},0);
+  var ddTotal=ddShopee+ddTiktok;
+
+  var tDDS=tDD?tDD.shopee:0;
+  var tDDT=tDD?tDD.tiktok:0;
+  var tDDTotal=(tDDS||0)+(tDDT||0);
+
+  var pDDS=tDDS?Math.round(ddShopee/tDDS*100):0;
+  var pDDT=tDDT?Math.round(ddTiktok/tDDT*100):0;
+  var pDDTot=tDDTotal?Math.round(ddTotal/tDDTotal*100):0;
+
+  var ddBars=document.getElementById('target-dd-bars');
+  if(ddBars){
+    if(!tDD){
+      ddBars.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Target DD belum diset.'+(canEdit?' Klik Edit.':'')+'</div>';
+    } else if(!isToday&&!isPast){
+      ddBars.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Data akan muncul pada tanggal '+ddM+'.'+ddM+'.'+String(ddY).slice(2)+'</div>'
+        +'<div style="font-size:11px;color:var(--text3);">Target: Shopee '+fRpS(tDDS)+' · TikTok '+fRpS(tDDT)+' · Total '+fRpS(tDDTotal)+'</div>';
+    } else {
+      ddBars.innerHTML=
+        '<div><div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--text2);">Shopee</span><span><b>'+fRpS(ddShopee)+'</b> / '+fRpS(tDDS)+' <span style="color:var(--shopee);font-weight:600;">'+pDDS+'%</span></span></div>'+progressBar(pDDS,'var(--shopee)')+'</div>'
+        +'<div><div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--text2);">TikTok</span><span><b>'+fRpS(ddTiktok)+'</b> / '+fRpS(tDDT)+' <span style="color:var(--tiktok);font-weight:600;">'+pDDT+'%</span></span></div>'+progressBar(pDDT,'var(--tiktok)')+'</div>'
+        +'<div style="border-top:1px solid var(--border);padding-top:8px;"><div style="display:flex;justify-content:space-between;font-size:12px;"><span style="color:var(--text);font-weight:600;">Total</span><span><b>'+fRpS(ddTotal)+'</b> / '+fRpS(tDDTotal)+' <span style="color:var(--amber);font-weight:600;">'+pDDTot+'%</span></span></div>'+progressBar(pDDTot,'var(--amber)')+'</div>';
+    }
+  }
+}
+
+// ── Menu Target Page ──
+function renderTargetPage(){
+  var canEdit=isTargetEditor();
+  var btnB=document.getElementById('btn-edit-target-bulanan-page');
+  var btnD=document.getElementById('btn-edit-target-dd-page');
+  if(btnB)btnB.style.display=canEdit?'inline-block':'none';
+  if(btnD)btnD.style.display=canEdit?'inline-block':'none';
+  initTargetMonthDropdown();
+  renderTargetBulananTable();
+  renderTargetDDTable();
+}
+
+function initTargetMonthDropdown(){
+  var listEl=document.getElementById('target-month-list');
+  if(!listEl)return;
+  var months={};
+  allSessions.forEach(function(s){
+    if(!s.date)return;
+    var dt=new Date(s.date+'T12:00:00');
+    var k=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');
+    months[k]=true;
+  });
+  allTargets.filter(function(t){return t.type==='bulanan';}).forEach(function(t){months[t.key]=true;});
+  var now=new Date();
+  var ck=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  months[ck]=true;
+  var sorted=Object.keys(months).sort().reverse();
+  var monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  listEl.innerHTML='';
+  sorted.forEach(function(k){
+    var parts=k.split('-');
+    var mn=parseInt(parts[1])-1;
+    var y=parseInt(parts[0]);
+    var isChecked=targetMonthSelected.indexOf(k)>=0;
+    var lbl=document.createElement('label');
+    lbl.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:12px;color:var(--text);border-bottom:0.5px solid var(--border);';
+    var cb=document.createElement('input');
+    cb.type='checkbox';cb.value=k;cb.checked=isChecked;
+    cb.style.cssText='width:14px;height:14px;';
+    cb.addEventListener('change',function(){
+      if(this.checked){
+        if(targetMonthSelected.length>=6){this.checked=false;showToast('Maks 6 bulan',true);return;}
+        targetMonthSelected.push(k);
+      } else {
+        targetMonthSelected=targetMonthSelected.filter(function(x){return x!==k;});
+      }
+      updateTargetDropdownLabel();
+      renderTargetBulananTable();
+    });
+    lbl.appendChild(cb);
+    var span=document.createElement('span');
+    span.textContent=monthNames[mn]+' '+y;
+    if(k===ck){var badge=document.createElement('span');badge.textContent='berjalan';badge.style.cssText='font-size:10px;color:var(--text3);margin-left:auto;';lbl.appendChild(span);lbl.appendChild(badge);}
+    else lbl.appendChild(span);
+    listEl.appendChild(lbl);
+  });
+  if(!targetMonthSelected.length){
+    targetMonthSelected=[ck];
+    listEl.querySelectorAll('input[type=checkbox]').forEach(function(cb){if(cb.value===ck)cb.checked=true;});
+    updateTargetDropdownLabel();
+    renderTargetBulananTable();
+  }
+}
+
+function updateTargetDropdownLabel(){
+  var lbl=document.getElementById('target-month-dropdown-label');
+  if(!lbl)return;
+  if(!targetMonthSelected.length){lbl.textContent='Pilih bulan...';return;}
+  var monthNames=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+  lbl.textContent=targetMonthSelected.map(function(k){var p=k.split('-');return monthNames[parseInt(p[1])-1]+' '+p[0];}).join(', ');
+}
+
+function toggleTargetMonthDropdown(){
+  var dd=document.getElementById('target-month-dropdown');
+  if(!dd)return;
+  dd.style.display=dd.style.display==='none'?'block':'none';
+}
+
+document.addEventListener('click',function(e){
+  var dd=document.getElementById('target-month-dropdown');
+  if(dd&&!dd.contains(e.target)&&e.target.id!=='target-month-dropdown-label'&&!e.target.closest('[onclick="toggleTargetMonthDropdown()"]')){
+    dd.style.display='none';
+  }
+});
+
+function renderTargetBulananTable(){
+  var tbody=document.getElementById('target-bulanan-tbody');
+  if(!tbody)return;
+  if(!targetMonthSelected.length){tbody.innerHTML='<tr><td colspan="5" class="empty">Pilih bulan untuk melihat data</td></tr>';return;}
+  var monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  var now=new Date();
+  var curKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var rows=targetMonthSelected.slice().sort().reverse().map(function(k){
+    var parts=k.split('-');
+    var y=parseInt(parts[0]);var m=parseInt(parts[1]);
+    var mn=monthNames[m-1]+' '+y;
+    var isCurrent=k===curKey;
+    var t=allTargets.find(function(x){return x.type==='bulanan'&&x.key===k;});
+    var sess=allSessions.filter(function(s){
+      if(!s.date)return false;
+      var dt=new Date(s.date+'T12:00:00');
+      return dt.getMonth()+1===m&&dt.getFullYear()===y;
+    });
+    var gS=sess.filter(function(s){return s.mp==='Shopee'||s.mp==='DLD';}).reduce(function(a,s){return a+(s.gmv||0);},0);
+    var gT=sess.filter(function(s){return s.mp==='TikTok';}).reduce(function(a,s){return a+(s.gmv||0);},0);
+    var gTot=gS+gT;
+    var tS=t?t.shopee:0;var tT=t?t.tiktok:0;var tTot=(tS||0)+(tT||0);
+    var pS=tS?Math.round(gS/tS*100):0;
+    var pT=tT?Math.round(gT/tT*100):0;
+    var pTot=tTot?Math.round(gTot/tTot*100):0;
+    var statusHtml=tTot?statusBadge(pTot,isCurrent):'<span style="font-size:11px;color:var(--text3);">Belum diset</span>';
+    return '<tr style="border-top:0.5px solid var(--border);">'
+      +'<td style="font-weight:600;font-size:13px;padding:10px 14px;">'+mn+(isCurrent?'<div style="font-size:10px;color:var(--text3);font-weight:400;">berjalan</div>':'')+'</td>'
+      +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gS)+' / '+(tS?fRpS(tS):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--shopee);">'+(tS?pS+'%':'—')+'</div></td>'
+      +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gT)+' / '+(tT?fRpS(tT):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--tiktok);">'+(tT?pT+'%':'—')+'</div></td>'
+      +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gTot)+' / '+(tTot?fRpS(tTot):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--amber);">'+(tTot?pTot+'%':'—')+'</div></td>'
+      +'<td style="padding:10px 10px;text-align:center;">'+statusHtml+'</td>'
+      +'</tr>';
+  });
+  tbody.innerHTML=rows.join('');
+}
+
+function renderTargetDDTable(){
+  var tbody=document.getElementById('target-dd-tbody');
+  if(!tbody)return;
+  var ddTargets=allTargets.filter(function(t){return t.type==='doubledate';}).sort(function(a,b){return b.key>a.key?1:-1;});
+  var now=new Date();
+  var nextDD=getNextDoubleDate(now);
+  var nextKey=nextDD.getFullYear()+'-'+String(nextDD.getMonth()+1).padStart(2,'0');
+  if(!ddTargets.find(function(t){return t.key===nextKey;})){
+    ddTargets.unshift({key:nextKey,type:'doubledate',shopee:0,tiktok:0,_placeholder:true});
+  }
+  if(!ddTargets.length){tbody.innerHTML='<tr><td colspan="5" class="empty">Belum ada data</td></tr>';return;}
+  var rows=ddTargets.map(function(t){
+    var parts=t.key.split('-');
+    var y=parseInt(parts[0]);var m=parseInt(parts[1]);
+    var ddStr=m+'.'+m+'.'+(String(y).slice(2));
+    var ddDate=new Date(y,m-1,m);
+    var isToday=ddDate.toDateString()===now.toDateString();
+    var isFuture=ddDate>now&&!isToday;
+    var diffD=getDiffDays(now,ddDate);
+    var dateCell=ddStr+(isFuture&&diffD<=10?'<div style="font-size:10px;color:#854F0B;background:#FAEEDA;padding:1px 5px;border-radius:3px;display:inline-block;margin-top:2px;">H-'+diffD+'</div>':'')+(isToday?'<div style="font-size:10px;color:#0F6E56;font-weight:600;">Hari ini!</div>':'');
+    var ddDateStr=y+'-'+String(m).padStart(2,'0')+'-'+String(m).padStart(2,'0');
+    var sessDD=allSessions.filter(function(s){return s.date===ddDateStr;});
+    var gS=sessDD.filter(function(s){return s.mp==='Shopee'||s.mp==='DLD';}).reduce(function(a,s){return a+(s.gmv||0);},0);
+    var gT=sessDD.filter(function(s){return s.mp==='TikTok';}).reduce(function(a,s){return a+(s.gmv||0);},0);
+    var gTot=gS+gT;
+    var tS=t.shopee||0;var tT=t.tiktok||0;var tTot=tS+tT;
+    var pS=tS?Math.round(gS/tS*100):0;
+    var pT=tT?Math.round(gT/tT*100):0;
+    var pTot=tTot?Math.round(gTot/tTot*100):0;
+    var statusHtml;
+    if(isFuture){
+      statusHtml=tTot?'<span style="font-size:11px;color:var(--text3);">Belum mulai</span>':'<span style="font-size:11px;color:var(--text3);">Target belum diset</span>';
+    } else if(isToday){
+      statusHtml=tTot?statusBadge(pTot,true):'<span style="font-size:11px;color:var(--text3);">Target belum diset</span>';
+    } else {
+      statusHtml=tTot?statusBadge(pTot,false):'<span style="font-size:11px;color:var(--text3);">Target belum diset</span>';
+    }
+    var dataCell=isFuture&&!isToday
+      ?'<td style="padding:10px 10px;font-size:12px;color:var(--text3);">— / '+(tS?fRpS(tS):'belum diset')+'</td><td style="padding:10px 10px;font-size:12px;color:var(--text3);">— / '+(tT?fRpS(tT):'belum diset')+'</td><td style="padding:10px 10px;font-size:12px;color:var(--text3);">— / '+(tTot?fRpS(tTot):'belum diset')+'</td>'
+      :'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gS)+' / '+(tS?fRpS(tS):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--shopee);">'+(tS?pS+'%':'—')+'</div></td>'
+        +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gT)+' / '+(tT?fRpS(tT):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--tiktok);">'+(tT?pT+'%':'—')+'</div></td>'
+        +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gTot)+' / '+(tTot?fRpS(tTot):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--amber);">'+(tTot?pTot+'%':'—')+'</div></td>';
+    return '<tr style="border-top:0.5px solid var(--border);">'
+      +'<td style="font-weight:600;font-size:13px;padding:10px 14px;">'+dateCell+'</td>'
+      +dataCell
+      +'<td style="padding:10px 10px;text-align:center;">'+statusHtml+'</td>'
+      +'</tr>';
+  });
+  tbody.innerHTML=rows.join('');
+}
+
+// ── Modal Edit Target Bulanan ──
+function openEditTargetBulanan(){
+  if(!isTargetEditor()){showToast('Tidak ada akses',true);return;}
+  var now=new Date();
+  var m=now.getMonth()+1;var y=now.getFullYear();
+  var key=y+'-'+String(m).padStart(2,'0');
+  var t=allTargets.find(function(x){return x.type==='bulanan'&&x.key===key;});
+  var monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-target-bulanan">'
+    +'<div style="background:var(--surface);border-radius:var(--radius);padding:24px;width:340px;max-width:90vw;">'
+    +'<div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">Edit Target Bulanan<button onclick="document.getElementById('modal-target-bulanan').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text2);">✕</button></div>'
+    +'<div style="font-size:13px;color:var(--text2);margin-bottom:16px;">'+monthNames[m-1]+' '+y+'</div>'
+    +'<div class="fgi"><label class="fl">Target Shopee (Rp)</label><input class="fi" id="etb-shopee" type="number" placeholder="cth. 300000000" value="'+(t?t.shopee:'')+'"/></div>'
+    +'<div class="fgi"><label class="fl">Target TikTok (Rp)</label><input class="fi" id="etb-tiktok" type="number" placeholder="cth. 80000000" value="'+(t?t.tiktok:'')+'"/></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">'
+    +'<button onclick="document.getElementById('modal-target-bulanan').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
+    +'<button onclick="saveTargetBulanan(''+key+'')" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Simpan</button>'
+    +'</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+async function saveTargetBulanan(key){
+  var shopee=parseFloat(document.getElementById('etb-shopee').value)||0;
+  var tiktok=parseFloat(document.getElementById('etb-tiktok').value)||0;
+  if(!shopee&&!tiktok){showToast('Isi minimal 1 target',true);return;}
+  try{
+    var existing=allTargets.find(function(t){return t.type==='bulanan'&&t.key===key;});
+    var data={type:'bulanan',key:key,shopee:shopee,tiktok:tiktok,updatedBy:currentUser?currentUser.email:'',updatedAt:new Date().toISOString()};
+    if(existing)await db.collection('targets').doc(existing.id).update(data);
+    else await db.collection('targets').add(data);
+    document.getElementById('modal-target-bulanan').remove();
+    showToast('Target bulanan disimpan!');
+  }catch(e){showToast('Gagal: '+e.message,true);}
+}
+
+// ── Modal Edit Target Double Date ──
+function openEditTargetDD(){
+  if(!isTargetEditor()){showToast('Tidak ada akses',true);return;}
+  var now=new Date();
+  var nextDD=getNextDoubleDate(now);
+  var m=nextDD.getMonth()+1;var y=nextDD.getFullYear();
+  var key=y+'-'+String(m).padStart(2,'0');
+  var t=allTargets.find(function(x){return x.type==='doubledate'&&x.key===key;});
+  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-target-dd">'
+    +'<div style="background:var(--surface);border-radius:var(--radius);padding:24px;width:340px;max-width:90vw;">'
+    +'<div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">Edit Target Double Date<button onclick="document.getElementById('modal-target-dd').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text2);">✕</button></div>'
+    +'<div style="font-size:13px;color:var(--text2);margin-bottom:16px;">'+m+'.'+m+'.'+String(y).slice(2)+'</div>'
+    +'<div class="fgi"><label class="fl">Target Shopee (Rp)</label><input class="fi" id="etdd-shopee" type="number" placeholder="cth. 50000000" value="'+(t?t.shopee:'')+'"/></div>'
+    +'<div class="fgi"><label class="fl">Target TikTok (Rp)</label><input class="fi" id="etdd-tiktok" type="number" placeholder="cth. 20000000" value="'+(t?t.tiktok:'')+'"/></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">'
+    +'<button onclick="document.getElementById('modal-target-dd').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
+    +'<button onclick="saveTargetDD(''+key+'')" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Simpan</button>'
+    +'</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+async function saveTargetDD(key){
+  var shopee=parseFloat(document.getElementById('etdd-shopee').value)||0;
+  var tiktok=parseFloat(document.getElementById('etdd-tiktok').value)||0;
+  if(!shopee&&!tiktok){showToast('Isi minimal 1 target',true);return;}
+  try{
+    var existing=allTargets.find(function(t){return t.type==='doubledate'&&t.key===key;});
+    var data={type:'doubledate',key:key,shopee:shopee,tiktok:tiktok,updatedBy:currentUser?currentUser.email:'',updatedAt:new Date().toISOString()};
+    if(existing)await db.collection('targets').doc(existing.id).update(data);
+    else await db.collection('targets').add(data);
+    document.getElementById('modal-target-dd').remove();
+    showToast('Target double date disimpan!');
+  }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
 // ═══ BULK DELETE INVALID SCHEDULES ═══
