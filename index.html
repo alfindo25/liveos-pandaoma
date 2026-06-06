@@ -5084,12 +5084,25 @@ function getDoubleDate(now){
 
 function getNextDoubleDate(now){
   now=now||new Date();
+  var nowDate=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+
+  // Double date bulan ini
   var dd=getDoubleDate(now);
-  if(now>dd){
-    var nm=now.getMonth()+2;
-    var ny=now.getFullYear();
-    if(nm>12){nm=1;ny++;}
-    dd=new Date(ny,nm-1,nm);
+  var ddDate=new Date(dd.getFullYear(),dd.getMonth(),dd.getDate());
+
+  // Double date bulan depan
+  var nm=now.getMonth()+2;
+  var ny=now.getFullYear();
+  if(nm>12){nm=1;ny++;}
+  var ddNext=new Date(ny,nm-1,nm);
+  var ddNextDate=new Date(ddNext.getFullYear(),ddNext.getMonth(),ddNext.getDate());
+
+  // Hitung H-X ke double date bulan depan
+  var diffToNext=Math.ceil((ddNextDate-nowDate)/(1000*60*60*24));
+
+  // Kalau sudah lewat double date bulan ini, atau H-10 menuju double date bulan depan → tampil bulan depan
+  if(nowDate>ddDate||diffToNext<=10){
+    return ddNext;
   }
   return dd;
 }
