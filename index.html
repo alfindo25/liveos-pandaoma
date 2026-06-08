@@ -937,7 +937,7 @@ margin-bottom: 4px;
 </div>
 <div class="snav">
 <div id="brand-switcher" style="padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:4px;">
-  <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:600;letter-spacing:.06em;margin-bottom:6px;padding-left:2px;">WORKSPACE</div>
+  <div id="brand-ws-label" style="font-size:10px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.06em;margin-bottom:6px;padding-left:2px;">WORKSPACE</div>
   <div style="position:relative;">
     <button onclick="toggleBrandDropdown()" id="brand-switcher-btn" style="width:100%;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);cursor:pointer;font-family:var(--font);transition:.15s;">
       <img id="brand-switcher-logo" src="" alt="" style="width:22px;height:22px;border-radius:4px;object-fit:contain;background:#fff;padding:2px;flex-shrink:0;"/>
@@ -5241,8 +5241,8 @@ function updateBrandSwitcherUI(){
     if(bsBtn){bsBtn.style.borderColor=cfg.sidebarText+'44';bsBtn.style.color=cfg.sidebarText;}
     var bsName=document.getElementById('brand-switcher-name');
     if(bsName)bsName.style.color=cfg.sidebarText;
-    var wsLabel=document.querySelector('#brand-switcher .nsec-ws');
-    if(wsLabel)wsLabel.style.color=cfg.sidebarText+'66';
+    var wsLabel=document.getElementById('brand-ws-label');
+    if(wsLabel)wsLabel.style.color=cfg.sidebarText+'99';
   } else {
     // Reset ke Pandaoma default
     navItems.forEach(function(el){el.style.color='';});
@@ -5258,6 +5258,8 @@ function updateBrandSwitcherUI(){
     if(bsBtn){bsBtn.style.borderColor='';bsBtn.style.color='';}
     var bsName=document.getElementById('brand-switcher-name');
     if(bsName)bsName.style.color='';
+    var wsLabel=document.getElementById('brand-ws-label');
+    if(wsLabel)wsLabel.style.color='rgba(255,255,255,.55)';
   }
 }
 
