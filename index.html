@@ -5380,7 +5380,7 @@ function renderMobBrandSwitcher(){
       mobdrawer.style.setProperty('--mob-label-color', nvTxt2+'cc');
       mobdrawer.style.setProperty('--mob-icon-bg', 'rgba(61,26,71,.1)');
     } else {
-      mobdrawer.style.background='';
+      mobdrawer.style.background='var(--navy)';
       mobdrawer.style.removeProperty('--mob-icon-color');
       mobdrawer.style.removeProperty('--mob-label-color');
       mobdrawer.style.removeProperty('--mob-icon-bg');
@@ -5429,7 +5429,7 @@ function updateBrandSwitcherUI(){
     if(mobnav){mobnav.style.background='';mobnav.style.borderTopColor='';}
     document.querySelectorAll('#mobnav .mni').forEach(function(el){el.style.color='';});
     if(mobdrawer){
-      mobdrawer.style.background='';
+      mobdrawer.style.background='var(--navy)';
       mobdrawer.style.removeProperty('--mob-icon-color');
       mobdrawer.style.removeProperty('--mob-label-color');
       mobdrawer.style.removeProperty('--mob-icon-bg');
