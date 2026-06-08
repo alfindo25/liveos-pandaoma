@@ -2079,6 +2079,21 @@ function toggleGuideCard(hdr){
 <div class="stitle">Approve User Baru</div>
 <div id="pending-users-list"><div style="font-size:13px;color:var(--text3);padding:8px 0;">Memuat...</div></div>
 </div>
+<div class="sc2" id="backup-section" style="display:none;">
+  <div class="stitle">🛡️ Backup Data</div>
+  <div class="sr"><div><div class="sk">Export semua data ke Excel</div><div class="sdesc">Download backup lengkap semua collection — simpan di tempat aman</div></div></div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border);">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Full Backup</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px;">Sessions · SKU Reports · Streamers · Targets · Schedules · Master SKU</div>
+      </div>
+      <button onclick="exportFullBackup()" id="btn-full-backup" style="padding:7px 16px;border-radius:var(--radius-sm);background:var(--green);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;">⬇ Download</button>
+    </div>
+    <div id="backup-status" style="font-size:12px;color:var(--text3);padding:4px 0;display:none;"></div>
+  </div>
+</div>
+
 <div class="sc2" style="border-color:#fca5a5"><div class="stitle" style="color:var(--red)">Zona Bahaya</div>
 <div class="sr" style="border:none"><div><div class="sk">Keluar dari akun</div></div><button class="dbtn" onclick="doLogout()">Logout</button></div></div>
 </div>
@@ -2417,6 +2432,10 @@ auth.onAuthStateChanged(async(user)=>{
       if(niMSKU)niMSKU.style.display='flex';
       const mdMSKU=document.getElementById('md-master-sku');
       if(mdMSKU)mdMSKU.style.display='flex';
+      const backupSection=document.getElementById('backup-section');
+      if(backupSection)backupSection.style.display='block';
+      const approveSection=document.getElementById('approve-users-section');
+      if(approveSection)approveSection.style.display='block';
     }
     setTimeout(loadChatHistory, 800);
     // Re-render streamer list after currentUser is confirmed (for isSU check)
@@ -5051,6 +5070,101 @@ function exportJadwalTemplate(){
   var wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Worksheet');
   XLSX.writeFile(wb,'template-jadwal-liveos.xlsx');
+}
+
+// ═══ BACKUP SYSTEM ═══
+async function exportFullBackup(){
+  var btn=document.getElementById('btn-full-backup');
+  var status=document.getElementById('backup-status');
+  if(btn){btn.disabled=true;btn.textContent='Memproses...';}
+  if(status){status.style.display='block';status.style.color='var(--text3)';status.textContent='Mengambil data dari Firestore...';}
+  try{
+    var wb=XLSX.utils.book_new();
+    var timestamp=new Date().toISOString().slice(0,10);
+
+    // 1. Sessions
+    if(status)status.textContent='Backup sessions...';
+    var sessSnap=await db.collection('sessions').orderBy('date','desc').get();
+    var sessData=sessSnap.docs.map(function(d){
+      var x=d.data();
+      return {ID:d.id,Tanggal:x.date||'',Platform:x.mp||'',Streamer:x.streamerName||'',NIK:x.nik||'',
+        GMV:x.gmv||0,Durasi:x.duration||'',JamMulai:x.timeStart||'',JamSelesai:x.timeEnd||'',
+        DiinputOleh:x.by||'',CreatedAt:x.createdAt||''};
+    });
+    var wsSess=XLSX.utils.json_to_sheet(sessData.length?sessData:[{Kosong:'Tidak ada data'}]);
+    XLSX.utils.book_append_sheet(wb,wsSess,'Sessions');
+
+    // 2. SKU Reports
+    if(status)status.textContent='Backup SKU reports...';
+    var skuSnap=await db.collection('sku_reports').get();
+    var skuData=[];
+    skuSnap.docs.forEach(function(d){
+      var x=d.data();
+      var items=x.items||[];
+      if(!items.length){
+        skuData.push({ID:d.id,Tanggal:x.date||'',Platform:x.mp||'',JamMulai:x.timeStart||'',JamSelesai:x.timeEnd||'',SKUCode:'',Qty:0,DiinputOleh:x.by||''});
+      } else {
+        items.forEach(function(i){
+          skuData.push({ID:d.id,Tanggal:x.date||'',Platform:x.mp||'',JamMulai:x.timeStart||'',JamSelesai:x.timeEnd||'',SKUCode:i.name||'',Qty:i.qty||0,DiinputOleh:x.by||''});
+        });
+      }
+    });
+    var wsSKU=XLSX.utils.json_to_sheet(skuData.length?skuData:[{Kosong:'Tidak ada data'}]);
+    XLSX.utils.book_append_sheet(wb,wsSKU,'SKU Reports');
+
+    // 3. Streamers
+    if(status)status.textContent='Backup streamers...';
+    var strSnap=await db.collection('streamers').get();
+    var strData=strSnap.docs.map(function(d){
+      var x=d.data();
+      return {ID:d.id,Nama:x.name||'',NIK:x.nik||'',Role:x.role||'',Email:x.email||'',CreatedAt:x.createdAt||''};
+    });
+    var wsStr=XLSX.utils.json_to_sheet(strData.length?strData:[{Kosong:'Tidak ada data'}]);
+    XLSX.utils.book_append_sheet(wb,wsStr,'Streamers');
+
+    // 4. Master SKU
+    if(status)status.textContent='Backup master SKU...';
+    var mskuSnap=await db.collection('master_sku').get();
+    var mskuData=mskuSnap.docs.map(function(d){
+      var x=d.data();
+      return {ID:d.id,KodeSKU:x.name||'',NamaProduk:x.prodName||'',DitambahOleh:x.addedBy||'',CreatedAt:x.createdAt||''};
+    });
+    var wsMSKU=XLSX.utils.json_to_sheet(mskuData.length?mskuData:[{Kosong:'Tidak ada data'}]);
+    XLSX.utils.book_append_sheet(wb,wsMSKU,'Master SKU');
+
+    // 5. Schedules
+    if(status)status.textContent='Backup jadwal...';
+    var schSnap=await db.collection('schedules').get();
+    var schData=schSnap.docs.map(function(d){
+      var x=d.data();
+      return {ID:d.id,Tanggal:x.date||'',Streamer:x.streamerName||'',NIK:x.nik||'',
+        JamMulai:x.timeStart||'',JamSelesai:x.timeEnd||'',Status:x.status||'',
+        DiinputOleh:x.inputByName||'',InputByEmail:x.inputBy||''};
+    });
+    var wsSch=XLSX.utils.json_to_sheet(schData.length?schData:[{Kosong:'Tidak ada data'}]);
+    XLSX.utils.book_append_sheet(wb,wsSch,'Schedules');
+
+    // 6. Targets
+    if(status)status.textContent='Backup targets...';
+    var trgSnap=await db.collection('targets').get();
+    var trgData=trgSnap.docs.map(function(d){
+      var x=d.data();
+      return {ID:d.id,Type:x.type||'',Key:x.key||'',TargetShopee:x.shopee||0,TargetTikTok:x.tiktok||0,UpdatedBy:x.updatedBy||'',UpdatedAt:x.updatedAt||''};
+    });
+    var wsTrg=XLSX.utils.json_to_sheet(trgData.length?trgData:[{Kosong:'Tidak ada data'}]);
+    XLSX.utils.book_append_sheet(wb,wsTrg,'Targets');
+
+    // Download
+    if(status)status.textContent='Menyiapkan file download...';
+    XLSX.writeFile(wb,'LiveOS-Backup-Pandaoma-'+timestamp+'.xlsx');
+    if(status){status.style.color='var(--green)';status.textContent='✓ Backup berhasil didownload! Simpan file ini di tempat aman.';}
+    showToast('Backup berhasil!');
+  }catch(e){
+    if(status){status.style.color='var(--red)';status.textContent='✗ Gagal: '+e.message;}
+    showToast('Backup gagal: '+e.message,true);
+  } finally {
+    if(btn){btn.disabled=false;btn.textContent='⬇ Download';}
+  }
 }
 
 // ═══ TARGET SYSTEM ═══
