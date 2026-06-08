@@ -2094,6 +2094,20 @@ function toggleGuideCard(hdr){
   </div>
 </div>
 
+<div class="sc2" id="migration-section" style="display:none;">
+  <div class="stitle">⚙️ Multi-Brand Migration</div>
+  <div class="sr"><div><div class="sk">Migrasi data Pandaoma</div><div class="sdesc">Tambah field <code>brand: "pandaoma"</code> ke semua dokumen lama yang belum punya field brand. Aman — tidak menghapus data apapun.</div></div></div>
+  <div style="margin-top:12px;padding:10px 14px;background:#fefce8;border-radius:var(--radius-sm);border:1px solid #fde047;">
+    <div style="font-size:12px;color:#854F0B;font-weight:600;margin-bottom:4px;">⚠️ Lakukan backup dulu sebelum migrasi!</div>
+    <div style="font-size:11px;color:#854F0B;">Pastikan sudah download backup Excel di atas sebelum klik tombol ini.</div>
+  </div>
+  <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+    <button onclick="runBrandMigration()" id="btn-migrate" style="padding:7px 16px;border-radius:var(--radius-sm);background:var(--amber);border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">🚀 Jalankan Migrasi</button>
+    <button onclick="checkMigrationStatus()" id="btn-check-migrate" style="padding:7px 16px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">🔍 Cek Status</button>
+  </div>
+  <div id="migration-status" style="margin-top:10px;font-size:12px;color:var(--text3);display:none;line-height:1.8;"></div>
+</div>
+
 <div class="sc2" style="border-color:#fca5a5"><div class="stitle" style="color:var(--red)">Zona Bahaya</div>
 <div class="sr" style="border:none"><div><div class="sk">Keluar dari akun</div></div><button class="dbtn" onclick="doLogout()">Logout</button></div></div>
 </div>
@@ -2434,6 +2448,8 @@ auth.onAuthStateChanged(async(user)=>{
       if(mdMSKU)mdMSKU.style.display='flex';
       const backupSection=document.getElementById('backup-section');
       if(backupSection)backupSection.style.display='block';
+      const migrationSection=document.getElementById('migration-section');
+      if(migrationSection)migrationSection.style.display='block';
       const approveSection=document.getElementById('approve-users-section');
       if(approveSection)approveSection.style.display='block';
     }
@@ -5070,6 +5086,82 @@ function exportJadwalTemplate(){
   var wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Worksheet');
   XLSX.writeFile(wb,'template-jadwal-liveos.xlsx');
+}
+
+// ═══ MIGRATION SYSTEM ═══
+var BRAND_COLLECTIONS=['sessions','sku_reports','streamers','master_sku','schedules','targets','incentives'];
+
+async function checkMigrationStatus(){
+  var statusEl=document.getElementById('migration-status');
+  var btn=document.getElementById('btn-check-migrate');
+  if(btn){btn.disabled=true;btn.textContent='Mengecek...';}
+  if(statusEl){statusEl.style.display='block';statusEl.textContent='Mengecek status migrasi...';}
+  try{
+    var results=[];
+    for(var i=0;i<BRAND_COLLECTIONS.length;i++){
+      var col=BRAND_COLLECTIONS[i];
+      var snap=await db.collection(col).get();
+      var total=snap.docs.length;
+      var migrated=snap.docs.filter(function(d){return d.data().brand;}).length;
+      var notMigrated=total-migrated;
+      results.push('<b>'+col+'</b>: '+total+' dok · '+migrated+' sudah migrasi · <span style="color:'+(notMigrated>0?'var(--red)':'var(--green)')+'">'+notMigrated+' belum</span>');
+    }
+    if(statusEl){
+      statusEl.innerHTML='<b>Status Migrasi:</b><br>'+results.join('<br>');
+    }
+  }catch(e){
+    if(statusEl){statusEl.style.color='var(--red)';statusEl.textContent='Gagal cek: '+e.message;}
+  } finally {
+    if(btn){btn.disabled=false;btn.textContent='🔍 Cek Status';}
+  }
+}
+
+async function runBrandMigration(){
+  var statusEl=document.getElementById('migration-status');
+  var btn=document.getElementById('btn-migrate');
+  if(!confirm('Jalankan migrasi? Field brand: "pandaoma" akan ditambahkan ke semua dokumen yang belum punya field brand. Data tidak akan dihapus.'))return;
+  if(btn){btn.disabled=true;btn.textContent='Memproses...';}
+  if(statusEl){statusEl.style.display='block';statusEl.style.color='var(--text3)';statusEl.textContent='Memulai migrasi...';}
+  try{
+    var totalUpdated=0;
+    var totalSkipped=0;
+    var logs=[];
+    for(var i=0;i<BRAND_COLLECTIONS.length;i++){
+      var col=BRAND_COLLECTIONS[i];
+      if(statusEl)statusEl.textContent='Migrasi collection: '+col+'...';
+      var snap=await db.collection(col).get();
+      var toUpdate=snap.docs.filter(function(d){return !d.data().brand;});
+      if(!toUpdate.length){
+        logs.push('<b>'+col+'</b>: semua sudah punya brand ✓');
+        totalSkipped+=snap.docs.length;
+        continue;
+      }
+      // Batch update max 400 per batch
+      var chunks=[];
+      for(var j=0;j<toUpdate.length;j+=400)chunks.push(toUpdate.slice(j,j+400));
+      for(var k=0;k<chunks.length;k++){
+        var batch=db.batch();
+        chunks[k].forEach(function(d){batch.update(d.ref,{brand:'pandaoma'});});
+        await batch.commit();
+      }
+      logs.push('<b>'+col+'</b>: '+toUpdate.length+' dokumen diupdate ✓');
+      totalUpdated+=toUpdate.length;
+      totalSkipped+=(snap.docs.length-toUpdate.length);
+    }
+    if(statusEl){
+      statusEl.style.color='var(--green)';
+      statusEl.innerHTML='<b>✓ Migrasi selesai!</b><br>'
+        +'Total diupdate: <b>'+totalUpdated+' dokumen</b><br>'
+        +'Total sudah ada brand: <b>'+totalSkipped+' dokumen</b><br><br>'
+        +logs.join('<br>');
+    }
+    showToast('Migrasi selesai! '+totalUpdated+' dokumen diupdate.');
+  }catch(e){
+    if(statusEl){statusEl.style.color='var(--red)';statusEl.textContent='✗ Gagal: '+e.message;}
+    showToast('Migrasi gagal: '+e.message,true);
+  } finally {
+    if(btn){btn.disabled=false;btn.textContent='🚀 Jalankan Migrasi';}
+  }
 }
 
 // ═══ BACKUP SYSTEM ═══
