@@ -5384,11 +5384,47 @@ function updateBrandSwitcherUI(){
   var mobnav=document.getElementById('mobnav');
   var mobdrawer=document.getElementById('mob-more-drawer');
   if(activeBrand==='nvmee'){
-    if(mobnav){mobnav.style.background=cfg.sidebarBg;mobnav.style.borderTopColor='rgba(0,0,0,.08)';}
-    if(mobdrawer){mobdrawer.style.background='linear-gradient(160deg,#F2C4DE,#EDD5F5)';}
+    var nvTxt=cfg.sidebarText||'#3D1A47';
+    if(mobnav){
+      mobnav.style.background=cfg.sidebarBg;
+      mobnav.style.borderTopColor='rgba(0,0,0,.08)';
+    }
+    // Bottom nav icons & labels
+    document.querySelectorAll('#mobnav .mni').forEach(function(el){
+      el.style.color=nvTxt+'99';
+    });
+    document.querySelectorAll('#mobnav .mni.active').forEach(function(el){
+      el.style.color=nvTxt;
+    });
+    document.querySelectorAll('#mobnav .mni svg').forEach(function(el){
+      el.style.stroke=nvTxt;
+    });
+    if(mobdrawer){
+      mobdrawer.style.background='linear-gradient(160deg,#F2C4DE,#EDD5F5)';
+      // Drawer item icons & labels → dark for readability on pink bg
+      mobdrawer.querySelectorAll('.mob-drawer-icon').forEach(function(el){
+        el.style.background='rgba(61,26,71,.1)';
+      });
+      mobdrawer.querySelectorAll('.mob-drawer-icon svg').forEach(function(el){
+        el.style.stroke=nvTxt;
+      });
+      mobdrawer.querySelectorAll('.mob-drawer-item span').forEach(function(el){
+        el.style.color=nvTxt+'cc';
+      });
+      mobdrawer.querySelectorAll('.mob-drawer-item').forEach(function(el){
+        el.style.setProperty('--hover-bg','rgba(61,26,71,.1)');
+      });
+    }
   } else {
     if(mobnav){mobnav.style.background='';mobnav.style.borderTopColor='';}
-    if(mobdrawer){mobdrawer.style.background='';}
+    document.querySelectorAll('#mobnav .mni').forEach(function(el){el.style.color='';});
+    document.querySelectorAll('#mobnav .mni svg').forEach(function(el){el.style.stroke='';});
+    if(mobdrawer){
+      mobdrawer.style.background='';
+      mobdrawer.querySelectorAll('.mob-drawer-icon').forEach(function(el){el.style.background='';});
+      mobdrawer.querySelectorAll('.mob-drawer-icon svg').forEach(function(el){el.style.stroke='';});
+      mobdrawer.querySelectorAll('.mob-drawer-item span').forEach(function(el){el.style.color='';});
+    }
   }
 
   // Apply/reset nav item colors
