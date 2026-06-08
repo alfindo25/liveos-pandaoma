@@ -2492,7 +2492,8 @@ auth.onAuthStateChanged(async(user)=>{
           });
         }
       } else if(userDoc.exists){
-        currentRole=userDoc.data().role||'viewer';
+        // Kalau field role kosong (user lama sebelum role system), default ke 'streamer'
+        currentRole=userDoc.data().role||'streamer';
         currentUserBrand=userDoc.data().brand||'pandaoma';
       }
     }catch(authErr){
@@ -5401,7 +5402,7 @@ function updateBrandSwitcherUI(){
     var bsBtn=document.getElementById('brand-switcher-btn');
     if(bsBtn){bsBtn.style.borderColor=cfg.sidebarText+'44';bsBtn.style.color=cfg.sidebarText;}
     var bsName=document.getElementById('brand-switcher-name');
-    if(bsName)bsName.style.color=cfg.sidebarText;
+    if(bsName)bsName.style.color='#fff'; // selalu putih, bukan sidebarText
     var wsLabel=document.getElementById('brand-ws-label');
     if(wsLabel)wsLabel.style.color=cfg.sidebarText+'99';
   } else {
@@ -5417,6 +5418,8 @@ function updateBrandSwitcherUI(){
     if(slSub)slSub.style.color='';
     var bsBtn=document.getElementById('brand-switcher-btn');
     if(bsBtn){bsBtn.style.borderColor='';bsBtn.style.color='';}
+    var bsName2=document.getElementById('brand-switcher-name');
+    if(bsName2)bsName2.style.color='#fff';
     var bsName=document.getElementById('brand-switcher-name');
     if(bsName)bsName.style.color='';
     var wsLabel=document.getElementById('brand-ws-label');
