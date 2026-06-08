@@ -2510,12 +2510,7 @@ auth.onAuthStateChanged(async(user)=>{
     document.getElementById('f-date').value=new Date().toISOString().split('T')[0];
     loadSettings();
     loadGroqKey();
-    startListeners();
-    startIncentiveListener();
-    startSKUListeners();
-    startJadwalListeners();
-    startTargetListener();
-    initBrandSwitcher();
+    initBrandSwitcher(); // initBrandSwitcher akan startListeners setelah brand terdeteksi
     applyMenuAccess();
     setTimeout(loadChatHistory, 800);
     setTimeout(renderStreamerList, 1500);
@@ -4093,7 +4088,7 @@ function incYearNav(dir){
 
 // Listen realtime
 function startIncentiveListener(){
-  db.collection('incentives').orderBy('tahun','desc').onSnapshot(snap=>{
+  db.collection('incentives').where('brand','==',activeBrand).orderBy('tahun','desc').onSnapshot(snap=>{
     allIncentives = snap.docs.map(d=>({id:d.id,...d.data()}));
     if(document.getElementById('page-incentive').classList.contains('active'))renderIncentive();
   });
@@ -5275,12 +5270,21 @@ function exportJadwalTemplate(){
 }
 
 // ═══ BRAND SYSTEM ═══
+function startAllListeners(){
+  startListeners();
+  startIncentiveListener();
+  startSKUListeners();
+  startJadwalListeners();
+  startTargetListener();
+}
+
 function initBrandSwitcher(){
   // God Admin bisa akses semua brand
   if(isGodAdmin()){
     allUserBrands=['pandaoma','nvmee'];
-    // Set active brand to user's brand if brand_admin
+    // activeBrand tetap 'pandaoma' sebagai default untuk god admin
     renderBrandSwitcher();
+    startAllListeners();
   } else {
     // Cek user_brands collection untuk brand akses
     db.collection('user_brands').where('email','==',currentUser.email).get().then(function(snap){
@@ -5289,13 +5293,14 @@ function initBrandSwitcher(){
       } else {
         allUserBrands=[currentUserBrand||'pandaoma'];
       }
-      // Auto-set activeBrand untuk non-god-admin
-      if(allUserBrands.length===1){
-        activeBrand=allUserBrands[0];
-      } else if(currentUserBrand&&allUserBrands.includes(currentUserBrand)){
+      // Auto-set activeBrand berdasarkan brand user (dari users collection)
+      if(currentUserBrand&&allUserBrands.includes(currentUserBrand)){
         activeBrand=currentUserBrand;
+      } else if(allUserBrands.length>0){
+        activeBrand=allUserBrands[0];
       }
       renderBrandSwitcher();
+      startAllListeners(); // Start listener SETELAH activeBrand benar
     });
     return;
   }
@@ -5433,11 +5438,7 @@ function switchBrand(brand){
   updateBrandSwitcherUI();
   renderBrandSwitcher();
   // Reload semua listeners dengan filter brand baru
-  startListeners();
-  startIncentiveListener();
-  startSKUListeners();
-  startJadwalListeners();
-  startTargetListener();
+  startAllListeners();
   showToast('Beralih ke '+BRAND_CONFIG[brand].name);
 }
 
