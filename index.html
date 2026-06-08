@@ -2137,7 +2137,7 @@ function toggleGuideCard(hdr){
 <div class="fc" style="margin-bottom:14px;">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
     <div class="fct">Target Bulanan</div>
-    <div style="display:flex;align-items:center;gap:8px;">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
       <div style="position:relative;">
         <button onclick="toggleTargetMonthDropdown()" style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font);min-width:180px;justify-content:space-between;">
           <span id="target-month-dropdown-label">Pilih bulan...</span>
@@ -2148,6 +2148,7 @@ function toggleGuideCard(hdr){
           <div id="target-month-list" style="padding:4px 0;"></div>
         </div>
       </div>
+      <button id="btn-tambah-target-bulanan" onclick="openTambahTargetBulanan()" style="display:none;font-size:12px;padding:5px 12px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;cursor:pointer;font-family:var(--font);font-weight:600;">+ Tambah Target</button>
       <button id="btn-edit-target-bulanan-page" onclick="openEditTargetBulanan()" style="display:none;font-size:12px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit Target</button>
     </div>
   </div>
@@ -2159,6 +2160,7 @@ function toggleGuideCard(hdr){
         <th>TIKTOK</th>
         <th>TOTAL GMV</th>
         <th style="width:110px;text-align:center;">STATUS</th>
+        <th style="width:130px;">DIINPUT OLEH</th>
       </tr></thead>
       <tbody id="target-bulanan-tbody"><tr><td colspan="5" class="empty">Pilih bulan untuk melihat data</td></tr></tbody>
     </table>
@@ -2168,7 +2170,10 @@ function toggleGuideCard(hdr){
 <div class="fc">
   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
     <div class="fct">History Double Date</div>
-    <button id="btn-edit-target-dd-page" onclick="openEditTargetDD()" style="display:none;font-size:12px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit Target</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="btn-tambah-target-dd" onclick="openTambahTargetDD()" style="display:none;font-size:12px;padding:5px 12px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;cursor:pointer;font-family:var(--font);font-weight:600;">+ Tambah Target</button>
+      <button id="btn-edit-target-dd-page" onclick="openEditTargetDD()" style="display:none;font-size:12px;padding:5px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit Target</button>
+    </div>
   </div>
   <div class="twrap">
     <table id="target-dd-table" style="min-width:560px;">
@@ -2178,6 +2183,7 @@ function toggleGuideCard(hdr){
         <th>TIKTOK</th>
         <th>TOTAL GMV</th>
         <th style="width:120px;text-align:center;">STATUS</th>
+        <th style="width:130px;">DIINPUT OLEH</th>
       </tr></thead>
       <tbody id="target-dd-tbody"><tr><td colspan="5" class="empty">Belum ada data</td></tr></tbody>
     </table>
@@ -5575,6 +5581,11 @@ function applyMenuAccess(){
     const el=document.getElementById(id);
     if(el)el.style.display=(isGA||isBA||isST)?'inline-flex':'none';
   });
+  // Tambah Target: hanya God Admin & Brand Admin
+  ['btn-tambah-target-bulanan','btn-tambah-target-dd'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.style.display=(isGA||isBA)?'inline-block':'none';
+  });
 
   // Incentive admin btn: only God Admin & Brand Admin
   const incAdminBtn=document.getElementById('incentive-admin-btn');
@@ -6083,12 +6094,17 @@ function renderTargetBulananTable(){
     var pT=tT?Math.round(gT/tT*100):0;
     var pTot=tTot?Math.round(gTot/tTot*100):0;
     var statusHtml=tTot?statusBadge(pTot,isCurrent):'<span style="font-size:11px;color:var(--text3);">Belum diset</span>';
+    var inputByName=t&&t.updatedBy?t.updatedBy.split('@')[0]:'—';
+    var inputByDate=t&&t.updatedAt?new Date(t.updatedAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'';
+    var inputByHtml='<div style="font-size:11px;color:var(--text2);">'+inputByName+'</div>'+(inputByDate?'<div style="font-size:10px;color:var(--text3);">'+inputByDate+'</div>':'');
+    var editRowBtn=canAdmin()?'<div><button onclick="openEditTargetBulananRow(\''+k+'\')" style="font-size:10px;padding:2px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);margin-top:4px;">✏ Edit</button></div>':'';
     return '<tr style="border-top:0.5px solid var(--border);">'
       +'<td style="font-weight:600;font-size:13px;padding:10px 14px;">'+mn+(isCurrent?'<div style="font-size:10px;color:var(--text3);font-weight:400;">berjalan</div>':'')+'</td>'
       +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gS)+' / '+(tS?fRpS(tS):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--shopee);">'+(tS?pS+'%':'—')+'</div></td>'
       +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gT)+' / '+(tT?fRpS(tT):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--tiktok);">'+(tT?pT+'%':'—')+'</div></td>'
       +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gTot)+' / '+(tTot?fRpS(tTot):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--amber);">'+(tTot?pTot+'%':'—')+'</div></td>'
       +'<td style="padding:10px 10px;text-align:center;">'+statusHtml+'</td>'
+      +'<td style="padding:10px 10px;">'+inputByHtml+editRowBtn+'</td>'
       +'</tr>';
   });
   tbody.innerHTML=rows.join('');
@@ -6136,82 +6152,185 @@ function renderTargetDDTable(){
       :'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gS)+' / '+(tS?fRpS(tS):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--shopee);">'+(tS?pS+'%':'—')+'</div></td>'
         +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gT)+' / '+(tT?fRpS(tT):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--tiktok);">'+(tT?pT+'%':'—')+'</div></td>'
         +'<td style="padding:10px 10px;"><div style="font-size:12px;">'+fRpS(gTot)+' / '+(tTot?fRpS(tTot):'—')+'</div><div style="font-size:11px;font-weight:600;color:var(--amber);">'+(tTot?pTot+'%':'—')+'</div></td>';
+    var ddInputByName=(!t._placeholder&&t.updatedBy)?t.updatedBy.split('@')[0]:'—';
+    var ddInputByDate=(!t._placeholder&&t.updatedAt)?new Date(t.updatedAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'';
+    var ddInputByHtml='<div style="font-size:11px;color:var(--text2);">'+ddInputByName+'</div>'+(ddInputByDate?'<div style="font-size:10px;color:var(--text3);">'+ddInputByDate+'</div>':'');
+    var ddEditRowBtn=canAdmin()?'<div><button onclick="openEditTargetDDRow(\''+t.key+'\')" style="font-size:10px;padding:2px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);margin-top:4px;">✏ Edit</button></div>':'';
     return '<tr style="border-top:0.5px solid var(--border);">'
       +'<td style="font-weight:600;font-size:13px;padding:10px 14px;">'+dateCell+'</td>'
       +dataCell
       +'<td style="padding:10px 10px;text-align:center;">'+statusHtml+'</td>'
+      +'<td style="padding:10px 10px;">'+ddInputByHtml+ddEditRowBtn+'</td>'
       +'</tr>';
   });
   tbody.innerHTML=rows.join('');
 }
 
-// ── Modal Edit Target Bulanan ──
-function openEditTargetBulanan(){
-  if(!isTargetEditor()){showToast('Tidak ada akses',true);return;}
-  var now=new Date();
-  var m=now.getMonth()+1;var y=now.getFullYear();
-  var key=y+'-'+String(m).padStart(2,'0');
-  var t=allTargets.find(function(x){return x.type==='bulanan'&&x.key===key;});
-  var monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-target-bulanan">'
-    +'<div style="background:var(--surface);border-radius:var(--radius);padding:24px;width:340px;max-width:90vw;">'
-    +'<div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">Edit Target Bulanan<button onclick="document.getElementById(\'modal-target-bulanan\').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text2);">&#10005;</button></div>'
-    +'<div style="font-size:13px;color:var(--text2);margin-bottom:16px;">'+monthNames[m-1]+' '+y+'</div>'
-    +'<div class="fgi"><label class="fl">Target Shopee (Rp)</label><input class="fi" id="etb-shopee" type="number" placeholder="cth. 300000000" value="'+(t?t.shopee:'')+'"/></div>'
-    +'<div class="fgi"><label class="fl">Target TikTok (Rp)</label><input class="fi" id="etb-tiktok" type="number" placeholder="cth. 80000000" value="'+(t?t.tiktok:'')+'"/></div>'
+// ── Helper: render modal target (reusable) ──
+function showTargetModal(modalId,title,subtitle,shopeeVal,tiktokVal,saveFnStr){
+  if(document.getElementById(modalId))document.getElementById(modalId).remove();
+  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="'+modalId+'">'
+    +'<div style="background:var(--surface);border-radius:var(--radius);padding:24px;width:360px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,.18);">'
+    +'<div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">'+title+'<button onclick="document.getElementById(\''+modalId+'\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);line-height:1;">&#10005;</button></div>'
+    +'<div style="font-size:12px;color:var(--text3);padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--border);">'+subtitle+'</div>'
+    +'<div class="fgi"><label class="fl">Target Shopee (Rp)</label><input class="fi" id="'+modalId+'-sh" type="number" placeholder="cth. 300000000" value="'+(shopeeVal||'')+'"/></div>'
+    +'<div class="fgi"><label class="fl">Target TikTok (Rp)</label><input class="fi" id="'+modalId+'-tk" type="number" placeholder="cth. 80000000" value="'+(tiktokVal||'')+'"/></div>'
     +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">'
-    +'<button onclick="document.getElementById(\'modal-target-bulanan\').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
-    +'<button onclick="saveTargetBulanan(\''+key+'\');" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Simpan</button>'
+    +'<button onclick="document.getElementById(\''+modalId+'\').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
+    +'<button onclick="'+saveFnStr+'" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">💾 Simpan</button>'
     +'</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',html);
+  setTimeout(function(){var el=document.getElementById(modalId+'-sh');if(el)el.focus();},100);
 }
 
-async function saveTargetBulanan(key){
-  var shopee=parseFloat(document.getElementById('etb-shopee').value)||0;
-  var tiktok=parseFloat(document.getElementById('etb-tiktok').value)||0;
+// ── Edit Target Bulanan (bulan berjalan - dari dashboard widget) ──
+function openEditTargetBulanan(){
+  var now=new Date();
+  var key=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  openEditTargetBulananRow(key);
+}
+
+// ── Edit Target Bulanan per baris ──
+function openEditTargetBulananRow(key){
+  if(!canAdmin()){showToast('Tidak ada akses',true);return;}
+  var parts=key.split('-');var y=parseInt(parts[0]);var m=parseInt(parts[1]);
+  var mn=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'][m-1];
+  var t=allTargets.find(function(x){return x.type==='bulanan'&&x.key===key;});
+  var mid='modal-etb-'+key.replace('-','');
+  showTargetModal(mid,'✏️ Edit Target Bulanan',mn+' '+y,t?t.shopee:'',t?t.tiktok:'','saveTargetBulananRow(\''+key+'\',\''+mid+'\')');
+}
+
+async function saveTargetBulananRow(key,modalId){
+  var shopee=parseFloat(document.getElementById(modalId+'-sh').value)||0;
+  var tiktok=parseFloat(document.getElementById(modalId+'-tk').value)||0;
   if(!shopee&&!tiktok){showToast('Isi minimal 1 target',true);return;}
   try{
     var existing=allTargets.find(function(t){return t.type==='bulanan'&&t.key===key;});
     var data={brand:activeBrand,type:'bulanan',key:key,shopee:shopee,tiktok:tiktok,updatedBy:currentUser?currentUser.email:'',updatedAt:new Date().toISOString()};
     if(existing)await db.collection('targets').doc(existing.id).update(data);
     else await db.collection('targets').add(data);
-    document.getElementById('modal-target-bulanan').remove();
-    showToast('Target bulanan disimpan!');
+    document.getElementById(modalId).remove();
+    showToast('✅ Target bulanan disimpan!');
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
-// ── Modal Edit Target Double Date ──
-function openEditTargetDD(){
-  if(!isTargetEditor()){showToast('Tidak ada akses',true);return;}
+// ── Tambah Target Bulanan (pilih bulan & tahun bebas) ──
+function openTambahTargetBulanan(){
+  if(!canAdmin()){showToast('Tidak ada akses',true);return;}
   var now=new Date();
-  var nextDD=getNextDoubleDate(now);
-  var m=nextDD.getMonth()+1;var y=nextDD.getFullYear();
-  var key=y+'-'+String(m).padStart(2,'0');
-  var t=allTargets.find(function(x){return x.type==='doubledate'&&x.key===key;});
-  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-target-dd">'
-    +'<div style="background:var(--surface);border-radius:var(--radius);padding:24px;width:340px;max-width:90vw;">'
-    +'<div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">Edit Target Double Date<button onclick="document.getElementById(\'modal-target-dd\').remove()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text2);">&#10005;</button></div>'
-    +'<div style="font-size:13px;color:var(--text2);margin-bottom:16px;">'+m+'.'+m+'.'+String(y).slice(2)+'</div>'
-    +'<div class="fgi"><label class="fl">Target Shopee (Rp)</label><input class="fi" id="etdd-shopee" type="number" placeholder="cth. 50000000" value="'+(t?t.shopee:'')+'"/></div>'
-    +'<div class="fgi"><label class="fl">Target TikTok (Rp)</label><input class="fi" id="etdd-tiktok" type="number" placeholder="cth. 20000000" value="'+(t?t.tiktok:'')+'"/></div>'
+  var dY=now.getFullYear();var dM=now.getMonth()+1;
+  var monthNames=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  var monthOpts=monthNames.map(function(n,i){return '<option value="'+(i+1)+'"'+(i+1===dM?' selected':'')+'>'+n+'</option>';}).join('');
+  var yearOpts=[dY-1,dY,dY+1].map(function(y){return '<option value="'+y+'"'+(y===dY?' selected':'')+'>'+y+'</option>';}).join('');
+  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-tambah-bulanan">'
+    +'<div style="background:var(--surface);border-radius:var(--radius);padding:24px;width:360px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,.18);">'
+    +'<div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">➕ Tambah Target Bulanan<button onclick="document.getElementById(\'modal-tambah-bulanan\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);line-height:1;">&#10005;</button></div>'
+    +'<div style="font-size:12px;color:var(--text3);padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--border);">Set target untuk bulan mana saja</div>'
+    +'<div class="fgi"><label class="fl">Bulan & Tahun</label>'
+    +'<div style="display:flex;gap:8px;">'
+    +'<select class="fi" id="tambah-bul-m" style="cursor:pointer;flex:1;">'+monthOpts+'</select>'
+    +'<select class="fi" id="tambah-bul-y" style="cursor:pointer;width:90px;">'+yearOpts+'</select>'
+    +'</div></div>'
+    +'<div class="fgi"><label class="fl">Target Shopee (Rp)</label><input class="fi" id="tambah-bul-sh" type="number" placeholder="cth. 300000000"/></div>'
+    +'<div class="fgi"><label class="fl">Target TikTok (Rp)</label><input class="fi" id="tambah-bul-tk" type="number" placeholder="cth. 80000000"/></div>'
     +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">'
-    +'<button onclick="document.getElementById(\'modal-target-dd\').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
-    +'<button onclick="saveTargetDD(\''+key+'\');" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Simpan</button>'
+    +'<button onclick="document.getElementById(\'modal-tambah-bulanan\').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
+    +'<button onclick="saveTambahTargetBulanan()" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">💾 Simpan</button>'
     +'</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',html);
 }
 
-async function saveTargetDD(key){
-  var shopee=parseFloat(document.getElementById('etdd-shopee').value)||0;
-  var tiktok=parseFloat(document.getElementById('etdd-tiktok').value)||0;
+async function saveTambahTargetBulanan(){
+  var m=parseInt(document.getElementById('tambah-bul-m').value);
+  var y=parseInt(document.getElementById('tambah-bul-y').value);
+  var shopee=parseFloat(document.getElementById('tambah-bul-sh').value)||0;
+  var tiktok=parseFloat(document.getElementById('tambah-bul-tk').value)||0;
+  if(!shopee&&!tiktok){showToast('Isi minimal 1 target',true);return;}
+  var key=y+'-'+String(m).padStart(2,'0');
+  try{
+    var existing=allTargets.find(function(t){return t.type==='bulanan'&&t.key===key;});
+    var data={brand:activeBrand,type:'bulanan',key:key,shopee:shopee,tiktok:tiktok,updatedBy:currentUser?currentUser.email:'',updatedAt:new Date().toISOString()};
+    if(existing)await db.collection('targets').doc(existing.id).update(data);
+    else await db.collection('targets').add(data);
+    document.getElementById('modal-tambah-bulanan').remove();
+    showToast('✅ Target bulanan disimpan!');
+  }catch(e){showToast('Gagal: '+e.message,true);}
+}
+
+// ── Edit Target DD (bulan berjalan - dari dashboard widget) ──
+function openEditTargetDD(){
+  var now=new Date();
+  var nextDD=getNextDoubleDate(now);
+  var key=nextDD.getFullYear()+'-'+String(nextDD.getMonth()+1).padStart(2,'0');
+  openEditTargetDDRow(key);
+}
+
+// ── Edit Target DD per baris ──
+function openEditTargetDDRow(key){
+  if(!canAdmin()){showToast('Tidak ada akses',true);return;}
+  var parts=key.split('-');var y=parseInt(parts[0]);var m=parseInt(parts[1]);
+  var t=allTargets.find(function(x){return x.type==='doubledate'&&x.key===key;});
+  var mid='modal-etdd-'+key.replace('-','');
+  showTargetModal(mid,'✏️ Edit Target Double Date',m+'.'+m+'.'+String(y).slice(2),t?t.shopee:'',t?t.tiktok:'','saveTargetDDRow(\''+key+'\',\''+mid+'\')');
+}
+
+async function saveTargetDDRow(key,modalId){
+  var shopee=parseFloat(document.getElementById(modalId+'-sh').value)||0;
+  var tiktok=parseFloat(document.getElementById(modalId+'-tk').value)||0;
   if(!shopee&&!tiktok){showToast('Isi minimal 1 target',true);return;}
   try{
     var existing=allTargets.find(function(t){return t.type==='doubledate'&&t.key===key;});
     var data={brand:activeBrand,type:'doubledate',key:key,shopee:shopee,tiktok:tiktok,updatedBy:currentUser?currentUser.email:'',updatedAt:new Date().toISOString()};
     if(existing)await db.collection('targets').doc(existing.id).update(data);
     else await db.collection('targets').add(data);
-    document.getElementById('modal-target-dd').remove();
-    showToast('Target double date disimpan!');
+    document.getElementById(modalId).remove();
+    showToast('✅ Target double date disimpan!');
+  }catch(e){showToast('Gagal: '+e.message,true);}
+}
+
+// ── Tambah Target DD (pilih bulan bebas) ──
+function openTambahTargetDD(){
+  if(!canAdmin()){showToast('Tidak ada akses',true);return;}
+  var now=new Date();
+  var dY=now.getFullYear();var dM=now.getMonth()+1;
+  var monthNames=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+  var monthOpts=monthNames.map(function(n,i){
+    var m=i+1;var label=m+'.'+m+'.'+String(dY).slice(2)+' ('+n+')';
+    return '<option value="'+m+'"'+(m===dM?' selected':'')+'>'+label+'</option>';
+  }).join('');
+  var yearOpts=[dY-1,dY,dY+1].map(function(y){return '<option value="'+y+'"'+(y===dY?' selected':'')+'>'+y+'</option>';}).join('');
+  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-tambah-dd">'
+    +'<div style="background:var(--surface);border-radius:var(--radius);padding:24px;width:360px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,.18);">'
+    +'<div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">➕ Tambah Target Double Date<button onclick="document.getElementById(\'modal-tambah-dd\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);line-height:1;">&#10005;</button></div>'
+    +'<div style="font-size:12px;color:var(--text3);padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--border);">Set target untuk double date mana saja</div>'
+    +'<div class="fgi"><label class="fl">Double Date</label>'
+    +'<div style="display:flex;gap:8px;">'
+    +'<select class="fi" id="tambah-dd-m" style="cursor:pointer;flex:1;">'+monthOpts+'</select>'
+    +'<select class="fi" id="tambah-dd-y" style="cursor:pointer;width:90px;">'+yearOpts+'</select>'
+    +'</div></div>'
+    +'<div class="fgi"><label class="fl">Target Shopee (Rp)</label><input class="fi" id="tambah-dd-sh" type="number" placeholder="cth. 150000000"/></div>'
+    +'<div class="fgi"><label class="fl">Target TikTok (Rp)</label><input class="fi" id="tambah-dd-tk" type="number" placeholder="cth. 35000000"/></div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">'
+    +'<button onclick="document.getElementById(\'modal-tambah-dd\').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
+    +'<button onclick="saveTambahTargetDD()" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">💾 Simpan</button>'
+    +'</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+async function saveTambahTargetDD(){
+  var m=parseInt(document.getElementById('tambah-dd-m').value);
+  var y=parseInt(document.getElementById('tambah-dd-y').value);
+  var shopee=parseFloat(document.getElementById('tambah-dd-sh').value)||0;
+  var tiktok=parseFloat(document.getElementById('tambah-dd-tk').value)||0;
+  if(!shopee&&!tiktok){showToast('Isi minimal 1 target',true);return;}
+  var key=y+'-'+String(m).padStart(2,'0');
+  try{
+    var existing=allTargets.find(function(t){return t.type==='doubledate'&&t.key===key;});
+    var data={brand:activeBrand,type:'doubledate',key:key,shopee:shopee,tiktok:tiktok,updatedBy:currentUser?currentUser.email:'',updatedAt:new Date().toISOString()};
+    if(existing)await db.collection('targets').doc(existing.id).update(data);
+    else await db.collection('targets').add(data);
+    document.getElementById('modal-tambah-dd').remove();
+    showToast('✅ Target double date disimpan!');
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
