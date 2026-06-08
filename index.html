@@ -3059,7 +3059,13 @@ function getPrevPeriodData(data){
   var prevFrom=new Date(prevTo);prevFrom.setDate(prevFrom.getDate()-(diffDays-1));
   var pFrom=prevFrom.toISOString().slice(0,10);
   var pTo=prevTo.toISOString().slice(0,10);
-  return data.filter(function(d){return d.date>=pFrom&&d.date<=pTo;});
+  // Apply platform filter yang sama dengan periode aktif
+  return data.filter(function(d){
+    if(d.mp==='Shopee'&&!AF.shopee)return false;
+    if(d.mp==='TikTok'&&!AF.tiktok)return false;
+    if(d.mp==='DLD'&&!AF.dld)return false;
+    return d.date>=pFrom&&d.date<=pTo;
+  });
 }
 
 function makePctBadge(curr,prev){
@@ -3078,9 +3084,10 @@ function refreshMetrics(data){
   const sh=f.filter(d=>d.mp==='Shopee'||d.mp==='DLD').reduce((s,d)=>s+(d.gmv||0),0);
   const tk=f.filter(d=>d.mp==='TikTok').reduce((s,d)=>s+(d.gmv||0),0);
 
-  // Hitung periode sebelumnya
+  // Hitung periode sebelumnya (platform filter sudah diterapkan di getPrevPeriodData)
   var prev=getPrevPeriodData(data);
   var prevTot=prev.reduce(function(s,d){return s+(d.gmv||0);},0);
+  // prevSh & prevTk: filter per-platform dari prev yang sudah difilter platform
   var prevSh=prev.filter(function(d){return d.mp==='Shopee'||d.mp==='DLD';}).reduce(function(s,d){return s+(d.gmv||0);},0);
   var prevTk=prev.filter(function(d){return d.mp==='TikTok';}).reduce(function(s,d){return s+(d.gmv||0);},0);
 
