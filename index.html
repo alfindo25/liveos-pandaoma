@@ -103,7 +103,7 @@ canvas#mainChart{width:100%!important;height:185px!important;}
 .pr{font-size:18px;width:26px;flex-shrink:0;text-align:center;}
 .pinfo{flex:1;min-width:0;}.pname{font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .psub{font-size:11px;color:var(--text3);margin-top:1px;}.pgmv{font-size:13px;font-weight:800;font-family:var(--mono);color:var(--green);}
-.tcard{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+.tcard{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);padding:16px;}
 .thdr{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
 .twrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:13px;}
@@ -1086,7 +1086,7 @@ margin-bottom: 4px;
 </div>
 
 <div class="tcard" id="dashboard-target-widget" style="margin-bottom:14px;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:0;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;min-width:0;padding:2px 4px;">
 
     <div style="min-width:0;overflow:hidden;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -3045,17 +3045,18 @@ function filterData(data){
 }
 
 function getPrevPeriodData(data){
-  // Hitung range periode aktif
-  var from=new Date(AF.customFrom+'T00:00:00');
-  var to=new Date(AF.customTo+'T23:59:59');
-  var diffMs=to-from;
-  var diffDays=Math.round(diffMs/(1000*60*60*24))+1;
-  // Periode sebelumnya
-  var prevTo=new Date(from);prevTo.setDate(prevTo.getDate()-1);
-  var prevFrom=new Date(prevTo);prevFrom.setDate(prevFrom.getDate()-(diffDays-1));
+  // Hitung jumlah hari periode aktif (date-only, bukan ms — hindari floating point error)
+  var fromD=new Date(AF.customFrom+'T12:00:00');
+  var toD=new Date(AF.customTo+'T12:00:00');
+  var diffDays=Math.round((toD-fromD)/(1000*60*60*24))+1;
+  // Periode sebelumnya: tepat sebelum customFrom, sama panjangnya
+  var prevTo=new Date(AF.customFrom+'T12:00:00');
+  prevTo.setDate(prevTo.getDate()-1);
+  var prevFrom=new Date(prevTo);
+  prevFrom.setDate(prevFrom.getDate()-(diffDays-1));
   var pFrom=prevFrom.toISOString().slice(0,10);
   var pTo=prevTo.toISOString().slice(0,10);
-  // Apply platform filter yang sama dengan periode aktif
+  // Apply platform filter sama dengan periode aktif
   return data.filter(function(d){
     if(d.mp==='Shopee'&&!AF.shopee)return false;
     if(d.mp==='TikTok'&&!AF.tiktok)return false;
@@ -5379,6 +5380,16 @@ function updateBrandSwitcherUI(){
   if(sidebar){
     sidebar.style.background=cfg.sidebarBg||'var(--navy)';
   }
+  // Apply theme ke mobile bottom nav
+  var mobnav=document.getElementById('mobnav');
+  var mobdrawer=document.getElementById('mob-more-drawer');
+  if(activeBrand==='nvmee'){
+    if(mobnav){mobnav.style.background=cfg.sidebarBg;mobnav.style.borderTopColor='rgba(0,0,0,.08)';}
+    if(mobdrawer){mobdrawer.style.background='linear-gradient(160deg,#F2C4DE,#EDD5F5)';}
+  } else {
+    if(mobnav){mobnav.style.background='';mobnav.style.borderTopColor='';}
+    if(mobdrawer){mobdrawer.style.background='';}
+  }
 
   // Apply/reset nav item colors
   var navItems=document.querySelectorAll('.ni,.nsec,.sav,.snm,.sem');
@@ -5405,11 +5416,16 @@ function updateBrandSwitcherUI(){
     if(bsName)bsName.style.color='#fff';
     var wsLabel=document.getElementById('brand-ws-label');
     if(wsLabel)wsLabel.style.color=cfg.sidebarText+'99';
+    // Mobile nav items
+    document.querySelectorAll('#mobnav button, #mob-more-drawer button.md-btn').forEach(function(el){
+      el.style.color=cfg.sidebarText;
+    });
   } else {
     // Reset ke Pandaoma default
     navItems.forEach(function(el){el.style.color='';});
     document.querySelectorAll('.nsec').forEach(function(el){el.style.color='';});
     document.querySelectorAll('.snm,.sem').forEach(function(el){el.style.color='';});
+    document.querySelectorAll('#mobnav button, #mob-more-drawer button.md-btn').forEach(function(el){el.style.color='';});
     var sav=document.getElementById('s-av');
     if(sav){sav.style.background='';sav.style.color='';}
     var slName=document.querySelector('.sl-name');
