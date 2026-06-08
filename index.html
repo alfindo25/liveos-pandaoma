@@ -261,11 +261,11 @@ tbody td{padding:12px 16px;white-space:nowrap;}
   .mni.active{color:#fff;}.mni svg{width:20px;height:20px;}
   .mob-drawer-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 8px;border-radius:10px;cursor:pointer;transition:.15s;}
   .mob-drawer-item:hover,.mob-drawer-item.active{background:rgba(255,255,255,.1);}
-  .mob-drawer-item.active .mob-drawer-icon svg{stroke:#fff;}
-  .mob-drawer-item.active span{color:#fff;}
-  .mob-drawer-icon{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;}
-  .mob-drawer-icon svg{width:18px;height:18px;stroke:rgba(255,255,255,.5);}
-  .mob-drawer-item span{font-size:10px;font-weight:600;color:rgba(255,255,255,.5);text-align:center;line-height:1.3;}
+  .mob-drawer-item.active .mob-drawer-icon svg{stroke:var(--mob-icon-color,rgba(255,255,255,.9));}
+  .mob-drawer-item.active span{color:var(--mob-icon-color,rgba(255,255,255,.9));}
+  .mob-drawer-icon{width:36px;height:36px;border-radius:8px;background:var(--mob-icon-bg,rgba(255,255,255,.08));display:flex;align-items:center;justify-content:center;}
+  .mob-drawer-icon svg{width:18px;height:18px;stroke:var(--mob-icon-color,rgba(255,255,255,.5));}
+  .mob-drawer-item span{font-size:10px;font-weight:600;color:var(--mob-label-color,rgba(255,255,255,.5));text-align:center;line-height:1.3;}
 }
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
@@ -5376,12 +5376,14 @@ function renderMobBrandSwitcher(){
     if(activeBrand==='nvmee'){
       var nvTxt2=cfg2.sidebarText||'#3D1A47';
       mobdrawer.style.background='linear-gradient(160deg,#F2C4DE,#EDD5F5)';
-      mobdrawer.querySelectorAll('.mob-drawer-item').forEach(function(el){el.style.color=nvTxt2;});
-      mobdrawer.querySelectorAll('.mob-drawer-icon').forEach(function(el){el.style.background='rgba(61,26,71,.1)';});
+      mobdrawer.style.setProperty('--mob-icon-color', nvTxt2);
+      mobdrawer.style.setProperty('--mob-label-color', nvTxt2+'cc');
+      mobdrawer.style.setProperty('--mob-icon-bg', 'rgba(61,26,71,.1)');
     } else {
       mobdrawer.style.background='';
-      mobdrawer.querySelectorAll('.mob-drawer-item').forEach(function(el){el.style.color='';});
-      mobdrawer.querySelectorAll('.mob-drawer-icon').forEach(function(el){el.style.background='';});
+      mobdrawer.style.removeProperty('--mob-icon-color');
+      mobdrawer.style.removeProperty('--mob-label-color');
+      mobdrawer.style.removeProperty('--mob-icon-bg');
     }
   }
 }
@@ -5419,27 +5421,18 @@ function updateBrandSwitcherUI(){
     });
     if(mobdrawer){
       mobdrawer.style.background='linear-gradient(160deg,#F2C4DE,#EDD5F5)';
-      // Set color on .mob-drawer-item → SVG currentColor + span color ikut
-      mobdrawer.querySelectorAll('.mob-drawer-item').forEach(function(el){
-        el.style.color=nvTxt;
-      });
-      mobdrawer.querySelectorAll('.mob-drawer-icon').forEach(function(el){
-        el.style.background='rgba(61,26,71,.1)';
-      });
+      mobdrawer.style.setProperty('--mob-icon-color', nvTxt);
+      mobdrawer.style.setProperty('--mob-label-color', nvTxt+'cc');
+      mobdrawer.style.setProperty('--mob-icon-bg', 'rgba(61,26,71,.1)');
     }
   } else {
     if(mobnav){mobnav.style.background='';mobnav.style.borderTopColor='';}
-    // Reset bottom nav
     document.querySelectorAll('#mobnav .mni').forEach(function(el){el.style.color='';});
     if(mobdrawer){
       mobdrawer.style.background='';
-      // Reset drawer items ke putih (Pandaoma navy bg)
-      mobdrawer.querySelectorAll('.mob-drawer-item').forEach(function(el){
-        el.style.color='';
-      });
-      mobdrawer.querySelectorAll('.mob-drawer-icon').forEach(function(el){
-        el.style.background='';
-      });
+      mobdrawer.style.removeProperty('--mob-icon-color');
+      mobdrawer.style.removeProperty('--mob-label-color');
+      mobdrawer.style.removeProperty('--mob-icon-bg');
     }
   }
 
