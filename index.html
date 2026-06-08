@@ -1086,9 +1086,9 @@ margin-bottom: 4px;
 </div>
 
 <div class="tcard" id="dashboard-target-widget" style="margin-bottom:14px;">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:0;">
 
-    <div>
+    <div style="min-width:0;overflow:hidden;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div style="font-size:13px;font-weight:700;color:var(--text);">🎯 Target Bulanan <span id="target-bulan-label" style="font-weight:500;color:var(--text3);font-size:12px;"></span></div>
         <button id="btn-edit-target-bulanan" onclick="openEditTargetBulanan()" style="display:none;font-size:11px;padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit</button>
@@ -1096,7 +1096,7 @@ margin-bottom: 4px;
       <div style="display:flex;flex-direction:column;gap:10px;" id="target-bulanan-bars"></div>
     </div>
 
-    <div>
+    <div style="min-width:0;overflow:hidden;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <div style="font-size:13px;font-weight:700;color:var(--text);">📅 Double Date <span id="target-dd-label" style="font-weight:500;color:var(--text3);font-size:12px;"></span></div>
         <button id="btn-edit-target-dd" onclick="openEditTargetDD()" style="display:none;font-size:11px;padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit</button>
@@ -2323,7 +2323,7 @@ function toggleGuideCard(hdr){
       <div><label class="fl">Streamer</label>
         <select class="fi" id="inc-streamer" style="cursor:pointer"><option value="">-- Pilih Streamer --</option></select>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:0;">
         <div><label class="fl">Bulan</label>
           <select class="fi" id="inc-bulan" style="cursor:pointer">
             <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
@@ -5772,8 +5772,9 @@ function getNextDoubleDate(now){
   // Hitung H-X ke double date bulan depan
   var diffToNext=Math.ceil((ddNextDate-nowDate)/(1000*60*60*24));
 
-  // Kalau sudah lewat double date bulan ini, atau H-10 menuju double date bulan depan → tampil bulan depan
-  if(nowDate>ddDate||diffToNext<=10){
+  // Switch ke bulan depan HANYA kalau H-7 atau kurang menuju dd bulan depan
+  // Selain itu tetap tampil bulan ini (termasuk setelah lewat = tampil hasil 6.6)
+  if(diffToNext<=7){
     return ddNext;
   }
   return dd;
@@ -5853,9 +5854,9 @@ function renderDashboardTargetWidget(){
       barsEl.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 0;">Target belum diset.'+(canEdit?' Klik Edit.':'')+'</div>';
     } else {
       barsEl.innerHTML=
-        '<div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text2);white-space:nowrap;">Shopee</span><span style="text-align:right;white-space:nowrap;"><b>'+fRpS(gmvShopee)+'</b> / '+fRpS(tS)+' <span style="color:var(--shopee);font-weight:700;">'+pS+'%</span></span></div>'+progressBar(pS,'var(--shopee)')+'</div>'
-        +'<div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text2);white-space:nowrap;">TikTok</span><span style="text-align:right;white-space:nowrap;"><b>'+fRpS(gmvTiktok)+'</b> / '+fRpS(tT)+' <span style="color:var(--tiktok);font-weight:700;">'+pT+'%</span></span></div>'+progressBar(pT,'var(--tiktok)')+'</div>'
-        +'<div style="border-top:1px solid var(--border);padding-top:8px;"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text);font-weight:600;white-space:nowrap;">Total</span><span style="text-align:right;white-space:nowrap;"><b>'+fRpS(gmvTotal)+'</b> / '+fRpS(tTotal)+' <span style="color:var(--amber);font-weight:700;">'+pTot+'%</span></span></div>'+progressBar(pTot,'var(--amber)')+'</div>';
+        '<div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text2);white-space:nowrap;">Shopee</span><span style="text-align:right;white-space:nowrap;font-size:11px;"><b>'+fRpS(gmvShopee)+'</b> / '+fRpS(tS)+' <span style="color:var(--shopee);font-weight:700;">'+pS+'%</span></span></div>'+progressBar(pS,'var(--shopee)')+'</div>'
+        +'<div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text2);white-space:nowrap;">TikTok</span><span style="text-align:right;white-space:nowrap;font-size:11px;"><b>'+fRpS(gmvTiktok)+'</b> / '+fRpS(tT)+' <span style="color:var(--tiktok);font-weight:700;">'+pT+'%</span></span></div>'+progressBar(pT,'var(--tiktok)')+'</div>'
+        +'<div style="border-top:1px solid var(--border);padding-top:8px;"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text);font-weight:600;white-space:nowrap;">Total</span><span style="text-align:right;white-space:nowrap;font-size:11px;"><b>'+fRpS(gmvTotal)+'</b> / '+fRpS(tTotal)+' <span style="color:var(--amber);font-weight:700;">'+pTot+'%</span></span></div>'+progressBar(pTot,'var(--amber)')+'</div>';
     }
   }
 
@@ -5897,9 +5898,9 @@ function renderDashboardTargetWidget(){
         +'<div style="font-size:11px;color:var(--text3);">Target: Shopee '+fRpS(tDDS)+' · TikTok '+fRpS(tDDT)+' · Total '+fRpS(tDDTotal)+'</div>';
     } else {
       ddBars.innerHTML=
-        '<div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text2);white-space:nowrap;">Shopee</span><span style="text-align:right;white-space:nowrap;"><b>'+fRpS(ddShopee)+'</b> / '+fRpS(tDDS)+' <span style="color:var(--shopee);font-weight:700;">'+pDDS+'%</span></span></div>'+progressBar(pDDS,'var(--shopee)')+'</div>'
-        +'<div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text2);white-space:nowrap;">TikTok</span><span style="text-align:right;white-space:nowrap;"><b>'+fRpS(ddTiktok)+'</b> / '+fRpS(tDDT)+' <span style="color:var(--tiktok);font-weight:700;">'+pDDT+'%</span></span></div>'+progressBar(pDDT,'var(--tiktok)')+'</div>'
-        +'<div style="border-top:1px solid var(--border);padding-top:8px;"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text);font-weight:600;white-space:nowrap;">Total</span><span style="text-align:right;white-space:nowrap;"><b>'+fRpS(ddTotal)+'</b> / '+fRpS(tDDTotal)+' <span style="color:var(--amber);font-weight:700;">'+pDDTot+'%</span></span></div>'+progressBar(pDDTot,'var(--amber)')+'</div>';
+        '<div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text2);white-space:nowrap;">Shopee</span><span style="text-align:right;white-space:nowrap;font-size:11px;"><b>'+fRpS(ddShopee)+'</b> / '+fRpS(tDDS)+' <span style="color:var(--shopee);font-weight:700;">'+pDDS+'%</span></span></div>'+progressBar(pDDS,'var(--shopee)')+'</div>'
+        +'<div><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text2);white-space:nowrap;">TikTok</span><span style="text-align:right;white-space:nowrap;font-size:11px;"><b>'+fRpS(ddTiktok)+'</b> / '+fRpS(tDDT)+' <span style="color:var(--tiktok);font-weight:700;">'+pDDT+'%</span></span></div>'+progressBar(pDDT,'var(--tiktok)')+'</div>'
+        +'<div style="border-top:1px solid var(--border);padding-top:8px;"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;font-size:12px;"><span style="color:var(--text);font-weight:600;white-space:nowrap;">Total</span><span style="text-align:right;white-space:nowrap;font-size:11px;"><b>'+fRpS(ddTotal)+'</b> / '+fRpS(tDDTotal)+' <span style="color:var(--amber);font-weight:700;">'+pDDTot+'%</span></span></div>'+progressBar(pDDTot,'var(--amber)')+'</div>';
     }
   }
 }
