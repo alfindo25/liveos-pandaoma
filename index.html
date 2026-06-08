@@ -5363,6 +5363,21 @@ function renderMobBrandSwitcher(){
     }
     pillsEl.appendChild(pill);
   });
+  // Apply/reset drawer colors sesuai brand aktif (drawer baru render saat dibuka)
+  var mobdrawer=document.getElementById('mob-more-drawer');
+  if(mobdrawer){
+    var cfg=BRAND_CONFIG[activeBrand];
+    if(activeBrand==='nvmee'){
+      var nvTxt=cfg.sidebarText||'#3D1A47';
+      mobdrawer.querySelectorAll('.mob-drawer-icon').forEach(function(el){el.style.background='rgba(61,26,71,.1)';});
+      mobdrawer.querySelectorAll('.mob-drawer-icon svg').forEach(function(el){el.style.stroke=nvTxt;});
+      mobdrawer.querySelectorAll('.mob-drawer-item span').forEach(function(el){el.style.color=nvTxt+'cc';});
+    } else {
+      mobdrawer.querySelectorAll('.mob-drawer-icon').forEach(function(el){el.style.background='';});
+      mobdrawer.querySelectorAll('.mob-drawer-icon svg').forEach(function(el){el.style.stroke='';});
+      mobdrawer.querySelectorAll('.mob-drawer-item span').forEach(function(el){el.style.color='';});
+    }
+  }
 }
 
 function updateBrandSwitcherUI(){
