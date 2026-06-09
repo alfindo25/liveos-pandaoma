@@ -2661,7 +2661,7 @@ function goPage(p){
   if(skuW)skuW.style.display=p==='dashboard'?'block':'none';
   const skuDW=document.getElementById('sku-detail-widget');
   if(skuDW)skuDW.style.display=p==='dashboard'?'block':'none';
-  if(p==='setting'){loadGroqKey();if(canAdmin())loadPendingUsers();if(isGodAdmin())migrateIncentiveBrand();}
+  if(p==='setting'){loadGroqKey();if(canAdmin())loadPendingUsers();}
   if(p==='streamers'){
     renderStreamerList();
     const addForm=document.getElementById('add-streamer-form');
@@ -5307,6 +5307,8 @@ function startAllListeners(){
   startSKUListeners();
   startJadwalListeners();
   startTargetListener();
+  // Auto-migrate data lama tanpa field brand (hanya God Admin, hanya sekali)
+  setTimeout(migrateIncentiveBrand, 2000);
 }
 
 function initBrandSwitcher(){
