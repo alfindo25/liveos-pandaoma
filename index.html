@@ -2661,7 +2661,7 @@ function goPage(p){
   if(skuW)skuW.style.display=p==='dashboard'?'block':'none';
   const skuDW=document.getElementById('sku-detail-widget');
   if(skuDW)skuDW.style.display=p==='dashboard'?'block':'none';
-  if(p==='setting'){loadGroqKey();if(canAdmin())loadPendingUsers();}
+  if(p==='setting'){loadGroqKey();if(canAdmin())loadPendingUsers();if(isGodAdmin())migrateIncentiveBrand();}
   if(p==='streamers'){
     renderStreamerList();
     const addForm=document.getElementById('add-streamer-form');
@@ -4096,10 +4096,30 @@ function incYearNav(dir){
 
 // Listen realtime
 function startIncentiveListener(){
+  // Query dengan brand filter - data lama tanpa field brand perlu di-migrate
   db.collection('incentives').where('brand','==',activeBrand).orderBy('tahun','desc').onSnapshot(snap=>{
     allIncentives = snap.docs.map(d=>({id:d.id,...d.data()}));
     if(document.getElementById('page-incentive').classList.contains('active'))renderIncentive();
   });
+}
+
+// Jalankan sekali saja untuk migrate data incentive lama yang belum ada field brand
+async function migrateIncentiveBrand(){
+  if(!isGodAdmin())return;
+  try{
+    var snap=await db.collection('incentives').get();
+    var batch=db.batch();var count=0;
+    snap.docs.forEach(function(doc){
+      if(!doc.data().brand){
+        batch.update(doc.ref,{brand:'pandaoma'});
+        count++;
+      }
+    });
+    if(count>0){
+      await batch.commit();
+      showToast('✅ '+count+' data incentive di-migrate ke Pandaoma');
+    }
+  }catch(e){console.error('Migrate incentive error:',e);}
 }
 
 function getMyStreamer(){
@@ -5279,6 +5299,9 @@ function exportJadwalTemplate(){
 
 // ═══ BRAND SYSTEM ═══
 function startAllListeners(){
+  // Reset semua array dulu supaya data brand lama tidak tercampur
+  allSessions=[];allStreamers=[];allIncentives=[];
+  refreshAll();
   startListeners();
   startIncentiveListener();
   startSKUListeners();
