@@ -6616,7 +6616,7 @@ function showAnnouncementPopup(){
     +(_annPopupIdx>0?'<button onclick="annPopupNav(-1)" style="padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);font-size:13px;">&#8592; Prev</button>':'')
     +(total>1&&!isLast?'<button onclick="annPopupNav(1)" style="padding:7px 14px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;">Next &#8594;</button>':'')
     +'</div>'
-    +(isLast?'<button onclick="markAnnouncementRead(''+a.id+'')" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--green);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;">&#10003; Sudah Baca</button>':'')
+    +(isLast?'<button onclick="markAnnouncementRead(\''+a.id+'\')" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--green);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;">&#10003; Sudah Baca</button>':'')
     +'</div>'
     +'</div></div>';
   document.body.insertAdjacentHTML('beforeend',html);
