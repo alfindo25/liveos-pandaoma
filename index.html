@@ -6716,7 +6716,13 @@ async function openAnnDetail(annId){
   var readBy=a.readBy||[];
   var snap=await db.collection('users').where('status','==','approved').get();
   var allUsers=snap.docs.map(function(d){return Object.assign({uid:d.id},d.data());})
-    .filter(function(u){return !a.brand||a.brand.includes(u.brand)||u.email===GOD_ADMIN_EMAIL;});
+    .filter(function(u){
+      if(u.email===GOD_ADMIN_EMAIL)return false; // exclude god admin
+      if(!a.brand||!a.brand.length)return true;
+      // user tanpa field brand → anggap pandaoma (user lama)
+      var userBrand=u.brand||'pandaoma';
+      return a.brand.includes(userBrand);
+    });
   var readUids=readBy.map(function(r){return r.uid;});
   var sudahHtml=readBy.map(function(r){
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">'
@@ -6850,7 +6856,15 @@ async function loadUserManagement(){
       snap=await db.collection('users').where('status','==','approved').where('brand','==',activeBrand).get();
     }
     const users=snap.docs.map(d=>Object.assign({uid:d.id},d.data()))
-      .filter(u=>u.email!==GOD_ADMIN_EMAIL)
+      .filter(u=>{
+        if(u.email===GOD_ADMIN_EMAIL)return false;
+        // Filter by brand: user tanpa brand → anggap pandaoma
+        if(!isGodAdmin()){
+          const userBrand=u.brand||'pandaoma';
+          if(userBrand!==activeBrand)return false;
+        }
+        return true;
+      })
       .sort((a,b)=>(a.name||'').localeCompare(b.name||''));
     if(!users.length){
       list.innerHTML='<div class="empty">Belum ada user di brand ini.</div>';
@@ -6858,13 +6872,14 @@ async function loadUserManagement(){
     }
     const roleLabels={'super_admin':'Super Admin','brand_admin':'Admin (Brand)','streamer':'Streamer','viewer':'Viewer',''  :'Streamer'};
     const roleColors={'super_admin':'var(--navy)','brand_admin':'var(--blue)','streamer':'var(--green)','viewer':'var(--text3)','':'var(--green)'};
-    list.innerHTML='<table style="width:100%;border-collapse:collapse;">'
-      +'<thead><tr style="border-bottom:2px solid var(--border);">'
-      +'<th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Nama</th>'
-      +'<th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Email</th>'
-      +'<th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Brand</th>'
-      +'<th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Role</th>'
-      +'<th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Aksi</th>'
+    list.innerHTML='<div style="overflow-x:auto;max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);">'
+      +'<table style="width:100%;border-collapse:collapse;min-width:560px;">'
+      +'<thead><tr style="background:var(--surface);position:sticky;top:0;z-index:1;">'
+      +'<th style="text-align:left;padding:9px 12px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;border-bottom:2px solid var(--border);">Nama</th>'
+      +'<th style="text-align:left;padding:9px 12px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;border-bottom:2px solid var(--border);">Email</th>'
+      +'<th style="text-align:left;padding:9px 12px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;border-bottom:2px solid var(--border);">Brand</th>'
+      +'<th style="text-align:left;padding:9px 12px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;border-bottom:2px solid var(--border);">Role</th>'
+      +'<th style="text-align:center;padding:9px 12px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;border-bottom:2px solid var(--border);">Aksi</th>'
       +'</tr></thead>'
       +'<tbody id="user-mgmt-tbody">'
       +users.map(u=>{
@@ -6880,17 +6895,17 @@ async function loadUserManagement(){
         allRoles.forEach(r=>{
           opts+=`<option value="${r}"${r===role?' selected':''}>${roleLabels[r]}</option>`;
         });
-        return `<tr style="border-bottom:1px solid var(--border);" id="umrow-${u.uid}">
-          <td style="padding:10px;font-size:13px;font-weight:600;">${u.name||'—'}</td>
-          <td style="padding:10px;font-size:12px;color:var(--text2);">${u.email}</td>
-          <td style="padding:10px;"><span style="font-size:11px;background:var(--blue-lt);color:var(--blue);padding:2px 7px;border-radius:10px;font-weight:700;">${brandLabel}</span></td>
-          <td style="padding:10px;"><span style="font-size:12px;font-weight:700;color:${roleColor};">${roleLabel}</span></td>
-          <td style="padding:10px;text-align:center;">
-            <button onclick="openEditUserRole('${u.uid}','${u.name||''}','${role}')" style="font-size:11px;padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit Role</button>
+        return `<tr style="border-bottom:1px solid var(--border);transition:.1s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background=''" id="umrow-${u.uid}">
+          <td style="padding:10px 12px;font-size:13px;font-weight:600;white-space:nowrap;">${u.name||'—'}</td>
+          <td style="padding:10px 12px;font-size:12px;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u.email}</td>
+          <td style="padding:10px 12px;white-space:nowrap;"><span style="font-size:11px;background:var(--blue-lt);color:var(--blue);padding:2px 8px;border-radius:10px;font-weight:700;">${brandLabel}</span></td>
+          <td style="padding:10px 12px;white-space:nowrap;"><span style="font-size:12px;font-weight:700;color:${roleColor};">${roleLabel}</span></td>
+          <td style="padding:10px 12px;text-align:center;white-space:nowrap;">
+            <button onclick="openEditUserRole('${u.uid}','${u.name||''}','${role}')" style="font-size:11px;padding:4px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--blue);cursor:pointer;font-family:var(--font);font-weight:600;">✏ Edit Role</button>
           </td>
         </tr>`;
       }).join('')
-      +'</tbody></table>';
+      +'</tbody></table></div>';
   }catch(e){
     list.innerHTML='<div class="empty">Gagal memuat: '+e.message+'</div>';
   }
