@@ -1231,7 +1231,7 @@ margin-bottom: 4px;
 <div class="fc" id="add-streamer-form"><div class="fct">Tambah Streamer Baru</div>
 <div class="fg" style="grid-template-columns:1fr 1fr;gap:12px">
 <div class="fgi"><label class="fl">Nama Lengkap</label><input class="fi" id="ns-name" type="text" placeholder="cth. Rora"/></div>
-<div class="fgi"><label class="fl">Role</label><input class="fi" id="ns-role" type="text" placeholder="cth. Host Utama"/></div>
+<div class="fgi"><label class="fl">Role</label><select class="fi" id="ns-role" style="cursor:pointer;"><option value="Streamer">Streamer</option></select></div>
 <div class="fgi"><label class="fl">NIK</label><input class="fi" id="ns-nik" type="text" placeholder="cth. SM-23-029"/></div>
 <div class="fgi"><label class="fl">Email Login Streamer<span class="req-star">*</span></label><input class="fi" id="ns-email" type="email" placeholder="rora@pandaoma.com"/></div>
 </div>
@@ -4121,7 +4121,27 @@ function startIncentiveListener(){
   });
 }
 
-// Jalankan sekali saja untuk migrate data incentive lama yang belum ada field brand
+// ── Migrate users tanpa field brand → pandaoma ──
+async function migrateUserBrand(){
+  if(!isGodAdmin())return;
+  try{
+    var snap=await db.collection('users').get();
+    var batch=db.batch();var count=0;
+    snap.docs.forEach(function(doc){
+      var d=doc.data();
+      if(!d.brand&&d.status==='approved'&&d.email!==GOD_ADMIN_EMAIL){
+        batch.update(doc.ref,{brand:'pandaoma'});
+        count++;
+      }
+    });
+    if(count>0){
+      await batch.commit();
+      console.log('Migrated '+count+' users → brand: pandaoma');
+    }
+  }catch(e){console.error('Migrate user brand error:',e);}
+}
+
+// ── Migrate incentive tanpa field brand → pandaoma ──
 async function migrateIncentiveBrand(){
   if(!isGodAdmin())return;
   try{
@@ -5400,6 +5420,8 @@ function startAllListeners(){
   // Reset semua array supaya data brand lama tidak tercampur
   allSessions=[];allStreamers=[];allIncentives=[];
   refreshAll();
+  // Reload settings per brand
+  loadSettings();
   startListeners();
   startIncentiveListener();
   startSKUListeners();
@@ -5407,11 +5429,12 @@ function startAllListeners(){
   startTargetListener();
   startAnnouncementListener();
   // Migrate data lama — hanya sekali per browser (cek localStorage flag)
-  if(isGodAdmin()&&!localStorage.getItem('incentive_migrated_v1')){
+  if(isGodAdmin()){
     setTimeout(function(){
-      migrateIncentiveBrand().then(function(){
-        localStorage.setItem('incentive_migrated_v1','1');
-      });
+      // Migrate incentive tanpa brand field → pandaoma (jalankan tiap session God Admin, aman karena cek !brand)
+      migrateIncentiveBrand();
+      // Migrate users tanpa brand field → pandaoma
+      migrateUserBrand();
     },3000);
   }
 }
