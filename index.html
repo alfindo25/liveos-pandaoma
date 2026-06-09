@@ -2100,6 +2100,11 @@ function toggleGuideCard(hdr){
 <div class="stitle">Approve User Baru</div>
 <div id="pending-users-list"><div style="font-size:13px;color:var(--text3);padding:8px 0;">Memuat...</div></div>
 </div>
+<div class="sc2" id="user-management-section" style="display:none;">
+<div class="stitle">&#128101; Manajemen User</div>
+<div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Semua akun yang sudah approved di brand ini. Klik Edit untuk ubah role.</div>
+<div id="user-management-list"><div style="font-size:13px;color:var(--text3);padding:8px 0;">Memuat...</div></div>
+</div>
 <div class="sc2" id="backup-section" style="display:none;">
   <div class="stitle">🛡️ Backup Data</div>
   <div class="sr"><div><div class="sk">Export semua data ke Excel</div><div class="sdesc">Download backup lengkap semua collection — simpan di tempat aman</div></div></div>
@@ -2673,7 +2678,7 @@ function goPage(p){
   if(skuW)skuW.style.display=p==='dashboard'?'block':'none';
   const skuDW=document.getElementById('sku-detail-widget');
   if(skuDW)skuDW.style.display=p==='dashboard'?'block':'none';
-  if(p==='setting'){loadGroqKey();if(canAdmin())loadPendingUsers();}
+  if(p==='setting'){loadGroqKey();if(canAdmin())loadPendingUsers();if(isGodAdmin()||isSuperAdmin())loadUserManagement();}
   if(p==='streamers'){
     renderStreamerList();
     const addForm=document.getElementById('add-streamer-form');
@@ -5400,6 +5405,7 @@ function startAllListeners(){
   startSKUListeners();
   startJadwalListeners();
   startTargetListener();
+  startAnnouncementListener();
   // Migrate data lama — hanya sekali per browser (cek localStorage flag)
   if(isGodAdmin()&&!localStorage.getItem('incentive_migrated_v1')){
     setTimeout(function(){
@@ -5686,6 +5692,9 @@ function applyMenuAccess(){
   // Approve section: hanya God Admin & Super Admin
   const approveSection=document.getElementById('approve-users-section');
   if(approveSection)approveSection.style.display=(isGA||isSuperAdmin())?'block':'none';
+  // User Management: God Admin & Super Admin
+  const userMgmtSection=document.getElementById('user-management-section');
+  if(userMgmtSection)userMgmtSection.style.display=(isGA||isSuperAdmin())?'block':'none';
 
   // Backup & migration: God Admin only
   const backupSection=document.getElementById('backup-section');
@@ -6824,6 +6833,98 @@ async function savePengumuman(editId){
     var modal=document.getElementById('modal-buat-ann');
     if(modal)modal.remove();
     showToast('\u2713 Pengumuman '+(editId?'diperbarui':'dibuat')+'!');
+  }catch(e){showToast('Gagal: '+e.message,true);}
+}
+
+
+// ── USER MANAGEMENT ──
+async function loadUserManagement(){
+  const list=document.getElementById('user-management-list');
+  if(!list)return;
+  list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:8px 0;">Memuat...</div>';
+  try{
+    let snap;
+    if(isGodAdmin()){
+      snap=await db.collection('users').where('status','==','approved').get();
+    } else {
+      snap=await db.collection('users').where('status','==','approved').where('brand','==',activeBrand).get();
+    }
+    const users=snap.docs.map(d=>Object.assign({uid:d.id},d.data()))
+      .filter(u=>u.email!==GOD_ADMIN_EMAIL)
+      .sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    if(!users.length){
+      list.innerHTML='<div class="empty">Belum ada user di brand ini.</div>';
+      return;
+    }
+    const roleLabels={'super_admin':'Super Admin','brand_admin':'Admin (Brand)','streamer':'Streamer','viewer':'Viewer',''  :'Streamer'};
+    const roleColors={'super_admin':'var(--navy)','brand_admin':'var(--blue)','streamer':'var(--green)','viewer':'var(--text3)','':'var(--green)'};
+    list.innerHTML='<table style="width:100%;border-collapse:collapse;">'
+      +'<thead><tr style="border-bottom:2px solid var(--border);">'
+      +'<th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Nama</th>'
+      +'<th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Email</th>'
+      +'<th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Brand</th>'
+      +'<th style="text-align:left;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Role</th>'
+      +'<th style="text-align:center;padding:8px 10px;font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;">Aksi</th>'
+      +'</tr></thead>'
+      +'<tbody id="user-mgmt-tbody">'
+      +users.map(u=>{
+        const role=u.role||'streamer';
+        const brandLabel=u.brand==='nvmee'?'NVMEE':u.brand==='all'?'Semua':'Pandaoma';
+        const roleLabel=roleLabels[role]||role;
+        const roleColor=roleColors[role]||'var(--text2)';
+        // Role options berdasarkan approver
+        let opts='';
+        const allRoles=isGodAdmin()
+          ?['super_admin','brand_admin','streamer','viewer']
+          :['brand_admin','streamer','viewer'];
+        allRoles.forEach(r=>{
+          opts+=`<option value="${r}"${r===role?' selected':''}>${roleLabels[r]}</option>`;
+        });
+        return `<tr style="border-bottom:1px solid var(--border);" id="umrow-${u.uid}">
+          <td style="padding:10px;font-size:13px;font-weight:600;">${u.name||'—'}</td>
+          <td style="padding:10px;font-size:12px;color:var(--text2);">${u.email}</td>
+          <td style="padding:10px;"><span style="font-size:11px;background:var(--blue-lt);color:var(--blue);padding:2px 7px;border-radius:10px;font-weight:700;">${brandLabel}</span></td>
+          <td style="padding:10px;"><span style="font-size:12px;font-weight:700;color:${roleColor};">${roleLabel}</span></td>
+          <td style="padding:10px;text-align:center;">
+            <button onclick="openEditUserRole('${u.uid}','${u.name||''}','${role}')" style="font-size:11px;padding:3px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit Role</button>
+          </td>
+        </tr>`;
+      }).join('')
+      +'</tbody></table>';
+  }catch(e){
+    list.innerHTML='<div class="empty">Gagal memuat: '+e.message+'</div>';
+  }
+}
+
+function openEditUserRole(uid,name,currentRole){
+  if(!isGodAdmin()&&!isSuperAdmin()){showToast('Tidak ada akses',true);return;}
+  const roleLabels={'super_admin':'Super Admin (Brand)','brand_admin':'Admin (Brand)','streamer':'Streamer','viewer':'Viewer'};
+  const allRoles=isGodAdmin()?['super_admin','brand_admin','streamer','viewer']:['brand_admin','streamer','viewer'];
+  const opts=allRoles.map(r=>`<option value="${r}"${r===currentRole?' selected':''}>${roleLabels[r]}</option>`).join('');
+  const div=document.createElement('div');
+  div.id='modal-edit-user-role';
+  div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;';
+  div.innerHTML=`<div style="background:#fff;border-radius:var(--radius);padding:24px;width:340px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+    <div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:16px;">Edit Role — ${name}</div>
+    <div class="fgi"><label class="fl">Role Baru</label>
+    <select class="fi" id="edit-user-role-select" style="cursor:pointer;">${opts}</select></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button onclick="document.getElementById('modal-edit-user-role').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>
+      <button onclick="saveUserRole('${uid}')" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128190; Simpan</button>
+    </div>
+  </div>`;
+  const existing=document.getElementById('modal-edit-user-role');
+  if(existing)existing.remove();
+  document.body.appendChild(div);
+}
+
+async function saveUserRole(uid){
+  const newRole=document.getElementById('edit-user-role-select').value;
+  try{
+    await db.collection('users').doc(uid).update({role:newRole,updatedBy:currentUser.email,updatedAt:new Date().toISOString()});
+    document.getElementById('modal-edit-user-role').remove();
+    showToast('&#10003; Role berhasil diupdate!');
+    loadUserManagement();
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
