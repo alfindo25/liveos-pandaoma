@@ -2375,6 +2375,9 @@ var allUserBrands=['pandaoma'];
 var currentRole='viewer'; // 'god_admin' | 'brand_admin' | 'streamer' | 'viewer'
 var currentUserBrand=''; // brand dari user (untuk brand_admin & streamer & viewer)
 var GOD_ADMIN_EMAIL='alfindo.ixa.2537@gmail.com';
+// Unsubscribe functions untuk semua Firestore listeners
+var _unsub={sessions:null,streamers:null,incentives:null,skuReports:null,masterSku:null,schedules:null,targets:null};
+function unsubAll(){Object.keys(_unsub).forEach(function(k){if(_unsub[k]){_unsub[k]();_unsub[k]=null;}});}
 
 function isGodAdmin(){return currentUser&&currentUser.email===GOD_ADMIN_EMAIL;}
 function isBrandAdmin(){return currentRole==='brand_admin';}
@@ -2533,15 +2536,17 @@ auth.onAuthStateChanged(async(user)=>{
 });
 
 function startListeners(){
+  if(_unsub.sessions){_unsub.sessions();_unsub.sessions=null;}
+  if(_unsub.streamers){_unsub.streamers();_unsub.streamers=null;}
   setSyncStatus('syncing','Menghubungkan ke Firebase...');
-  db.collection('sessions').where('brand','==',activeBrand).orderBy('createdAt','desc').onSnapshot(snap=>{
+  _unsub.sessions=db.collection('sessions').where('brand','==',activeBrand).orderBy('createdAt','desc').onSnapshot(snap=>{
     allSessions=snap.docs.map(d=>({id:d.id,...d.data()}));
     refreshAll();
     setSyncStatus('ok','Terhubung · '+allSessions.length+' sesi · Real-time');
     renderDetailTable();
     document.getElementById('set-total').textContent=allSessions.length+' sesi';
   },err=>setSyncStatus('error','Error: '+err.message));
-  db.collection('streamers').where('brand','==',activeBrand).orderBy('name').onSnapshot(snap=>{
+  _unsub.streamers=db.collection('streamers').where('brand','==',activeBrand).orderBy('name').onSnapshot(snap=>{
     allStreamers=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderStreamerList();renderStreamerDropdown('');
     document.getElementById('streamer-count').textContent=allStreamers.length+' orang';
@@ -4096,8 +4101,8 @@ function incYearNav(dir){
 
 // Listen realtime
 function startIncentiveListener(){
-  // Query dengan brand filter - data lama tanpa field brand perlu di-migrate
-  db.collection('incentives').where('brand','==',activeBrand).orderBy('tahun','desc').onSnapshot(snap=>{
+  if(_unsub.incentives){_unsub.incentives();_unsub.incentives=null;}
+  _unsub.incentives=db.collection('incentives').where('brand','==',activeBrand).orderBy('tahun','desc').onSnapshot(snap=>{
     allIncentives = snap.docs.map(d=>({id:d.id,...d.data()}));
     if(document.getElementById('page-incentive').classList.contains('active'))renderIncentive();
   });
@@ -4319,12 +4324,14 @@ var skuMP='Shopee';
 var skuRowCount=0;
 
 function startSKUListeners(){
-  db.collection('sku_reports').where('brand','==',activeBrand).orderBy('createdAt','desc').onSnapshot(function(snap){
+  if(_unsub.skuReports){_unsub.skuReports();_unsub.skuReports=null;}
+  if(_unsub.masterSku){_unsub.masterSku();_unsub.masterSku=null;}
+  _unsub.skuReports=db.collection('sku_reports').where('brand','==',activeBrand).orderBy('createdAt','desc').onSnapshot(function(snap){
     allSKUReports=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     if(document.getElementById('page-sku-history').classList.contains('active'))renderSKUHistory();
     refreshSKUWidget();
   });
-  db.collection('master_sku').where('brand','==',activeBrand).orderBy('name').onSnapshot(function(snap){
+  _unsub.masterSku=db.collection('master_sku').where('brand','==',activeBrand).orderBy('name').onSnapshot(function(snap){
     allMasterSKU=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     renderMasterSKUList();
     if(document.getElementById('page-master-sku').classList.contains('active'))renderMasterSKUPage();
@@ -4896,7 +4903,8 @@ var jadwalMonth = new Date().getMonth();
 var allSlotJam = [];
 
 function startJadwalListeners(){
-  db.collection('schedules').where('brand','==',activeBrand).orderBy('date','asc').onSnapshot(function(snap){
+  if(_unsub.schedules){_unsub.schedules();_unsub.schedules=null;}
+  _unsub.schedules=db.collection('schedules').where('brand','==',activeBrand).orderBy('date','asc').onSnapshot(function(snap){
     allSchedules = snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     jadwalMassMode=false;jadwalSelected.clear();
     if(document.getElementById('page-jadwal').classList.contains('active')){
@@ -5299,7 +5307,9 @@ function exportJadwalTemplate(){
 
 // ═══ BRAND SYSTEM ═══
 function startAllListeners(){
-  // Reset semua array dulu supaya data brand lama tidak tercampur
+  // Unsubscribe semua listener lama dulu — cegah listener menumpuk
+  unsubAll();
+  // Reset semua array supaya data brand lama tidak tercampur
   allSessions=[];allStreamers=[];allIncentives=[];
   refreshAll();
   startListeners();
@@ -5307,8 +5317,14 @@ function startAllListeners(){
   startSKUListeners();
   startJadwalListeners();
   startTargetListener();
-  // Auto-migrate data lama tanpa field brand (hanya God Admin, hanya sekali)
-  setTimeout(migrateIncentiveBrand, 2000);
+  // Migrate data lama — hanya sekali per browser (cek localStorage flag)
+  if(isGodAdmin()&&!localStorage.getItem('incentive_migrated_v1')){
+    setTimeout(function(){
+      migrateIncentiveBrand().then(function(){
+        localStorage.setItem('incentive_migrated_v1','1');
+      });
+    },3000);
+  }
 }
 
 function initBrandSwitcher(){
@@ -5820,7 +5836,8 @@ var allTargets=[];
 var targetMonthSelected=[];
 
 function startTargetListener(){
-  db.collection('targets').where('brand','==',activeBrand).onSnapshot(function(snap){
+  if(_unsub.targets){_unsub.targets();_unsub.targets=null;}
+  _unsub.targets=db.collection('targets').where('brand','==',activeBrand).onSnapshot(function(snap){
     allTargets=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     renderDashboardTargetWidget();
     if(document.getElementById('page-target')&&document.getElementById('page-target').classList.contains('active')){
