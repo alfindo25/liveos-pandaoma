@@ -5665,7 +5665,7 @@ function switchBrand(brand){
 function applyMenuAccess(){
   const role=currentRole;
   const isGA=role==='god_admin';
-  const isBA=role==='brand_admin';
+  const isBA=role==='brand_admin'||role==='super_admin'; // super_admin = brand admin penuh
   const isST=role==='streamer';
   const isVW=role==='viewer';
 
