@@ -2290,7 +2290,8 @@ function toggleGuideCard(hdr){
         <select class="fi" id="es-role" style="cursor:pointer;">
           <option value="streamer">Streamer</option>
           <option value="viewer">Viewer</option>
-          <option value="brand_admin" id="es-role-ba" style="display:none;">Admin (Brand)</option>
+          <option value="brand_admin" id="es-role-ba-streamer" style="display:none;">Admin (Brand)</option>
+          <option value="super_admin" id="es-role-ba" style="display:none;">Super Admin (Brand)</option>
         </select>
         <div style="font-size:11px;color:var(--text3);margin-top:3px;">Role ini menentukan akses menu di LiveOS</div>
       </div>
@@ -2383,11 +2384,13 @@ var _unsub={sessions:null,streamers:null,incentives:null,skuReports:null,masterS
 function unsubAll(){Object.keys(_unsub).forEach(function(k){if(_unsub[k]){_unsub[k]();_unsub[k]=null;}});}
 
 function isGodAdmin(){return currentUser&&currentUser.email===GOD_ADMIN_EMAIL;}
-function isBrandAdmin(){return currentRole==='brand_admin';}
+function isSuperAdmin(){return currentRole==='super_admin';}
+function isBrandAdmin(){return currentRole==='brand_admin'||currentRole==='super_admin';}  // super_admin inherit semua akses brand_admin
 function isStreamer(){return currentRole==='streamer';}
 function isViewer(){return currentRole==='viewer';}
-function canEdit(){return currentRole==='god_admin'||currentRole==='brand_admin'||currentRole==='streamer';}
-function canAdmin(){return currentRole==='god_admin'||currentRole==='brand_admin';}
+function canEdit(){return currentRole==='god_admin'||currentRole==='super_admin'||currentRole==='brand_admin'||currentRole==='streamer';}
+function canAdmin(){return currentRole==='god_admin'||currentRole==='super_admin'||currentRole==='brand_admin';}
+function canSuperAdmin(){return currentRole==='god_admin'||currentRole==='super_admin';} // approve user, incentive, dll
 var BRAND_CONFIG={
   pandaoma:{
     name:'Pandaoma',
@@ -2726,8 +2729,8 @@ async function saveEditStreamer(){
   if(!id){showToast('Error: ID tidak ditemukan.',true);return;}
   if(!name){showToast('Nama wajib diisi!',true);return;}
   // Validate: Brand Admin cannot assign brand_admin
-  if(role==='brand_admin'&&!isGodAdmin()){showToast('Hanya God Admin yang bisa assign role Admin.',true);return;}
-  const roleLabels={'brand_admin':'Admin (Brand)','streamer':'Streamer','viewer':'Viewer'};
+  if((role==='super_admin'||role==='brand_admin')&&!isGodAdmin()&&!isSuperAdmin()){showToast('Tidak ada akses untuk assign role ini.',true);return;}
+  const roleLabels={'super_admin':'Super Admin (Brand)','brand_admin':'Admin (Brand)','streamer':'Streamer','viewer':'Viewer'};
   try{
     await db.collection('streamers').doc(id).update({
       name,
@@ -3459,7 +3462,7 @@ async function submitForm(){
 
 async function loadSettings(){
   try{
-    const snap=await db.collection('settings').doc('brand').get();
+    const snap=await db.collection('settings').doc('brand-'+activeBrand).get();
     if(snap.exists){const s=snap.data();document.getElementById('s-brand').value=s.brand||'Pandaoma';document.getElementById('s-cat').value=s.category||'';}
   }catch(e){}
 }
@@ -3467,26 +3470,26 @@ function saveGroqKey(){
   const key = document.getElementById('groq-key')?.value?.trim();
   if(!key){showToast('Masukkan Groq API key dulu!',true);return;}
   if(!key.startsWith('gsk_')){showToast('Format key salah — harus diawali gsk_',true);return;}
-  localStorage.setItem('liveos_groq_key', key);
+  localStorage.setItem('liveos_groq_key_'+activeBrand, key);
   updateGroqStatus();
   showToast('✅ Groq API key tersimpan!');
 }
 
 function loadGroqKey(){
-  const k=localStorage.getItem('liveos_groq_key')||'';
+  const k=localStorage.getItem('liveos_groq_key_'+activeBrand)||localStorage.getItem('liveos_groq_key')||'';
   const el=document.getElementById('groq-key');
   if(el)el.value=k;
 }
 function saveGroqKey(){
   const k=document.getElementById('groq-key')?.value?.trim();
   if(!k){showToast('API key tidak boleh kosong!',true);return;}
-  localStorage.setItem('liveos_groq_key',k);
+  localStorage.setItem('liveos_groq_key_'+activeBrand,k);
   showToast('Groq API Key tersimpan!');
 }
 
 
 function updateGroqStatus(){
-  const key = document.getElementById('groq-key')?.value?.trim() || localStorage.getItem('liveos_groq_key')||'';
+  const key = document.getElementById('groq-key')?.value?.trim() || localStorage.getItem('liveos_groq_key_'+activeBrand)||localStorage.getItem('liveos_groq_key')||'';
   const el = document.getElementById('groq-status');
   if(!el)return;
   if(key && key.startsWith('gsk_')){
@@ -3519,7 +3522,7 @@ function clearChatHistory(){
 }
 async function saveSetting(){
   try{
-    await db.collection('settings').doc('brand').set({brand:document.getElementById('s-brand').value.trim()||'Pandaoma',category:document.getElementById('s-cat').value.trim()});
+    await db.collection('settings').doc('brand-'+activeBrand).set({brand:document.getElementById('s-brand').value.trim()||'Pandaoma',category:document.getElementById('s-cat').value.trim()});
     showToast('Setting disimpan!');
   }catch(e){showToast('Gagal.',true);}
 }
@@ -3599,7 +3602,7 @@ INSTRUKSI: Tampilkan TOTAL GMV periode (bukan per hari kecuali diminta). Dari ca
     const recentMsgs=chatHistory.slice(-4).filter(m=>m.content&&m.content.trim()).map(m=>({role:m.role==='ai'?'assistant':'user',content:m.content}));
     const groqMessages=[{role:'system',content:sysP},...recentMsgs];
 
-    const groqKey=localStorage.getItem('liveos_groq_key')||'';
+    const groqKey=localStorage.getItem('liveos_groq_key_'+activeBrand)||localStorage.getItem('liveos_groq_key')||'';
     if(!groqKey){
       te.remove();
       addMsg('ai','Groq API key belum diisi. Buka Setting dan isi dulu ya!');
@@ -4012,9 +4015,10 @@ async function loadPendingUsers(){
     }
     // Tentukan opsi role berdasarkan role approver
     const roleOptions=isGodAdmin()
-      ?['brand_admin','streamer','viewer']
-      :['streamer','viewer']; // Brand Admin tidak bisa assign brand_admin ke atas
-    const roleLabels={'brand_admin':'Admin (Brand)','streamer':'Streamer','viewer':'Viewer'};
+      ?['super_admin','brand_admin','streamer','viewer']
+      :isSuperAdmin()?['brand_admin','streamer','viewer']
+      :['streamer','viewer'];
+    const roleLabels={'super_admin':'Super Admin (Brand)','brand_admin':'Admin (Brand)','streamer':'Streamer','viewer':'Viewer'};
     list.innerHTML=snap.docs.map(d=>{
       const u=d.data();
       const brandLabel=u.brand==='nvmee'?'NVMEE':'Pandaoma';
@@ -4074,7 +4078,7 @@ async function approveUser(uid,name,role){
         await db.collection('user_brands').doc(ubDoc.id).update({brands:firebase.firestore.FieldValue.arrayUnion(brand)});
       }
     }
-    const roleLabels={'brand_admin':'Admin (Brand)','streamer':'Streamer','viewer':'Viewer'};
+    const roleLabels={'super_admin':'Super Admin (Brand)','brand_admin':'Admin (Brand)','streamer':'Streamer','viewer':'Viewer'};
     showToast(name+' di-approve sebagai '+roleLabels[role]+'!');
     loadPendingUsers();
   }catch(e){showToast('Gagal approve: '+e.message,true);}
@@ -5670,17 +5674,18 @@ function applyMenuAccess(){
   const niInput=document.querySelector('[data-page="inputdata"]');
   if(niInput)niInput.style.display=isVW?'none':'flex';
 
-  // Incentive: hidden for Viewer
+  // Incentive: hanya God Admin, Super Admin, Streamer (bukan brand_admin biasa & viewer)
   const niInc=document.querySelector('[data-page="incentive"]');
-  if(niInc)niInc.style.display=isVW?'none':'flex';
+  const canSeeIncentive=(isGA||isSuperAdmin()||isST);
+  if(niInc)niInc.style.display=canSeeIncentive?'flex':'none';
 
   // Input Jadwal: hidden for Viewer
   const niIJ=document.querySelector('[data-page="input-jadwal"]');
   if(niIJ)niIJ.style.display=isVW?'none':'flex';
 
-  // Approve section in Setting
+  // Approve section: hanya God Admin & Super Admin
   const approveSection=document.getElementById('approve-users-section');
-  if(approveSection)approveSection.style.display=(isGA||isBA)?'block':'none';
+  if(approveSection)approveSection.style.display=(isGA||isSuperAdmin())?'block':'none';
 
   // Backup & migration: God Admin only
   const backupSection=document.getElementById('backup-section');
@@ -6574,19 +6579,19 @@ function updateAnnouncementBadge(){
   if(badge){badge.textContent=active.length;badge.style.display=active.length>0?'inline':'none';}
 }
 
-// ── Popup notif untuk Streamer/Viewer ──
+// ── Popup notif ──
 var _annPopupIdx=0;
 var _annToShow=[];
+
 function checkAnnouncementPopup(){
   if(!currentUser)return;
   var uid=currentUser.uid;
-  // Cari pengumuman aktif yang belum dibaca user ini
   _annToShow=getActiveAnnouncements().filter(function(a){
     var readBy=a.readBy||[];
     return !readBy.some(function(r){return r.uid===uid;});
   });
   if(!_annToShow.length)return;
-  if(document.getElementById('modal-ann-popup'))return; // sudah ada
+  if(document.getElementById('modal-ann-popup'))return;
   _annPopupIdx=0;
   showAnnouncementPopup();
 }
@@ -6597,29 +6602,32 @@ function showAnnouncementPopup(){
   if(!_annToShow.length)return;
   var a=_annToShow[_annPopupIdx];
   var total=_annToShow.length;
-  var isLast=_annPopupIdx===total-1;
-  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;" id="modal-ann-popup">'
-    +'<div style="background:#fff;border-radius:var(--radius);padding:28px;width:480px;max-width:92vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.25);">'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
-    +'<div style="display:flex;align-items:center;gap:8px;">'
-    +'<span style="font-size:18px;">&#128276;</span>'
+  var isLast=(_annPopupIdx===total-1);
+  var counter=total>1?'<span style="font-size:11px;color:var(--text3);background:var(--border);border-radius:10px;padding:1px 8px;">'+(_annPopupIdx+1)+' / '+total+'</span>':'';
+  var prevBtn=_annPopupIdx>0?'<button onclick="annPopupNav(-1)" style="padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);font-size:13px;">\u2190 Prev</button>':'';
+  var nextBtn=(total>1&&!isLast)?'<button onclick="annPopupNav(1)" style="padding:7px 14px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;">Next \u2192</button>':'';
+  var readBtn=isLast?'<button onclick="markAnnouncementRead(\''+a.id+'\')" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--green);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;">\u2713 Sudah Baca</button>':'';
+  var bodyHtml=a.body?'<div style="font-size:13px;color:var(--text);margin-bottom:8px;line-height:1.6;">'+a.body+'</div>':'';
+  var detailHtml=a.detail?'<div style="font-size:12px;color:var(--text2);background:var(--surface);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;line-height:1.6;max-height:120px;overflow-y:auto;">'+a.detail+'</div>':'';
+  var dateStr=new Date(a.createdAt).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  var div=document.createElement('div');
+  div.id='modal-ann-popup';
+  div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;';
+  div.innerHTML='<div style="background:#fff;border-radius:var(--radius);padding:28px;width:480px;max-width:92vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.25);">'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">'
+    +'<span style="font-size:18px;">\uD83D\uDD14</span>'
     +'<span style="font-size:12px;font-weight:700;color:var(--text3);">PENGUMUMAN</span>'
-    +(total>1?'<span style="font-size:11px;color:var(--text3);background:var(--border);border-radius:10px;padding:1px 8px;">'+(_annPopupIdx+1)+' / '+total+'</span>':'')
-    +'</div>'
+    +counter
     +'</div>'
     +'<div style="font-size:17px;font-weight:800;color:var(--navy);margin-bottom:10px;">'+a.title+'</div>'
-    +(a.body?'<div style="font-size:13px;color:var(--text);margin-bottom:8px;line-height:1.6;">'+a.body+'</div>':'')
-    +(a.detail?'<div style="font-size:12px;color:var(--text2);background:var(--surface);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;line-height:1.6;max-height:120px;overflow-y:auto;">'+a.detail+'</div>':'')
-    +'<div style="font-size:11px;color:var(--text3);margin-bottom:16px;padding-top:8px;border-top:1px solid var(--border);">Oleh: '+(a.createdByName||a.createdBy||'Admin')+' &middot; '+new Date(a.createdAt).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})+'</div>'
+    +bodyHtml+detailHtml
+    +'<div style="font-size:11px;color:var(--text3);margin-bottom:16px;padding-top:8px;border-top:1px solid var(--border);">Oleh: '+(a.createdByName||a.createdBy||'Admin')+' &middot; '+dateStr+'</div>'
     +'<div style="display:flex;gap:8px;justify-content:space-between;align-items:center;">'
-    +'<div style="display:flex;gap:6px;">'
-    +(_annPopupIdx>0?'<button onclick="annPopupNav(-1)" style="padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);font-size:13px;">&#8592; Prev</button>':'')
-    +(total>1&&!isLast?'<button onclick="annPopupNav(1)" style="padding:7px 14px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;">Next &#8594;</button>':'')
+    +'<div style="display:flex;gap:6px;">'+prevBtn+nextBtn+'</div>'
+    +readBtn
     +'</div>'
-    +(isLast?'<button onclick="markAnnouncementRead(\''+a.id+'\')" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--green);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;">&#10003; Sudah Baca</button>':'')
-    +'</div>'
-    +'</div></div>';
-  document.body.insertAdjacentHTML('beforeend',html);
+    +'</div>';
+  document.body.appendChild(div);
 }
 
 function annPopupNav(dir){
@@ -6640,13 +6648,12 @@ async function markAnnouncementRead(annId){
     });
     var popup=document.getElementById('modal-ann-popup');
     if(popup)popup.remove();
-    // Cek apakah masih ada yang belum dibaca
     _annToShow=_annToShow.filter(function(a){return a.id!==annId;});
     if(_annToShow.length){_annPopupIdx=0;showAnnouncementPopup();}
   }catch(e){showToast('Gagal tandai: '+e.message,true);}
 }
 
-// ── Load Announcements (halaman admin) ──
+// ── Load halaman Pengumuman (admin) ──
 function loadAnnouncements(){
   var now=new Date();
   var forBrand=allAnnouncements.filter(function(a){
@@ -6661,86 +6668,79 @@ function loadAnnouncements(){
     var end=a.endAt?new Date(a.endAt):null;
     return end&&now>end;
   });
-  document.getElementById('ann-active-badge').textContent=active.length;
-  document.getElementById('ann-history-badge').textContent=history.length;
   var activeEl=document.getElementById('ann-active-list');
   var histEl=document.getElementById('ann-history-list');
+  document.getElementById('ann-active-badge').textContent=active.length;
+  document.getElementById('ann-history-badge').textContent=history.length;
   activeEl.innerHTML=active.length?active.map(renderAnnCard).join(''):'<div class="empty">Tidak ada pengumuman aktif.</div>';
   histEl.innerHTML=history.length?history.map(renderAnnCard).join(''):'<div class="empty">Belum ada history.</div>';
-  // Event listeners
-  activeEl.querySelectorAll('.ann-detail-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){openAnnDetail(this.dataset.id);});
-  });
-  histEl.querySelectorAll('.ann-detail-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){openAnnDetail(this.dataset.id);});
-  });
-  activeEl.querySelectorAll('.ann-edit-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){openBuatPengumuman(this.dataset.id);});
-  });
+  activeEl.querySelectorAll('.ann-detail-btn').forEach(function(btn){btn.addEventListener('click',function(){openAnnDetail(this.dataset.id);});});
+  histEl.querySelectorAll('.ann-detail-btn').forEach(function(btn){btn.addEventListener('click',function(){openAnnDetail(this.dataset.id);});});
+  activeEl.querySelectorAll('.ann-edit-btn').forEach(function(btn){btn.addEventListener('click',function(){openBuatPengumuman(this.dataset.id);});});
 }
 
 function renderAnnCard(a){
   var readBy=a.readBy||[];
-  var brand=Array.isArray(a.brand)?a.brand.map(function(b){return b==='nvmee'?'NVMEE':'Pandaoma';}).join(', '):a.brand;
-  var startStr=a.startAt?new Date(a.startAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  var brandLabel=Array.isArray(a.brand)?a.brand.map(function(b){return b==='nvmee'?'NVMEE':'Pandaoma';}).join(', '):(a.brand||'');
+  var startStr=a.startAt?new Date(a.startAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
   var endStr=a.endAt?new Date(a.endAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Seharian';
+  var editBtn=canAdmin()?'<button class="ann-edit-btn" data-id="'+a.id+'" style="font-size:11px;padding:4px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">\u270F Edit</button>':'';
   return '<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">'
     +'<div style="flex:1;min-width:0;">'
     +'<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">'+a.title+'</div>'
     +(a.body?'<div style="font-size:12px;color:var(--text2);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+a.body+'</div>':'')
     +'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">'
-    +'<span style="font-size:10px;background:var(--blue-lt);color:var(--blue);padding:2px 7px;border-radius:10px;font-weight:700;">'+brand+'</span>'
-    +'<span style="font-size:11px;color:var(--text3);">'+startStr+' → '+endStr+'</span>'
-    +'<span style="font-size:11px;color:var(--green);font-weight:600;">&#10003; '+readBy.length+' sudah baca</span>'
-    +'</div>'
-    +'</div>'
+    +'<span style="font-size:10px;background:var(--blue-lt);color:var(--blue);padding:2px 7px;border-radius:10px;font-weight:700;">'+brandLabel+'</span>'
+    +'<span style="font-size:11px;color:var(--text3);">'+startStr+(endStr?' \u2192 '+endStr:'')+'</span>'
+    +'<span style="font-size:11px;color:var(--green);font-weight:600;">\u2713 '+readBy.length+' sudah baca</span>'
+    +'</div></div>'
     +'<div style="display:flex;gap:6px;flex-shrink:0;">'
-    +(canAdmin()?'<button class="ann-edit-btn" data-id="'+a.id+'" style="font-size:11px;padding:4px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit</button>':'')
+    +editBtn
     +'<button class="ann-detail-btn" data-id="'+a.id+'" style="font-size:11px;padding:4px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--blue);cursor:pointer;font-family:var(--font);">Detail</button>'
-    +'</div>'
-    +'</div>';
+    +'</div></div>';
 }
 
-// ── Detail Pengumuman: siapa sudah/belum baca ──
+// ── Detail: siapa sudah/belum baca ──
 async function openAnnDetail(annId){
   var a=allAnnouncements.find(function(x){return x.id===annId;});
   if(!a)return;
   var readBy=a.readBy||[];
-  // Ambil semua user di brand ini
   var snap=await db.collection('users').where('status','==','approved').get();
   var allUsers=snap.docs.map(function(d){return Object.assign({uid:d.id},d.data());})
     .filter(function(u){return !a.brand||a.brand.includes(u.brand)||u.email===GOD_ADMIN_EMAIL;});
   var readUids=readBy.map(function(r){return r.uid;});
-  var sudah=readBy.map(function(r){
+  var sudahHtml=readBy.map(function(r){
     return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">'
       +'<div><div style="font-size:13px;font-weight:600;">'+r.name+'</div><div style="font-size:11px;color:var(--text3);">'+r.email+'</div></div>'
       +'<div style="font-size:11px;color:var(--green);">'+new Date(r.readAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</div>'
       +'</div>';
-  }).join('');
-  var belum=allUsers.filter(function(u){return !readUids.includes(u.uid);}).map(function(u){
+  }).join('')||'<div class="empty">Belum ada yang baca.</div>';
+  var belumHtml=allUsers.filter(function(u){return !readUids.includes(u.uid);}).map(function(u){
     return '<div style="padding:6px 0;border-bottom:1px solid var(--border);">'
-      +'<div style="font-size:13px;font-weight:600;">'+u.name+'</div>'
-      +'<div style="font-size:11px;color:var(--text3);">'+u.email+'</div>'
-      +'</div>';
-  }).join('');
-  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-ann-detail">'
-    +'<div style="background:#fff;border-radius:var(--radius);padding:24px;width:500px;max-width:92vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+      +'<div style="font-size:13px;font-weight:600;">'+(u.name||'—')+'</div>'
+      +'<div style="font-size:11px;color:var(--text3);">'+u.email+'</div></div>';
+  }).join('')||'<div style="font-size:12px;color:var(--text3);">Semua sudah baca \uD83C\uDF89</div>';
+  var div=document.createElement('div');
+  div.id='modal-ann-detail';
+  div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;';
+  div.innerHTML='<div style="background:#fff;border-radius:var(--radius);padding:24px;width:500px;max-width:92vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
-    +'<div style="font-size:15px;font-weight:800;color:var(--navy);">&#128203; Detail Pengumuman</div>'
-    +'<button onclick="document.getElementById('modal-ann-detail').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);">&#10005;</button>'
+    +'<div style="font-size:15px;font-weight:800;color:var(--navy);">\uD83D\uDCCB Detail Pengumuman</div>'
+    +'<button onclick="document.getElementById(\'modal-ann-detail\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);">\u2715</button>'
     +'</div>'
     +'<div style="background:var(--surface);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">'
     +'<div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;">'+a.title+'</div>'
     +(a.body?'<div style="font-size:13px;color:var(--text);margin-bottom:6px;">'+a.body+'</div>':'')
     +(a.detail?'<div style="font-size:12px;color:var(--text2);">'+a.detail+'</div>':'')
     +'</div>'
-    +'<div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;">&#10003; Sudah Baca ('+readBy.length+')</div>'
-    +'<div style="margin-bottom:16px;">'+(sudah||'<div class="empty">Belum ada yang baca.</div>')+'</div>'
-    +'<div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px;">&#9203; Belum Baca ('+belum.length+')</div>'
-    +'<div>'+(belum||'<div style="font-size:12px;color:var(--text3);">Semua sudah baca &#127881;</div>')+'</div>'
-    +'</div></div>';
-  if(document.getElementById('modal-ann-detail'))document.getElementById('modal-ann-detail').remove();
-  document.body.insertAdjacentHTML('beforeend',html);
+    +'<div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;">\u2713 Sudah Baca ('+readBy.length+')</div>'
+    +'<div style="margin-bottom:16px;">'+sudahHtml+'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px;">\u23F3 Belum Baca ('+allUsers.filter(function(u){return !readUids.includes(u.uid);}).length+')</div>'
+    +'<div>'+belumHtml+'</div>'
+    +'</div>';
+  var existing=document.getElementById('modal-ann-detail');
+  if(existing)existing.remove();
+  document.body.appendChild(div);
 }
 
 // ── Form Buat / Edit Pengumuman ──
@@ -6748,39 +6748,43 @@ function openBuatPengumuman(editId){
   if(!canAdmin()){showToast('Tidak ada akses',true);return;}
   var a=editId?allAnnouncements.find(function(x){return x.id===editId;}):null;
   var now=new Date();
-  var defaultDate=now.toISOString().slice(0,16);
-  var defaultEnd=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59).toISOString().slice(0,16);
+  var defStart=now.toISOString().slice(0,16);
+  var defEnd=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59).toISOString().slice(0,16);
   var brandOpts='';
   if(isGodAdmin()){
+    var pdmChk=((!a||a.brand.includes('pandaoma'))?' checked':'');
+    var nvmChk=(a&&a.brand.includes('nvmee')?' checked':'');
     brandOpts='<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;margin-bottom:6px;">'
-      +'<input type="checkbox" id="ann-brand-pdm" value="pandaoma"'+((!a||a.brand.includes('pandaoma'))?' checked':'')+'> Pandaoma</label>'
+      +'<input type="checkbox" id="ann-brand-pdm" value="pandaoma"'+pdmChk+'> Pandaoma</label>'
       +'<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">'
-      +'<input type="checkbox" id="ann-brand-nvm" value="nvmee"'+(a&&a.brand.includes('nvmee')?' checked':'')+'> NVMEE</label>';
+      +'<input type="checkbox" id="ann-brand-nvm" value="nvmee"'+nvmChk+'> NVMEE</label>';
   } else {
-    brandOpts='<div style="font-size:13px;color:var(--text2);font-weight:600;">'+BRAND_CONFIG[activeBrand].name+' (otomatis)</div>'
+    brandOpts='<div style="font-size:13px;color:var(--text2);font-weight:600;">'+(BRAND_CONFIG[activeBrand]?BRAND_CONFIG[activeBrand].name:activeBrand)+' (otomatis)</div>'
       +'<input type="hidden" id="ann-brand-fixed" value="'+activeBrand+'"/>';
   }
-  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-buat-ann">'
-    +'<div style="background:#fff;border-radius:var(--radius);padding:24px;width:500px;max-width:92vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+  var div=document.createElement('div');
+  div.id='modal-buat-ann';
+  div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;';
+  div.innerHTML='<div style="background:#fff;border-radius:var(--radius);padding:24px;width:500px;max-width:92vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
-    +'<div style="font-size:15px;font-weight:800;color:var(--navy);">'+(editId?'✏️ Edit':'➕ Buat')+' Pengumuman</div>'
-    +'<button onclick="document.getElementById('modal-buat-ann').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);">&#10005;</button>'
+    +'<div style="font-size:15px;font-weight:800;color:var(--navy);">'+(editId?'\u270F\uFE0F Edit':'\u2795 Buat')+' Pengumuman</div>'
+    +'<button onclick="document.getElementById(\'modal-buat-ann\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);">\u2715</button>'
     +'</div>'
     +'<div class="fgi"><label class="fl">Judul *</label><input class="fi" id="ann-title" type="text" placeholder="Judul pengumuman" value="'+(a?a.title:'')+'"/></div>'
     +'<div class="fgi"><label class="fl">Body / Ringkasan</label><textarea class="fi" id="ann-body" rows="2" placeholder="Ringkasan singkat..." style="resize:vertical;">'+(a?a.body:'')+'</textarea></div>'
-    +'<div class="fgi"><label class="fl">Detail (opsional)</label><textarea class="fi" id="ann-detail" rows="3" placeholder="Detail lengkap pengumuman..." style="resize:vertical;">'+(a?a.detail||'':'')+'</textarea></div>'
+    +'<div class="fgi"><label class="fl">Detail (opsional)</label><textarea class="fi" id="ann-detail" rows="3" placeholder="Detail lengkap..." style="resize:vertical;">'+(a&&a.detail?a.detail:'')+'</textarea></div>'
     +'<div class="fgi"><label class="fl">Brand Target</label>'+brandOpts+'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
-    +'<div class="fgi"><label class="fl">Mulai</label><input class="fi" id="ann-start" type="datetime-local" value="'+(a?a.startAt.slice(0,16):defaultDate)+'"/></div>'
-    +'<div class="fgi"><label class="fl">Selesai</label><input class="fi" id="ann-end" type="datetime-local" value="'+(a?a.endAt.slice(0,16):defaultEnd)+'"/></div>'
+    +'<div class="fgi"><label class="fl">Mulai</label><input class="fi" id="ann-start" type="datetime-local" value="'+(a?a.startAt.slice(0,16):defStart)+'"/></div>'
+    +'<div class="fgi"><label class="fl">Selesai</label><input class="fi" id="ann-end" type="datetime-local" value="'+(a?a.endAt.slice(0,16):defEnd)+'"/></div>'
     +'</div>'
     +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">'
-    +'<button onclick="document.getElementById('modal-buat-ann').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
-    +'<button onclick="savePengumuman(''+(editId||'')+'')" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128190; Simpan</button>'
-    +'</div>'
+    +'<button onclick="document.getElementById(\'modal-buat-ann\').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
+    +'<button onclick="savePengumuman(\''+(editId||'')+'\')" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">\uD83D\uDCBE Simpan</button>'
     +'</div></div>';
-  if(document.getElementById('modal-buat-ann'))document.getElementById('modal-buat-ann').remove();
-  document.body.insertAdjacentHTML('beforeend',html);
+  var existing=document.getElementById('modal-buat-ann');
+  if(existing)existing.remove();
+  document.body.appendChild(div);
   setTimeout(function(){var el=document.getElementById('ann-title');if(el)el.focus();},100);
 }
 
@@ -6792,7 +6796,6 @@ async function savePengumuman(editId){
   var endAt=(document.getElementById('ann-end')||{}).value||'';
   if(!title.trim()){showToast('Judul wajib diisi',true);return;}
   if(!startAt){showToast('Tanggal mulai wajib diisi',true);return;}
-  // Kumpulkan brand
   var brands=[];
   if(isGodAdmin()){
     if(document.getElementById('ann-brand-pdm')&&document.getElementById('ann-brand-pdm').checked)brands.push('pandaoma');
@@ -6803,8 +6806,8 @@ async function savePengumuman(editId){
   }
   if(!brands.length){showToast('Pilih minimal 1 brand',true);return;}
   var data={
-    title:title.trim(),body:body.trim(),detail:detail.trim(),
-    brand:brands,startAt:new Date(startAt).toISOString(),
+    title:title.trim(),body:body.trim(),detail:detail.trim(),brand:brands,
+    startAt:new Date(startAt).toISOString(),
     endAt:endAt?new Date(endAt).toISOString():null,
     createdBy:currentUser?currentUser.email:'',
     createdByName:currentUser?(currentUser.displayName||currentUser.email.split('@')[0]):'',
@@ -6818,8 +6821,9 @@ async function savePengumuman(editId){
       data.readBy=[];
       await db.collection('announcements').add(data);
     }
-    document.getElementById('modal-buat-ann').remove();
-    showToast('&#10003; Pengumuman '+(editId?'diperbarui':'dibuat')+'!');
+    var modal=document.getElementById('modal-buat-ann');
+    if(modal)modal.remove();
+    showToast('\u2713 Pengumuman '+(editId?'diperbarui':'dibuat')+'!');
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
