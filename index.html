@@ -968,6 +968,7 @@ margin-bottom: 4px;
 <button class="ni" onclick="goPage('streamers')" data-page="streamers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Data Streamer</button>
       <button class="ni" onclick="goPage('master-sku')" data-page="master-sku" id="ni-master-sku" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10M7 12h10M7 17h6"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Master SKU</button>
 <div class="nsec" style="margin-top:6px">Lainnya</div>
+<button class="ni" id="ni-announcement" onclick="goPage('announcement')" data-page="announcement" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Pengumuman<span id="announcement-badge" style="display:none;background:#ef4444;color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:1px 6px;margin-left:auto;">0</span></button>
 <button class="ni" id="ni-setting" onclick="goPage('setting')" data-page="setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Setting<span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:1px 6px;margin-left:auto;">0</span></button>
 </div>
 <div class="sbot"><div class="suser">
@@ -1735,8 +1736,8 @@ function toggleGuideCard(hdr){
     </div>
     <button onclick="clearMonthFilter()" style="padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;margin-left:auto;">Reset</button>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:480px;" id="month-filter-btns">
-    <button class="chip" id="mf-1" onclick="toggleMonthFilter(1)">Jan</button><button class="chip" id="mf-2" onclick="toggleMonthFilter(2)">Feb</button><button class="chip" id="mf-3" onclick="toggleMonthFilter(3)">Mar</button><button class="chip" id="mf-4" onclick="toggleMonthFilter(4)">Apr</button><button class="chip" id="mf-5" onclick="toggleMonthFilter(5)">Mei</button><button class="chip" id="mf-6" onclick="toggleMonthFilter(6)">Jun</button><button class="chip" id="mf-7" onclick="toggleMonthFilter(7)">Jul</button><button class="chip" id="mf-8" onclick="toggleMonthFilter(8)">Agu</button><button class="chip" id="mf-9" onclick="toggleMonthFilter(9)">Sep</button><button class="chip" id="mf-10" onclick="toggleMonthFilter(10)">Okt</button><button class="chip" id="mf-11" onclick="toggleMonthFilter(11)">Nov</button><button class="chip" id="mf-12" onclick="toggleMonthFilter(12)">Des</button>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;" id="month-filter-btns">
+    <button class="chip" id="mf-1" onclick="toggleMonthFilter(1)">Januari</button><button class="chip" id="mf-2" onclick="toggleMonthFilter(2)">Februari</button><button class="chip" id="mf-3" onclick="toggleMonthFilter(3)">Maret</button><button class="chip" id="mf-4" onclick="toggleMonthFilter(4)">April</button><button class="chip" id="mf-5" onclick="toggleMonthFilter(5)">Mei</button><button class="chip" id="mf-6" onclick="toggleMonthFilter(6)">Juni</button><button class="chip" id="mf-7" onclick="toggleMonthFilter(7)">Juli</button><button class="chip" id="mf-8" onclick="toggleMonthFilter(8)">Agustus</button><button class="chip" id="mf-9" onclick="toggleMonthFilter(9)">September</button><button class="chip" id="mf-10" onclick="toggleMonthFilter(10)">Oktober</button><button class="chip" id="mf-11" onclick="toggleMonthFilter(11)">November</button><button class="chip" id="mf-12" onclick="toggleMonthFilter(12)">Desember</button>
   </div>
 </div>
 <div id="incentive-summary-cards"></div>
@@ -1841,25 +1842,10 @@ function toggleGuideCard(hdr){
 <div class="page" id="page-master-sku">
 <div class="topbar">
   <div><div class="pgtitle">&#127991; <span>Master SKU</span></div><div class="pgsub">Kelola daftar SKU untuk auto-suggest report</div></div>
-  <div><button id="show-add-sku-page-btn" onclick="toggleAddSKUForm()" style="padding:7px 18px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:none;">+ Tambah SKU</button></div>
+  <div><button id="show-add-sku-page-btn" onclick="openBatchAddSKU()" style="padding:7px 18px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:none;">+ Tambah SKU</button></div>
 </div>
 <div class="fc">
-  <div id="add-sku-form-page" style="display:none;margin-bottom:16px;padding:14px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);">
-    <div class="fct" style="font-size:13px;margin-bottom:12px;" id="sku-form-title">Tambah SKU Baru</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-      <div class="fgi"><label class="fl">Kode SKU <span class="req-star">*</span></label>
-        <input class="fi" id="new-sku-code-page" type="text" placeholder="cth. PD-IRON-VULGA" style="font-size:13px;"/>
-      </div>
-      <div class="fgi"><label class="fl">Nama Produk</label>
-        <input class="fi" id="new-sku-prodname-page" type="text" placeholder="cth. Setrika Vulga Series" style="font-size:13px;"/>
-      </div>
-    </div>
-    <input type="hidden" id="edit-sku-id-page" value=""/>
-    <div style="display:flex;gap:8px;justify-content:flex-end;">
-      <button onclick="cancelSKUForm()" style="padding:8px 14px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font);">Batal</button>
-      <button onclick="saveMasterSKUPage()" style="padding:8px 18px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Simpan</button>
-    </div>
-  </div>
+  <div id="add-sku-form-page" style="display:none;"></div>
   <div style="font-size:13px;color:var(--text2);margin-bottom:14px;">SKU terdaftar akan muncul sebagai auto-suggest saat input Report SKU. Hanya superuser yang bisa mengelola.</div>
   <div class="twrap">
     <table id="master-sku-table">
@@ -2067,6 +2053,23 @@ function toggleGuideCard(hdr){
   <p style="font-size:13px;color:var(--text3);margin-top:4px;">Konten product knowledge akan ditambahkan oleh admin. Stay tuned!</p>
 </div>
 </div>
+<div class="page" id="page-announcement">
+<div class="topbar">
+  <div><div class="pgtitle">&#128276; <span>Pengumuman</span></div><div class="pgsub">Buat dan kelola pengumuman untuk tim</div></div>
+  <div><button id="btn-buat-pengumuman" onclick="openBuatPengumuman()" style="padding:7px 18px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);display:none;">+ Buat Pengumuman</button></div>
+</div>
+<div class="fc">
+  <div class="tcard" style="margin-bottom:16px;">
+    <div class="thdr"><div class="ct">&#128994; Aktif</div><span class="badge" id="ann-active-badge">0</span></div>
+    <div id="ann-active-list"><div class="empty">Tidak ada pengumuman aktif.</div></div>
+  </div>
+  <div class="tcard">
+    <div class="thdr"><div class="ct">&#128337; History</div><span class="badge" id="ann-history-badge">0</span></div>
+    <div id="ann-history-list"><div class="empty">Belum ada history.</div></div>
+  </div>
+</div>
+</div>
+
 <div class="page" id="page-setting">
 <div class="topbar"><div class="pgtitle">Setting</div></div>
 <div class="sc2"><div class="stitle">Informasi Brand</div>
@@ -2649,6 +2652,7 @@ function goPage(p){
   if(p==='dashboard')refreshAll();
   if(p==='detail')renderDetailTable();
   if(p==='incentive')renderIncentive();
+  if(p==='announcement'){loadAnnouncements();}
   if(p==='sku'){initSKUForm();}
   if(p==='jadwal'){renderJadwalGrid();renderJadwalDetail();}
   if(p==='input-jadwal'){initIJForm();}
@@ -4681,16 +4685,91 @@ function renderMasterSKUPage(){
   });
 }
 
-function toggleAddSKUForm(){
-  var form=document.getElementById('add-sku-form-page');
-  var title=document.getElementById('sku-form-title');
-  if(!form)return;
-  document.getElementById('edit-sku-id-page').value='';
-  document.getElementById('new-sku-code-page').value='';
-  document.getElementById('new-sku-prodname-page').value='';
-  if(title)title.textContent='Tambah SKU Baru';
-  form.style.display=form.style.display==='none'?'block':'none';
-  if(form.style.display==='block')document.getElementById('new-sku-code-page').focus();
+function toggleAddSKUForm(){openBatchAddSKU();} // legacy alias
+
+function openBatchAddSKU(){
+  if(!canAdmin()){showToast('Tidak ada akses',true);return;}
+  if(document.getElementById('modal-batch-sku'))document.getElementById('modal-batch-sku').remove();
+  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-batch-sku">'
+    +'<div style="background:var(--surface);border-radius:var(--radius);padding:24px;width:580px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+    +'<div style="font-size:15px;font-weight:800;color:var(--navy);">+ Tambah SKU Baru</div>'
+    +'<button onclick="document.getElementById(\'modal-batch-sku\').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);line-height:1;">&#10005;</button>'
+    +'</div>'
+    +'<div style="font-size:12px;color:var(--text3);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">Tambah beberapa SKU sekaligus. Kode SKU wajib diisi.</div>'
+    +'<div style="flex:1;overflow-y:auto;margin-bottom:12px;">'
+    +'<div style="display:grid;grid-template-columns:28px 1fr 1fr 28px;gap:8px;padding:0 2px 6px;border-bottom:1px solid var(--border);margin-bottom:8px;">'
+    +'<div></div>'
+    +'<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;">Kode SKU *</div>'
+    +'<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;">Nama Produk</div>'
+    +'<div></div>'
+    +'</div>'
+    +'<div id="batch-sku-rows"></div>'
+    +'</div>'
+    +'<button onclick="addBatchSKURow()" style="align-self:flex-start;padding:5px 14px;border-radius:var(--radius-sm);border:1.5px dashed var(--border);background:transparent;color:var(--blue);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:14px;">+ Tambah Baris</button>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border);">'
+    +'<button onclick="document.getElementById(\'modal-batch-sku\').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
+    +'<button onclick="saveBatchSKU()" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128190; Simpan Semua</button>'
+    +'</div>'
+    +'</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+  _batchSKUCount=0;
+  addBatchSKURow();addBatchSKURow();addBatchSKURow();
+}
+
+var _batchSKUCount=0;
+function addBatchSKURow(){
+  var container=document.getElementById('batch-sku-rows');
+  if(!container)return;
+  var id='bsr-'+(++_batchSKUCount);
+  var row=document.createElement('div');
+  row.id=id;
+  row.style.cssText='display:grid;grid-template-columns:28px 1fr 1fr 28px;gap:8px;align-items:center;margin-bottom:6px;';
+  var num=container.children.length+1;
+  row.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;font-weight:600;padding-top:2px;">'+num+'</div>'
+    +'<input class="fi" placeholder="cth. PD-IRON-001" style="font-size:13px;margin-bottom:0;" data-field="code"/>'
+    +'<input class="fi" placeholder="cth. Setrika Series" style="font-size:13px;margin-bottom:0;" data-field="name"/>'
+    +'<button onclick="this.parentElement.remove();renumberBatchSKU()" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;">&#10005;</button>';
+  container.appendChild(row);
+  // Focus pada input kode SKU baris baru
+  setTimeout(function(){var inp=row.querySelector('[data-field="code"]');if(inp)inp.focus();},50);
+}
+
+function renumberBatchSKU(){
+  document.querySelectorAll('#batch-sku-rows>div').forEach(function(r,i){
+    var n=r.querySelector('div');if(n)n.textContent=i+1;
+  });
+}
+
+async function saveBatchSKU(){
+  var rows=document.querySelectorAll('#batch-sku-rows>div');
+  var items=[];
+  rows.forEach(function(r){
+    var code=(r.querySelector('[data-field="code"]')||{}).value||'';
+    var name=(r.querySelector('[data-field="name"]')||{}).value||'';
+    if(code.trim())items.push({code:code.trim(),name:name.trim()});
+  });
+  if(!items.length){showToast('Minimal 1 SKU dengan kode wajib diisi',true);return;}
+  var btn=document.querySelector('#modal-batch-sku [onclick="saveBatchSKU()"]');
+  if(btn){btn.disabled=true;btn.textContent='Menyimpan...';}
+  try{
+    var batch=db.batch();
+    items.forEach(function(item){
+      var ref=db.collection('master_sku').doc();
+      batch.set(ref,{
+        brand:activeBrand,name:item.code,prodName:item.name,
+        addedBy:(currentUser&&currentUser.displayName)||'',
+        addedByEmail:currentUser?currentUser.email:'',
+        createdAt:new Date().toISOString()
+      });
+    });
+    await batch.commit();
+    document.getElementById('modal-batch-sku').remove();
+    showToast('&#10003; '+items.length+' SKU berhasil ditambahkan!');
+  }catch(e){
+    showToast('Gagal simpan: '+e.message,true);
+    if(btn){btn.disabled=false;btn.textContent='&#128190; Simpan Semua';}
+  }
 }
 
 function cancelSKUForm(){
@@ -5573,6 +5652,11 @@ function applyMenuAccess(){
   // Setting: God Admin + Brand Admin only
   const niSet=document.getElementById('ni-setting');
   if(niSet)niSet.style.display=(isGA||isBA)?'flex':'none';
+  // Pengumuman: God Admin + Brand Admin
+  const niAnn=document.getElementById('ni-announcement');
+  if(niAnn)niAnn.style.display=(isGA||isBA)?'flex':'none';
+  const btnBuatAnn=document.getElementById('btn-buat-pengumuman');
+  if(btnBuatAnn)btnBuatAnn.style.display=(isGA||isBA)?'inline-block':'none';
 
   // Data Streamer: God Admin + Brand Admin only
   const niStr=document.querySelector('[data-page="streamers"]');
@@ -6451,6 +6535,291 @@ async function saveJadwalEdit(){
   try{
     await db.collection('schedules').doc(jadwalEditId).update({date:date,timeStart:ts,timeEnd:te,status:status,updatedAt:new Date().toISOString()});
     showToast('Jadwal diperbarui!');closeJadwalEditModal();
+  }catch(e){showToast('Gagal: '+e.message,true);}
+}
+
+
+// ════════════════════════════════════════
+// ── ANNOUNCEMENT SYSTEM ──
+// ════════════════════════════════════════
+var allAnnouncements=[];
+
+function startAnnouncementListener(){
+  db.collection('announcements').orderBy('createdAt','desc').onSnapshot(function(snap){
+    allAnnouncements=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    checkAnnouncementPopup();
+    updateAnnouncementBadge();
+    if(document.getElementById('page-announcement')&&document.getElementById('page-announcement').classList.contains('active')){
+      loadAnnouncements();
+    }
+  });
+}
+
+function getActiveAnnouncements(){
+  var now=new Date();
+  return allAnnouncements.filter(function(a){
+    if(!a.brand||!a.brand.includes(activeBrand))return false;
+    var start=a.startAt?new Date(a.startAt):null;
+    var end=a.endAt?new Date(a.endAt):null;
+    if(start&&now<start)return false;
+    if(end&&now>end)return false;
+    return true;
+  });
+}
+
+function updateAnnouncementBadge(){
+  if(!canAdmin())return;
+  var active=getActiveAnnouncements();
+  var badge=document.getElementById('announcement-badge');
+  if(badge){badge.textContent=active.length;badge.style.display=active.length>0?'inline':'none';}
+}
+
+// ── Popup notif untuk Streamer/Viewer ──
+var _annPopupIdx=0;
+var _annToShow=[];
+function checkAnnouncementPopup(){
+  if(!currentUser)return;
+  var uid=currentUser.uid;
+  // Cari pengumuman aktif yang belum dibaca user ini
+  _annToShow=getActiveAnnouncements().filter(function(a){
+    var readBy=a.readBy||[];
+    return !readBy.some(function(r){return r.uid===uid;});
+  });
+  if(!_annToShow.length)return;
+  if(document.getElementById('modal-ann-popup'))return; // sudah ada
+  _annPopupIdx=0;
+  showAnnouncementPopup();
+}
+
+function showAnnouncementPopup(){
+  var existing=document.getElementById('modal-ann-popup');
+  if(existing)existing.remove();
+  if(!_annToShow.length)return;
+  var a=_annToShow[_annPopupIdx];
+  var total=_annToShow.length;
+  var isLast=_annPopupIdx===total-1;
+  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;" id="modal-ann-popup">'
+    +'<div style="background:#fff;border-radius:var(--radius);padding:28px;width:480px;max-width:92vw;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.25);">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
+    +'<div style="display:flex;align-items:center;gap:8px;">'
+    +'<span style="font-size:18px;">&#128276;</span>'
+    +'<span style="font-size:12px;font-weight:700;color:var(--text3);">PENGUMUMAN</span>'
+    +(total>1?'<span style="font-size:11px;color:var(--text3);background:var(--border);border-radius:10px;padding:1px 8px;">'+(_annPopupIdx+1)+' / '+total+'</span>':'')
+    +'</div>'
+    +'</div>'
+    +'<div style="font-size:17px;font-weight:800;color:var(--navy);margin-bottom:10px;">'+a.title+'</div>'
+    +(a.body?'<div style="font-size:13px;color:var(--text);margin-bottom:8px;line-height:1.6;">'+a.body+'</div>':'')
+    +(a.detail?'<div style="font-size:12px;color:var(--text2);background:var(--surface);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;line-height:1.6;max-height:120px;overflow-y:auto;">'+a.detail+'</div>':'')
+    +'<div style="font-size:11px;color:var(--text3);margin-bottom:16px;padding-top:8px;border-top:1px solid var(--border);">Oleh: '+(a.createdByName||a.createdBy||'Admin')+' &middot; '+new Date(a.createdAt).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})+'</div>'
+    +'<div style="display:flex;gap:8px;justify-content:space-between;align-items:center;">'
+    +'<div style="display:flex;gap:6px;">'
+    +(_annPopupIdx>0?'<button onclick="annPopupNav(-1)" style="padding:7px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);font-size:13px;">&#8592; Prev</button>':'')
+    +(total>1&&!isLast?'<button onclick="annPopupNav(1)" style="padding:7px 14px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;">Next &#8594;</button>':'')
+    +'</div>'
+    +(isLast?'<button onclick="markAnnouncementRead(''+a.id+'')" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--green);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;">&#10003; Sudah Baca</button>':'')
+    +'</div>'
+    +'</div></div>';
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+function annPopupNav(dir){
+  _annPopupIdx=Math.max(0,Math.min(_annToShow.length-1,_annPopupIdx+dir));
+  showAnnouncementPopup();
+}
+
+async function markAnnouncementRead(annId){
+  if(!currentUser)return;
+  try{
+    await db.collection('announcements').doc(annId).update({
+      readBy:firebase.firestore.FieldValue.arrayUnion({
+        uid:currentUser.uid,
+        email:currentUser.email,
+        name:currentUser.displayName||currentUser.email.split('@')[0],
+        readAt:new Date().toISOString()
+      })
+    });
+    var popup=document.getElementById('modal-ann-popup');
+    if(popup)popup.remove();
+    // Cek apakah masih ada yang belum dibaca
+    _annToShow=_annToShow.filter(function(a){return a.id!==annId;});
+    if(_annToShow.length){_annPopupIdx=0;showAnnouncementPopup();}
+  }catch(e){showToast('Gagal tandai: '+e.message,true);}
+}
+
+// ── Load Announcements (halaman admin) ──
+function loadAnnouncements(){
+  var now=new Date();
+  var forBrand=allAnnouncements.filter(function(a){
+    if(isGodAdmin())return true;
+    return a.brand&&a.brand.includes(activeBrand);
+  });
+  var active=forBrand.filter(function(a){
+    var end=a.endAt?new Date(a.endAt):null;
+    return !end||now<=end;
+  });
+  var history=forBrand.filter(function(a){
+    var end=a.endAt?new Date(a.endAt):null;
+    return end&&now>end;
+  });
+  document.getElementById('ann-active-badge').textContent=active.length;
+  document.getElementById('ann-history-badge').textContent=history.length;
+  var activeEl=document.getElementById('ann-active-list');
+  var histEl=document.getElementById('ann-history-list');
+  activeEl.innerHTML=active.length?active.map(renderAnnCard).join(''):'<div class="empty">Tidak ada pengumuman aktif.</div>';
+  histEl.innerHTML=history.length?history.map(renderAnnCard).join(''):'<div class="empty">Belum ada history.</div>';
+  // Event listeners
+  activeEl.querySelectorAll('.ann-detail-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){openAnnDetail(this.dataset.id);});
+  });
+  histEl.querySelectorAll('.ann-detail-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){openAnnDetail(this.dataset.id);});
+  });
+  activeEl.querySelectorAll('.ann-edit-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){openBuatPengumuman(this.dataset.id);});
+  });
+}
+
+function renderAnnCard(a){
+  var readBy=a.readBy||[];
+  var brand=Array.isArray(a.brand)?a.brand.map(function(b){return b==='nvmee'?'NVMEE':'Pandaoma';}).join(', '):a.brand;
+  var startStr=a.startAt?new Date(a.startAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  var endStr=a.endAt?new Date(a.endAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Seharian';
+  return '<div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">'
+    +'<div style="flex:1;min-width:0;">'
+    +'<div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;">'+a.title+'</div>'
+    +(a.body?'<div style="font-size:12px;color:var(--text2);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+a.body+'</div>':'')
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">'
+    +'<span style="font-size:10px;background:var(--blue-lt);color:var(--blue);padding:2px 7px;border-radius:10px;font-weight:700;">'+brand+'</span>'
+    +'<span style="font-size:11px;color:var(--text3);">'+startStr+' → '+endStr+'</span>'
+    +'<span style="font-size:11px;color:var(--green);font-weight:600;">&#10003; '+readBy.length+' sudah baca</span>'
+    +'</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:6px;flex-shrink:0;">'
+    +(canAdmin()?'<button class="ann-edit-btn" data-id="'+a.id+'" style="font-size:11px;padding:4px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit</button>':'')
+    +'<button class="ann-detail-btn" data-id="'+a.id+'" style="font-size:11px;padding:4px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--blue);cursor:pointer;font-family:var(--font);">Detail</button>'
+    +'</div>'
+    +'</div>';
+}
+
+// ── Detail Pengumuman: siapa sudah/belum baca ──
+async function openAnnDetail(annId){
+  var a=allAnnouncements.find(function(x){return x.id===annId;});
+  if(!a)return;
+  var readBy=a.readBy||[];
+  // Ambil semua user di brand ini
+  var snap=await db.collection('users').where('status','==','approved').get();
+  var allUsers=snap.docs.map(function(d){return Object.assign({uid:d.id},d.data());})
+    .filter(function(u){return !a.brand||a.brand.includes(u.brand)||u.email===GOD_ADMIN_EMAIL;});
+  var readUids=readBy.map(function(r){return r.uid;});
+  var sudah=readBy.map(function(r){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">'
+      +'<div><div style="font-size:13px;font-weight:600;">'+r.name+'</div><div style="font-size:11px;color:var(--text3);">'+r.email+'</div></div>'
+      +'<div style="font-size:11px;color:var(--green);">'+new Date(r.readAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</div>'
+      +'</div>';
+  }).join('');
+  var belum=allUsers.filter(function(u){return !readUids.includes(u.uid);}).map(function(u){
+    return '<div style="padding:6px 0;border-bottom:1px solid var(--border);">'
+      +'<div style="font-size:13px;font-weight:600;">'+u.name+'</div>'
+      +'<div style="font-size:11px;color:var(--text3);">'+u.email+'</div>'
+      +'</div>';
+  }).join('');
+  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-ann-detail">'
+    +'<div style="background:#fff;border-radius:var(--radius);padding:24px;width:500px;max-width:92vw;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+    +'<div style="font-size:15px;font-weight:800;color:var(--navy);">&#128203; Detail Pengumuman</div>'
+    +'<button onclick="document.getElementById('modal-ann-detail').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);">&#10005;</button>'
+    +'</div>'
+    +'<div style="background:var(--surface);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;">'
+    +'<div style="font-size:15px;font-weight:800;color:var(--navy);margin-bottom:6px;">'+a.title+'</div>'
+    +(a.body?'<div style="font-size:13px;color:var(--text);margin-bottom:6px;">'+a.body+'</div>':'')
+    +(a.detail?'<div style="font-size:12px;color:var(--text2);">'+a.detail+'</div>':'')
+    +'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px;">&#10003; Sudah Baca ('+readBy.length+')</div>'
+    +'<div style="margin-bottom:16px;">'+(sudah||'<div class="empty">Belum ada yang baca.</div>')+'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px;">&#9203; Belum Baca ('+belum.length+')</div>'
+    +'<div>'+(belum||'<div style="font-size:12px;color:var(--text3);">Semua sudah baca &#127881;</div>')+'</div>'
+    +'</div></div>';
+  if(document.getElementById('modal-ann-detail'))document.getElementById('modal-ann-detail').remove();
+  document.body.insertAdjacentHTML('beforeend',html);
+}
+
+// ── Form Buat / Edit Pengumuman ──
+function openBuatPengumuman(editId){
+  if(!canAdmin()){showToast('Tidak ada akses',true);return;}
+  var a=editId?allAnnouncements.find(function(x){return x.id===editId;}):null;
+  var now=new Date();
+  var defaultDate=now.toISOString().slice(0,16);
+  var defaultEnd=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59).toISOString().slice(0,16);
+  var brandOpts='';
+  if(isGodAdmin()){
+    brandOpts='<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;margin-bottom:6px;">'
+      +'<input type="checkbox" id="ann-brand-pdm" value="pandaoma"'+((!a||a.brand.includes('pandaoma'))?' checked':'')+'> Pandaoma</label>'
+      +'<label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">'
+      +'<input type="checkbox" id="ann-brand-nvm" value="nvmee"'+(a&&a.brand.includes('nvmee')?' checked':'')+'> NVMEE</label>';
+  } else {
+    brandOpts='<div style="font-size:13px;color:var(--text2);font-weight:600;">'+BRAND_CONFIG[activeBrand].name+' (otomatis)</div>'
+      +'<input type="hidden" id="ann-brand-fixed" value="'+activeBrand+'"/>';
+  }
+  var html='<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;" id="modal-buat-ann">'
+    +'<div style="background:#fff;border-radius:var(--radius);padding:24px;width:500px;max-width:92vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+    +'<div style="font-size:15px;font-weight:800;color:var(--navy);">'+(editId?'✏️ Edit':'➕ Buat')+' Pengumuman</div>'
+    +'<button onclick="document.getElementById('modal-buat-ann').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text2);">&#10005;</button>'
+    +'</div>'
+    +'<div class="fgi"><label class="fl">Judul *</label><input class="fi" id="ann-title" type="text" placeholder="Judul pengumuman" value="'+(a?a.title:'')+'"/></div>'
+    +'<div class="fgi"><label class="fl">Body / Ringkasan</label><textarea class="fi" id="ann-body" rows="2" placeholder="Ringkasan singkat..." style="resize:vertical;">'+(a?a.body:'')+'</textarea></div>'
+    +'<div class="fgi"><label class="fl">Detail (opsional)</label><textarea class="fi" id="ann-detail" rows="3" placeholder="Detail lengkap pengumuman..." style="resize:vertical;">'+(a?a.detail||'':'')+'</textarea></div>'
+    +'<div class="fgi"><label class="fl">Brand Target</label>'+brandOpts+'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
+    +'<div class="fgi"><label class="fl">Mulai</label><input class="fi" id="ann-start" type="datetime-local" value="'+(a?a.startAt.slice(0,16):defaultDate)+'"/></div>'
+    +'<div class="fgi"><label class="fl">Selesai</label><input class="fi" id="ann-end" type="datetime-local" value="'+(a?a.endAt.slice(0,16):defaultEnd)+'"/></div>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;">'
+    +'<button onclick="document.getElementById('modal-buat-ann').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
+    +'<button onclick="savePengumuman(''+(editId||'')+'')" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128190; Simpan</button>'
+    +'</div>'
+    +'</div></div>';
+  if(document.getElementById('modal-buat-ann'))document.getElementById('modal-buat-ann').remove();
+  document.body.insertAdjacentHTML('beforeend',html);
+  setTimeout(function(){var el=document.getElementById('ann-title');if(el)el.focus();},100);
+}
+
+async function savePengumuman(editId){
+  var title=(document.getElementById('ann-title')||{}).value||'';
+  var body=(document.getElementById('ann-body')||{}).value||'';
+  var detail=(document.getElementById('ann-detail')||{}).value||'';
+  var startAt=(document.getElementById('ann-start')||{}).value||'';
+  var endAt=(document.getElementById('ann-end')||{}).value||'';
+  if(!title.trim()){showToast('Judul wajib diisi',true);return;}
+  if(!startAt){showToast('Tanggal mulai wajib diisi',true);return;}
+  // Kumpulkan brand
+  var brands=[];
+  if(isGodAdmin()){
+    if(document.getElementById('ann-brand-pdm')&&document.getElementById('ann-brand-pdm').checked)brands.push('pandaoma');
+    if(document.getElementById('ann-brand-nvm')&&document.getElementById('ann-brand-nvm').checked)brands.push('nvmee');
+  } else {
+    var fixed=document.getElementById('ann-brand-fixed');
+    brands=[fixed?fixed.value:activeBrand];
+  }
+  if(!brands.length){showToast('Pilih minimal 1 brand',true);return;}
+  var data={
+    title:title.trim(),body:body.trim(),detail:detail.trim(),
+    brand:brands,startAt:new Date(startAt).toISOString(),
+    endAt:endAt?new Date(endAt).toISOString():null,
+    createdBy:currentUser?currentUser.email:'',
+    createdByName:currentUser?(currentUser.displayName||currentUser.email.split('@')[0]):'',
+    updatedAt:new Date().toISOString()
+  };
+  try{
+    if(editId){
+      await db.collection('announcements').doc(editId).update(data);
+    } else {
+      data.createdAt=new Date().toISOString();
+      data.readBy=[];
+      await db.collection('announcements').add(data);
+    }
+    document.getElementById('modal-buat-ann').remove();
+    showToast('&#10003; Pengumuman '+(editId?'diperbarui':'dibuat')+'!');
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
