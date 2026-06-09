@@ -4306,6 +4306,7 @@ async function saveIncentive(){
   const nominal=parseFloat(document.getElementById('inc-nominal').value);
   if(!nominal||nominal<=0){showToast('Nominal wajib diisi!',true);return;}
   const data={
+    brand:activeBrand,
     streamerId,
     streamerName:opt.dataset.name||opt.textContent.split(' (')[0],
     streamerEmail:opt.dataset.email||'',
