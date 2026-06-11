@@ -1200,6 +1200,15 @@ margin-bottom: 4px;
 <div id="csv-preview" style="margin-top:10px;"></div>
 </div>
 
+<!-- Tab Toggle -->
+<div style="display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;width:fit-content;margin-bottom:4px;">
+  <button id="tab-single" onclick="switchInputTab('single')" style="padding:8px 24px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:var(--font);background:var(--navy);color:#fff;transition:.15s;">Single</button>
+  <button id="tab-multi" onclick="switchInputTab('multi')" style="padding:8px 24px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:var(--font);background:transparent;color:var(--text2);transition:.15s;">Multi</button>
+</div>
+<div style="font-size:11px;color:var(--text3);margin-bottom:16px;" id="input-tab-desc">1 sesi, 1 streamer</div>
+
+<!-- SINGLE PANEL -->
+<div id="input-panel-single">
 <div class="fc"><div class="fct">Tambah Sesi Live (Manual)</div>
 <div style="margin-bottom:14px"><div class="fl" style="margin-bottom:8px">Marketplace<span class="req-star">*</span></div>
 <div class="mp-sel">
@@ -1223,6 +1232,51 @@ margin-bottom: 4px;
 <div style="font-size:12px;color:var(--blue);font-weight:600;">Nama streamer dari master data - tidak bisa typo!</div>
 <div style="font-size:11px;color:var(--blue-mid);margin-top:4px;">Belum ada streamer? Tambah dulu di menu Data Streamer.</div>
 </div>
+</div>
+
+<!-- MULTI PANEL -->
+<div id="input-panel-multi" style="display:none;">
+<div class="fc">
+<div class="fct">Detail Sesi</div>
+<div style="margin-bottom:14px"><div class="fl" style="margin-bottom:8px">Marketplace<span class="req-star">*</span></div>
+<div class="mp-sel">
+<div class="mp-opt shopee on" id="mps-m" onclick="selMPMulti('Shopee')">🛍 Shopee</div>
+<div class="mp-opt dld" id="mpd-m" onclick="selMPMulti('DLD')">📦 DLD</div>
+<div class="mp-opt tiktok" id="mpt-m" onclick="selMPMulti('TikTok')">🎵 TikTok</div>
+</div></div>
+<div class="fg">
+<div class="fgi"><label class="fl">Tanggal<span class="req-star">*</span></label><input class="fi" id="mf-date" type="date"/></div>
+<div class="fgi"><label class="fl">Jam Mulai<span class="req-star">*</span></label><input class="fi" id="mf-time" type="time"/></div>
+<div class="fgi"><label class="fl">Durasi (menit)<span class="req-star">*</span></label><input class="fi" id="mf-dur" type="number" placeholder="180"/></div>
+<div class="fgi full"><label class="fl">Total GMV (Rp)<span class="req-star">*</span></label><input class="fi" id="mf-gmv" type="number" placeholder="3000000" oninput="updateMultiPreview()"/></div>
+<div class="fgi full"><label class="fl">Catatan</label><input class="fi" id="mf-note" type="text" placeholder="flash sale, giveaway, dll"/></div>
+</div>
+</div>
+
+<div class="fc">
+<div class="fct" style="margin-bottom:14px;">Streamer yang Berpartisipasi<span class="req-star">*</span></div>
+<div id="multi-streamer-rows"></div>
+<button onclick="addMultiStreamerRow()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border:1.5px dashed var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:10px;">+ Tambah Streamer</button>
+
+<!-- Preview split -->
+<div id="multi-preview" style="display:none;margin-top:16px;background:var(--off);border-radius:var(--radius-sm);padding:14px 16px;border:1px solid var(--border);">
+<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Preview Split GMV — rata</div>
+<div id="multi-preview-rows"></div>
+<div style="display:flex;justify-content:space-between;padding-top:10px;margin-top:4px;border-top:1px solid var(--border);">
+<div style="font-size:11px;color:var(--text3);" id="multi-preview-count">Total GMV · 0 orang</div>
+<div style="font-size:13px;font-weight:700;color:var(--navy);" id="multi-preview-total">Rp 0</div>
+</div>
+</div>
+
+<button class="sub-btn" style="margin-top:16px;" onclick="submitMultiForm()">Simpan Sesi</button>
+</div>
+
+<div class="fc" style="background:var(--blue-lt);border-color:var(--blue)">
+<div style="font-size:12px;color:var(--blue);font-weight:600;">GMV akan dibagi rata ke semua streamer yang dipilih</div>
+<div style="font-size:11px;color:var(--blue-mid);margin-top:4px;">Misal 3 orang, GMV 3jt → masing-masing 1jt. Disimpan sebagai dokumen terpisah.</div>
+</div>
+</div>
+
 </div>
 </div>
 <div class="page" id="page-streamers">
@@ -6965,6 +7019,156 @@ async function saveUserRole(uid){
     showToast('&#10003; Role berhasil diupdate!');
     loadUserManagement();
   }catch(e){showToast('Gagal: '+e.message,true);}
+}
+
+
+// ── INPUT TAB SWITCH ──
+function switchInputTab(tab){
+  var isSingle=tab==='single';
+  document.getElementById('input-panel-single').style.display=isSingle?'block':'none';
+  document.getElementById('input-panel-multi').style.display=isSingle?'none':'block';
+  document.getElementById('tab-single').style.background=isSingle?'var(--navy)':'transparent';
+  document.getElementById('tab-single').style.color=isSingle?'#fff':'var(--text2)';
+  document.getElementById('tab-multi').style.background=isSingle?'transparent':'var(--navy)';
+  document.getElementById('tab-multi').style.color=isSingle?'var(--text2)':'#fff';
+  document.getElementById('input-tab-desc').textContent=isSingle?'1 sesi, 1 streamer':'1 sesi, beberapa streamer — GMV dibagi rata';
+  if(!isSingle){
+    document.getElementById('mf-date').value=new Date().toISOString().split('T')[0];
+    if(!document.getElementById('multi-streamer-rows').children.length){
+      addMultiStreamerRow();addMultiStreamerRow();
+    }
+    selMPMulti('Shopee');
+  }
+}
+
+var _multiMP='Shopee';
+function selMPMulti(mp){
+  _multiMP=mp;
+  ['Shopee','DLD','TikTok'].forEach(function(m){
+    var el=document.getElementById('mp'+(m==='Shopee'?'s':m==='DLD'?'d':'t')+'-m');
+    if(!el)return;
+    el.className='mp-opt '+(m==='Shopee'?'shopee':m==='DLD'?'dld':'tiktok')+(m===mp?' on':'');
+  });
+}
+
+var _multiRowCount=0;
+function addMultiStreamerRow(){
+  var container=document.getElementById('multi-streamer-rows');
+  if(!container)return;
+  var idx=++_multiRowCount;
+  var div=document.createElement('div');
+  div.id='msr-'+idx;
+  div.style.cssText='display:grid;grid-template-columns:28px 1fr 28px;gap:8px;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);';
+  var numDiv=document.createElement('div');
+  numDiv.style.cssText='font-size:12px;color:var(--text3);text-align:center;';
+  numDiv.textContent=container.children.length+1;
+  var sel=document.createElement('select');
+  sel.className='fi';
+  sel.style.cssText='cursor:pointer;';
+  sel.innerHTML='<option value="">-- Pilih Streamer --</option>';
+  allStreamers.forEach(function(s){
+    var opt=document.createElement('option');
+    opt.value=s.id;opt.textContent=s.name;opt.dataset.name=s.name;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change',updateMultiPreview);
+  var delBtn=document.createElement('button');
+  delBtn.style.cssText='width:24px;height:24px;border-radius:50%;border:0.5px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;';
+  delBtn.innerHTML='&#10005;';
+  delBtn.addEventListener('click',function(){
+    div.remove();
+    renumberMultiRows();
+    updateMultiPreview();
+  });
+  div.appendChild(numDiv);div.appendChild(sel);div.appendChild(delBtn);
+  container.appendChild(div);
+}
+
+function renumberMultiRows(){
+  var rows=document.querySelectorAll('#multi-streamer-rows>div');
+  rows.forEach(function(r,i){
+    var n=r.querySelector('div');if(n)n.textContent=i+1;
+  });
+}
+
+function updateMultiPreview(){
+  var gmvTotal=parseFloat(document.getElementById('mf-gmv').value)||0;
+  var sels=document.querySelectorAll('#multi-streamer-rows select');
+  var chosen=[];
+  sels.forEach(function(s){
+    var opt=s.options[s.selectedIndex];
+    if(s.value&&opt)chosen.push({id:s.value,name:opt.textContent});
+  });
+  var preview=document.getElementById('multi-preview');
+  var previewRows=document.getElementById('multi-preview-rows');
+  var previewCount=document.getElementById('multi-preview-count');
+  var previewTotal=document.getElementById('multi-preview-total');
+  if(!chosen.length||!gmvTotal){preview.style.display='none';return;}
+  preview.style.display='block';
+  var perStreamer=Math.round(gmvTotal/chosen.length);
+  previewRows.innerHTML=chosen.map(function(c){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border);">'
+      +'<div style="font-size:13px;font-weight:600;">'+c.name+'</div>'
+      +'<div style="font-size:13px;font-weight:700;color:var(--green);">Rp '+perStreamer.toLocaleString('id-ID')+'</div>'
+      +'</div>';
+  }).join('');
+  previewCount.textContent='Total GMV · '+chosen.length+' orang';
+  previewTotal.textContent='Rp '+gmvTotal.toLocaleString('id-ID');
+}
+
+async function submitMultiForm(){
+  var gmvTotal=parseFloat(document.getElementById('mf-gmv').value)||0;
+  var date=document.getElementById('mf-date').value;
+  var time=document.getElementById('mf-time').value;
+  var dur=parseFloat(document.getElementById('mf-dur').value)||0;
+  var note=document.getElementById('mf-note').value.trim();
+  var sels=document.querySelectorAll('#multi-streamer-rows select');
+  var chosen=[];
+  sels.forEach(function(s){
+    var opt=s.options[s.selectedIndex];
+    if(s.value&&opt)chosen.push({id:s.value,name:opt.textContent});
+  });
+  if(!date){showToast('Tanggal wajib diisi',true);return;}
+  if(!gmvTotal){showToast('Total GMV wajib diisi',true);return;}
+  if(chosen.length<2){showToast('Pilih minimal 2 streamer untuk mode Multi',true);return;}
+  var perStreamer=Math.round(gmvTotal/chosen.length);
+  var groupId='grp-'+Date.now();
+  var btn=document.querySelector('#input-panel-multi .sub-btn');
+  if(btn){btn.disabled=true;btn.textContent='Menyimpan...';}
+  try{
+    var batch=db.batch();
+    chosen.forEach(function(c){
+      var ref=db.collection('sessions').doc();
+      var data={
+        brand:activeBrand,
+        mp:_multiMP,
+        streamerId:c.id,
+        name:c.name,
+        date:date,
+        time:time||'00:00',
+        dur:dur,
+        gmv:perStreamer,
+        note:note,
+        sessionGroupId:groupId,
+        groupSize:chosen.length,
+        by:currentUser?(currentUser.displayName||currentUser.email.split('@')[0]):'',
+        createdAt:new Date().toISOString()
+      };
+      batch.set(ref,data);
+    });
+    await batch.commit();
+    showToast('✓ '+chosen.length+' sesi berhasil disimpan!');
+    // Reset form
+    document.getElementById('mf-gmv').value='';
+    document.getElementById('mf-dur').value='';
+    document.getElementById('mf-note').value='';
+    document.getElementById('mf-time').value='';
+    document.getElementById('multi-streamer-rows').innerHTML='';
+    _multiRowCount=0;
+    document.getElementById('multi-preview').style.display='none';
+    addMultiStreamerRow();addMultiStreamerRow();
+  }catch(e){showToast('Gagal: '+e.message,true);}
+  finally{if(btn){btn.disabled=false;btn.textContent='Simpan Sesi';}}
 }
 
 </script>
