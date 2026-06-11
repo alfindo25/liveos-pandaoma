@@ -3227,9 +3227,10 @@ function refreshTop3WithMonth(data){
   });
   var by={};
   m.forEach(function(d){
-    if(!by[d.streamerName])by[d.streamerName]={name:d.streamerName,gmv:0,n:0};
-    by[d.streamerName].gmv+=(d.gmv||0);
-    by[d.streamerName].n++;
+    var sName=d.streamerName||d.name||'Unknown';
+    if(!by[sName])by[sName]={name:sName,gmv:0,n:0};
+    by[sName].gmv+=(d.gmv||0);
+    by[sName].n++;
   });
   var sorted=Object.values(by).sort(function(a,b){return b.gmv-a.gmv;});
   var c=document.getElementById('top3-list');
@@ -3240,14 +3241,20 @@ function refreshTop3WithMonth(data){
     return;
   }
   if(scrollHint)scrollHint.style.display=sorted.length>4?'block':'none';
+  // Dense ranking: sama GMV = sama rank, rank berikutnya skip sesuai jumlah
+  var ranks=[];
+  var currentRank=1;
+  sorted.forEach(function(s,i){
+    if(i>0&&s.gmv<sorted[i-1].gmv)currentRank=ranks[i-1]+1;
+    ranks.push(currentRank);
+  });
+  var medals={1:'🥇',2:'🥈',3:'🥉'};
+  var medalBg={1:'background:#f0fdf4;',2:'background:#f8fafc;',3:'background:#fefce8;'};
   c.innerHTML=sorted.map(function(s,i){
-    var rankDisplay;
-    if(i===0)rankDisplay='🥇';
-    else if(i===1)rankDisplay='🥈';
-    else if(i===2)rankDisplay='🥉';
-    else rankDisplay='<span style="font-size:12px;font-weight:800;color:#94a3b8;font-family:var(--mono)">'+(i+1)+'</span>';
-    var gmvColor=i<3?'var(--green)':'var(--text2)';
-    var rowBg=i===0?'background:#f0fdf4;':i===1?'background:#f8fafc;':i===2?'background:#fefce8;':'';
+    var r=ranks[i];
+    var rankDisplay=medals[r]||('<span style="font-size:12px;font-weight:800;color:#94a3b8;font-family:var(--mono)">'+r+'</span>');
+    var gmvColor=r<=3?'var(--green)':'var(--text2)';
+    var rowBg=medalBg[r]||'';
     return '<div class="pi" style="'+rowBg+'">'
       +'<div class="pr">'+rankDisplay+'</div>'
       +'<div class="pinfo"><div class="pname">'+s.name+'</div><div class="psub">'+s.n+' sesi</div></div>'
@@ -7151,6 +7158,7 @@ async function submitMultiForm(){
         mp:_multiMP,
         streamerId:c.id,
         name:c.name,
+        streamerName:c.name,
         date:date,
         time:time||'00:00',
         dur:dur,
