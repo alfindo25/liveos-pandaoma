@@ -7066,11 +7066,18 @@ function addMultiStreamerRow(){
   sel.className='fi';
   sel.style.cssText='cursor:pointer;';
   sel.innerHTML='<option value="">-- Pilih Streamer --</option>';
-  allStreamers.forEach(function(s){
-    var opt=document.createElement('option');
-    opt.value=s.id;opt.textContent=s.name;opt.dataset.name=s.name;
-    sel.appendChild(opt);
-  });
+  // Populate saat focus (bukan saat dibuat) supaya selalu ambil allStreamers terkini
+  function populateMultiSel(){
+    var curVal=sel.value;
+    sel.innerHTML='<option value="">-- Pilih Streamer --</option>';
+    allStreamers.forEach(function(s){
+      var opt=document.createElement('option');
+      opt.value=s.id;opt.textContent=s.name;
+      sel.appendChild(opt);
+    });
+    if(curVal)sel.value=curVal;
+  }
+  sel.addEventListener('focus',populateMultiSel);
   sel.addEventListener('change',updateMultiPreview);
   var delBtn=document.createElement('button');
   delBtn.style.cssText='width:24px;height:24px;border-radius:50%;border:0.5px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;';
