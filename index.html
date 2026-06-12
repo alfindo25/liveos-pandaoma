@@ -4176,9 +4176,14 @@ function incYearNav(dir){
 // Listen realtime
 function startIncentiveListener(){
   if(_unsub.incentives){_unsub.incentives();_unsub.incentives=null;}
-  _unsub.incentives=db.collection('incentives').where('brand','==',activeBrand).orderBy('tahun','desc').onSnapshot(snap=>{
+  _unsub.incentives=db.collection('incentives').where('brand','==',activeBrand).onSnapshot(function(snap){
     allIncentives = snap.docs.map(d=>({id:d.id,...d.data()}));
+    // Sort di JS supaya tidak butuh composite index Firestore
+    allIncentives.sort(function(a,b){return (b.tahun||0)-(a.tahun||0)||(b.bulan||0)-(a.bulan||0);});
     if(document.getElementById('page-incentive').classList.contains('active'))renderIncentive();
+  },function(err){
+    console.error('Incentive listener error:',err);
+    showToast('Gagal load incentive: '+err.message,true);
   });
 }
 
