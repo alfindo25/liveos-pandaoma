@@ -1281,7 +1281,12 @@ margin-bottom: 4px;
 </div>
 <div class="page" id="page-streamers">
 <div class="topbar"><div><div class="pgtitle">Data <span>Streamer</span></div><div class="pgsub">Master data nama streamer Pandaoma</div></div></div>
-<div style="max-width:600px">
+<div style="display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;width:fit-content;margin-bottom:16px;" id="streamer-tabs">
+  <button id="ds-tab-list" onclick="switchStreamerTab('list')" style="padding:8px 24px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:var(--font);background:var(--navy);color:#fff;">Daftar Streamer</button>
+  <button id="ds-tab-rules" onclick="switchStreamerTab('rules')" style="padding:8px 24px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:var(--font);background:transparent;color:var(--text2);">Rules Incentive</button>
+</div>
+
+<div id="ds-panel-list" style="max-width:600px">
 <div class="fc" id="add-streamer-form"><div class="fct">Tambah Streamer Baru</div>
 <div class="fg" style="grid-template-columns:1fr 1fr;gap:12px">
 <div class="fgi"><label class="fl">Nama Lengkap</label><input class="fi" id="ns-name" type="text" placeholder="cth. Rora"/></div>
@@ -1297,7 +1302,34 @@ margin-bottom: 4px;
 </div>
 <div class="streamer-list" id="streamer-list"><div class="empty">Belum ada streamer. Tambah dulu!</div></div>
 </div></div>
+
+<!-- RULES INCENTIVE PANEL -->
+<div id="ds-panel-rules" style="display:none;max-width:700px;">
+<div class="fc">
+<div class="fct">Set Rate Baru</div>
+<div style="font-size:12px;color:var(--text3);margin-bottom:14px;">SH = Shopee+DLD &middot; TT = TikTok. Rate berlaku untuk seluruh bulan yang dipilih dan bulan-bulan setelahnya sampai ada rate baru.</div>
+<div class="fg" style="grid-template-columns:1fr 1fr 1fr;gap:12px;">
+<div class="fgi"><label class="fl">Berlaku Mulai Bulan</label>
+<select class="fi" id="rule-month" style="cursor:pointer;"></select></div>
+<div class="fgi"><label class="fl">Rate SH (%)</label><input class="fi" id="rule-rate-sh" type="number" step="0.0001" placeholder="cth. 0.001"/></div>
+<div class="fgi"><label class="fl">Rate TT (%)</label><input class="fi" id="rule-rate-tt" type="number" step="0.0001" placeholder="cth. 0.0015"/></div>
 </div>
+<button class="sub-btn" style="margin-top:12px" onclick="saveIncentiveRule()">&#128190; Simpan Rate</button>
+</div>
+
+<div class="tcard">
+<div class="thdr"><div class="ct">History Rules</div><span class="badge" id="rules-total-badge">0 data</span></div>
+<div class="twrap"><table>
+<thead><tr>
+<th>Berlaku Mulai</th><th>Rate SH</th><th>Rate TT</th><th>Diset Oleh</th><th>Tanggal Set</th><th>Status</th><th id="rules-aksi-col" style="display:none">Aksi</th>
+</tr></thead>
+<tbody id="rules-tbody"><tr><td colspan="7" class="empty">Belum ada rules.</td></tr></tbody>
+</table></div>
+</div>
+</div>
+
+</div>
+
 <div class="page" id="page-panduan">
 <div class="topbar"><div>
   <div class="pgtitle">Panduan <span>LiveOS</span></div>
@@ -1775,10 +1807,8 @@ function toggleGuideCard(hdr){
 </div>
 <div class="page" id="page-incentive">
 <div class="topbar">
-  <div><div class="pgtitle">💰 <span>Incentive</span></div><div class="pgsub" id="incentive-subtitle">Data incentive bulanan streamer</div></div>
-  <div id="incentive-admin-btn" style="display:none">
-    <button onclick="openIncentiveInput()" style="padding:8px 18px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:var(--font);">+ Input Incentive</button>
-  </div>
+  <div><div class="pgtitle">💰 <span>Incentive</span></div><div class="pgsub" id="incentive-subtitle">Hasil kalkulasi otomatis berdasarkan rate yang berlaku per bulan</div></div>
+  <button id="incentive-export-btn" onclick="exportIncentiveExcel()" style="padding:8px 18px;font-size:13px;font-weight:700;border-radius:var(--radius-sm);background:var(--green);color:#fff;border:none;cursor:pointer;font-family:var(--font);">&#11015; Export Excel</button>
 </div>
 <div style="margin-bottom:18px">
   <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;">Filter Periode</div>
@@ -1794,19 +1824,14 @@ function toggleGuideCard(hdr){
     <button class="chip" id="mf-1" onclick="toggleMonthFilter(1)">Januari</button><button class="chip" id="mf-2" onclick="toggleMonthFilter(2)">Februari</button><button class="chip" id="mf-3" onclick="toggleMonthFilter(3)">Maret</button><button class="chip" id="mf-4" onclick="toggleMonthFilter(4)">April</button><button class="chip" id="mf-5" onclick="toggleMonthFilter(5)">Mei</button><button class="chip" id="mf-6" onclick="toggleMonthFilter(6)">Juni</button><button class="chip" id="mf-7" onclick="toggleMonthFilter(7)">Juli</button><button class="chip" id="mf-8" onclick="toggleMonthFilter(8)">Agustus</button><button class="chip" id="mf-9" onclick="toggleMonthFilter(9)">September</button><button class="chip" id="mf-10" onclick="toggleMonthFilter(10)">Oktober</button><button class="chip" id="mf-11" onclick="toggleMonthFilter(11)">November</button><button class="chip" id="mf-12" onclick="toggleMonthFilter(12)">Desember</button>
   </div>
 </div>
-<div id="incentive-summary-cards"></div>
-<div id="incentive-total-bar" style="display:none;margin-bottom:12px;padding:12px 16px;background:var(--green-bg);border:1px solid #a7f3d0;border-radius:var(--radius);display:flex;align-items:center;gap:12px;">
-  <span style="font-size:13px;font-weight:700;color:var(--green)">Total Incentive: <span id="incentive-grand-total">Rp 0</span></span>
-  <span style="font-size:12px;color:var(--green);opacity:.7" id="incentive-period-label"></span>
-</div>
 <div class="tcard">
-  <div class="thdr"><div class="ct">Riwayat Incentive</div><span class="badge" id="incentive-total-badge">-</span></div>
+  <div class="thdr"><div class="ct">Rekap Incentive</div><span class="badge" id="incentive-total-badge">-</span></div>
   <div class="twrap"><table>
     <thead><tr>
-      <th>Streamer</th><th>Periode</th><th>Nominal</th>
-      <th>Catatan</th><th>Diinput oleh</th><th id="incentive-aksi-col" style="display:none">Aksi</th>
+      <th>Bulan</th><th>Streamer</th><th>GMV SH</th><th>GMV TT</th>
+      <th>Rate (SH/TT)</th><th>Incentive SH</th><th>Incentive TT</th><th>Total Incentive</th>
     </tr></thead>
-    <tbody id="incentive-tbody"><tr><td colspan="6" class="empty">Memuat data...</td></tr></tbody>
+    <tbody id="incentive-tbody"><tr><td colspan="8" class="empty">Memuat data...</td></tr></tbody>
   </table></div>
 </div>
 </div>
@@ -2377,42 +2402,6 @@ function toggleGuideCard(hdr){
     <div style="font-size:12px;color:var(--text3);margin-bottom:14px;" id="note-modal-meta"></div>
     <div style="background:var(--surface);border-radius:var(--radius-sm);padding:14px;font-size:13px;color:var(--text);line-height:1.7;" id="note-modal-content"></div>
     <button onclick="document.getElementById('note-modal').style.display='none'" style="margin-top:16px;width:100%;padding:10px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Tutup</button>
-  </div>
-</div>
-
-
-<!-- INCENTIVE INPUT MODAL -->
-<div id="incentive-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#fff;border-radius:14px;padding:28px;width:100%;max-width:460px;box-shadow:0 8px 40px rgba(15,31,61,.18);">
-    <div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;">
-      💰 Input Incentive
-      <button onclick="closeIncentiveInput()" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text3);">&#215;</button>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <div><label class="fl">Streamer</label>
-        <select class="fi" id="inc-streamer" style="cursor:pointer"><option value="">-- Pilih Streamer --</option></select>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:0;">
-        <div><label class="fl">Bulan</label>
-          <select class="fi" id="inc-bulan" style="cursor:pointer">
-            <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option><option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option><option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option><option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
-          </select>
-        </div>
-        <div><label class="fl">Tahun</label>
-          <input class="fi" id="inc-tahun" type="number" value="2026" min="2024" max="2030"/>
-        </div>
-      </div>
-      <div><label class="fl">Nominal (Rp)<span class="req-star">*</span></label>
-        <input class="fi" id="inc-nominal" type="number" placeholder="2500000"/>
-      </div>
-      <div><label class="fl">Catatan</label>
-        <input class="fi" id="inc-catatan" type="text" placeholder="Target tercapai 110%, bonus spesial, dll"/>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
-      <button onclick="closeIncentiveInput()" style="padding:9px 18px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);">Batal</button>
-      <button onclick="saveIncentive()" style="padding:9px 20px;border-radius:var(--radius-sm);background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">💾 Simpan</button>
-    </div>
   </div>
 </div>
 
@@ -4159,11 +4148,10 @@ async function rejectUser(uid,name){
   }catch(e){showToast('Gagal.',true);}
 }
 
-// ── INCENTIVE SYSTEM ──
-let allIncentives = [];
+// ── INCENTIVE RULES SYSTEM ──
+let allIncentiveRules = [];
 let selectedMonths = [];
 let selectedIncYear = new Date().getFullYear();
-let editingIncentiveId = null;
 const BULAN_NAMES = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 function incYearNav(dir){
@@ -4173,21 +4161,20 @@ function incYearNav(dir){
   renderIncentive();
 }
 
-// Listen realtime
+// Listen realtime - rules incentive
 function startIncentiveListener(){
   if(_unsub.incentives){_unsub.incentives();_unsub.incentives=null;}
-  _unsub.incentives=db.collection('incentives').where('brand','==',activeBrand).onSnapshot(function(snap){
-    allIncentives = snap.docs.map(d=>({id:d.id,...d.data()}));
-    // Sort di JS supaya tidak butuh composite index Firestore
-    allIncentives.sort(function(a,b){return (b.tahun||0)-(a.tahun||0)||(b.bulan||0)-(a.bulan||0);});
-    if(document.getElementById('page-incentive').classList.contains('active'))renderIncentive();
+  _unsub.incentives=db.collection('incentive_rules').where('brand','==',activeBrand).onSnapshot(function(snap){
+    allIncentiveRules = snap.docs.map(d=>({id:d.id,...d.data()}));
+    allIncentiveRules.sort(function(a,b){return (a.key||'').localeCompare(b.key||'');});
+    if(document.getElementById('page-incentive')&&document.getElementById('page-incentive').classList.contains('active'))renderIncentive();
+    if(document.getElementById('ds-panel-rules')&&document.getElementById('ds-panel-rules').style.display!=='none')renderRulesHistory();
   },function(err){
-    console.error('Incentive listener error:',err);
-    showToast('Gagal load incentive: '+err.message,true);
+    console.error('Incentive rules listener error:',err);
   });
 }
 
-// ── Migrate users tanpa field brand → pandaoma ──
+// Migrate users tanpa field brand
 async function migrateUserBrand(){
   if(!isGodAdmin())return;
   try{
@@ -4202,32 +4189,12 @@ async function migrateUserBrand(){
     });
     if(count>0){
       await batch.commit();
-      console.log('Migrated '+count+' users → brand: pandaoma');
+      console.log('Migrated '+count+' users -> brand: pandaoma');
     }
   }catch(e){console.error('Migrate user brand error:',e);}
 }
 
-// ── Migrate incentive tanpa field brand → pandaoma ──
-async function migrateIncentiveBrand(){
-  if(!isGodAdmin())return;
-  try{
-    var snap=await db.collection('incentives').get();
-    var batch=db.batch();var count=0;
-    snap.docs.forEach(function(doc){
-      if(!doc.data().brand){
-        batch.update(doc.ref,{brand:'pandaoma'});
-        count++;
-      }
-    });
-    if(count>0){
-      await batch.commit();
-      showToast('✅ '+count+' data incentive di-migrate ke Pandaoma');
-    }
-  }catch(e){console.error('Migrate incentive error:',e);}
-}
-
 function getMyStreamer(){
-  // Cocokkan email user login dengan email di master data streamer
   if(!currentUser)return null;
   return allStreamers.find(s=>s.email&&s.email.toLowerCase()===currentUser.email.toLowerCase());
 }
@@ -4260,160 +4227,249 @@ function clearMonthFilter(){
   renderIncentive();
 }
 
-function filterIncentives(data){
-  let filtered=data.filter(d=>d.tahun===selectedIncYear);
-  if(selectedMonths.length>0)filtered=filtered.filter(d=>selectedMonths.includes(d.bulan));
-  return filtered;
+// Cari rate yang berlaku untuk bulan tertentu (key format: YYYY-MM)
+function getRateForMonth(key){
+  var applicable=allIncentiveRules.filter(function(r){return r.key<=key;});
+  if(!applicable.length)return {rateSH:0,rateTT:0};
+  var rule=applicable[applicable.length-1];
+  return {rateSH:rule.rateSH||0,rateTT:rule.rateTT||0};
+}
+
+// Hitung GMV per streamer per bulan dari allSessions
+function calcIncentiveData(){
+  var result=[];
+  var months=selectedMonths.length?selectedMonths:[1,2,3,4,5,6,7,8,9,10,11,12];
+  months.forEach(function(bulan){
+    var key=selectedIncYear+'-'+String(bulan).padStart(2,'0');
+    var rate=getRateForMonth(key);
+    var sesiBulan=allSessions.filter(function(d){
+      if(!d.date)return false;
+      var dt=new Date(d.date+'T12:00:00');
+      return dt.getFullYear()===selectedIncYear&&(dt.getMonth()+1)===bulan;
+    });
+    var byStreamer={};
+    sesiBulan.forEach(function(d){
+      var sName=d.streamerName||d.name||'Unknown';
+      var sId=d.streamerId||sName;
+      if(!byStreamer[sId])byStreamer[sId]={streamerId:sId,name:sName,gmvSH:0,gmvTT:0};
+      if(d.mp==='Shopee'||d.mp==='DLD')byStreamer[sId].gmvSH+=(d.gmv||0);
+      else if(d.mp==='TikTok')byStreamer[sId].gmvTT+=(d.gmv||0);
+    });
+    allStreamers.forEach(function(s){
+      if(!byStreamer[s.id]){
+        byStreamer[s.id]={streamerId:s.id,name:s.name,gmvSH:0,gmvTT:0};
+      }
+    });
+    Object.values(byStreamer).forEach(function(s){
+      var incSH=Math.round(s.gmvSH*rate.rateSH/100);
+      var incTT=Math.round(s.gmvTT*rate.rateTT/100);
+      result.push({
+        bulan:bulan,tahun:selectedIncYear,
+        streamerId:s.streamerId,streamerName:s.name,
+        gmvSH:s.gmvSH,gmvTT:s.gmvTT,
+        rateSH:rate.rateSH,rateTT:rate.rateTT,
+        incSH:incSH,incTT:incTT,total:incSH+incTT
+      });
+    });
+  });
+  result.sort(function(a,b){return b.bulan-a.bulan||b.total-a.total;});
+  return result;
 }
 
 function renderIncentive(){
-  // Update year label
   const yl=document.getElementById('inc-year-label');
   if(yl)yl.textContent=selectedIncYear;
   const isSU=isSuperuserInc();
   const myStreamer=getMyStreamer();
 
-  // Tampilkan admin btn
-  const adminBtn=document.getElementById('incentive-admin-btn');
-  if(adminBtn)adminBtn.style.display=isSU?'block':'none';
-
-  // Tampilkan kolom aksi kalau superuser
-  const aksiCol=document.getElementById('incentive-aksi-col');
-  if(aksiCol)aksiCol.style.display=isSU?'':'none';
-
-  // Update subtitle
   const sub=document.getElementById('incentive-subtitle');
   if(sub){
-    if(isSU)sub.textContent='Semua data incentive streamer — hanya tampil untuk masing-masing';
+    if(isSU)sub.textContent='Hasil kalkulasi otomatis berdasarkan rate yang berlaku per bulan';
     else if(myStreamer)sub.textContent='Incentive kamu sebagai '+myStreamer.name;
     else sub.textContent='Akunmu belum dikaitkan ke streamer manapun';
   }
 
-  // Filter data berdasarkan role
-  let myData;
-  if(isSU){
-    myData=filterIncentives(allIncentives);
-  }else if(myStreamer){
-    myData=filterIncentives(allIncentives.filter(d=>d.streamerId===myStreamer.id||d.streamerEmail===currentUser.email));
-  }else{
-    // User tidak punya streamer
-    document.getElementById('incentive-summary-cards').innerHTML='<div class="empty" style="padding:30px">Akunmu belum dikaitkan ke streamer. Hubungi admin.</div>';
-    document.getElementById('incentive-tbody').innerHTML='<tr><td colspan="7" class="empty">Tidak ada data</td></tr>';
+  const exportBtn=document.getElementById('incentive-export-btn');
+  if(exportBtn)exportBtn.style.display=isSU?'inline-block':'none';
+
+  const tb=document.getElementById('incentive-tbody');
+  if(!tb)return;
+
+  if(!isSU&&!myStreamer){
+    tb.innerHTML='<tr><td colspan="8" class="empty">Akunmu belum dikaitkan ke streamer. Hubungi admin.</td></tr>';
+    const badge0=document.getElementById('incentive-total-badge');if(badge0)badge0.textContent='0 data';
     return;
   }
 
-  // Sort by tahun desc, bulan desc
-  myData.sort((a,b)=>b.tahun!==a.tahun?b.tahun-a.tahun:b.bulan-a.bulan);
+  var allData=calcIncentiveData();
+  var myData=isSU?allData:allData.filter(function(d){return d.streamerId===myStreamer.id||d.streamerName===myStreamer.name;});
 
-  // Summary cards dihapus — langsung ke tabel
-  const cardsEl=document.getElementById('incentive-summary-cards');
-  if(cardsEl)cardsEl.innerHTML='';
-
-  // ── TABLE ──
   const badge=document.getElementById('incentive-total-badge');
   if(badge)badge.textContent=myData.length+' data';
-  // Total bar
-  const grandTotal=myData.reduce((s,d)=>s+(d.nominal||0),0);
-  const totalBar=document.getElementById('incentive-total-bar');
-  const totalEl=document.getElementById('incentive-grand-total');
-  const periodEl=document.getElementById('incentive-period-label');
-  if(totalBar){totalBar.style.display=myData.length?'flex':'none';}
-  if(totalEl)totalEl.textContent=fRp(grandTotal);
-  if(periodEl)periodEl.textContent='('+selectedIncYear+(selectedMonths.length?' · '+selectedMonths.map(m=>BULAN_NAMES[m]).join(', '):'')+')'
-  const tb=document.getElementById('incentive-tbody');
-  if(!tb)return;
-  if(!myData.length){tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada data incentive.</td></tr>';return;}
-  tb.innerHTML=myData.map(d=>{
-    const aksiCell=isSU
-      ?'<td><button class="edit-row" onclick="editIncentive(\''+d.id+'\')">✏️ Edit</button> <button class="del-row" onclick="delIncentive(\''+d.id+'\')">🗑</button></td>'
-      :'<td></td>';
-    const isZero=!d.nominal||d.nominal===0;
+
+  if(!myData.length){tb.innerHTML='<tr><td colspan="8" class="empty">Belum ada data.</td></tr>';return;}
+
+  var rows=myData.map(function(d){
+    var rateLabel=d.rateSH+'% / '+d.rateTT+'%';
     return '<tr>'
+      +'<td style="font-weight:600;color:var(--text2)">'+BULAN_NAMES[d.bulan]+' '+d.tahun+'</td>'
       +'<td style="font-weight:700;color:var(--navy)">'+d.streamerName+'</td>'
-      +'<td style="font-weight:600;color:var(--text2)">'+BULAN_NAMES[d.bulan||1]+' '+d.tahun+'</td>'
-      +'<td class="'+(isZero?'':'gv')+'" style="'+(isZero?'color:var(--text3)':'')+'">'+(isZero?'Rp 0 <span style="font-size:10px;color:var(--text3)">(belum diinput)</span>':fRp(d.nominal))+'</td>'
-      +'<td style="color:var(--text2);font-size:12px">'+(d.catatan||'—')+'</td>'
-      +'<td style="color:var(--text3);font-size:12px">'+(d.inputBy||'—')+'</td>'
+      +'<td>'+fRpS(d.gmvSH)+'</td>'
+      +'<td>'+fRpS(d.gmvTT)+'</td>'
+      +'<td style="font-size:12px;color:var(--text3)">'+rateLabel+'</td>'
+      +'<td>'+fRpS(d.incSH)+'</td>'
+      +'<td>'+fRpS(d.incTT)+'</td>'
+      +'<td style="font-weight:700;color:var(--green)">'+fRpS(d.total)+'</td>'
+      +'</tr>';
+  }).join('');
+
+  var totGmvSH=myData.reduce(function(s,d){return s+d.gmvSH;},0);
+  var totGmvTT=myData.reduce(function(s,d){return s+d.gmvTT;},0);
+  var totIncSH=myData.reduce(function(s,d){return s+d.incSH;},0);
+  var totIncTT=myData.reduce(function(s,d){return s+d.incTT;},0);
+  var totAll=myData.reduce(function(s,d){return s+d.total;},0);
+  rows+='<tr style="background:var(--off);font-weight:700;">'
+    +'<td colspan="2">Total</td>'
+    +'<td>'+fRpS(totGmvSH)+'</td>'
+    +'<td>'+fRpS(totGmvTT)+'</td>'
+    +'<td>-</td>'
+    +'<td>'+fRpS(totIncSH)+'</td>'
+    +'<td>'+fRpS(totIncTT)+'</td>'
+    +'<td style="color:var(--green)">'+fRpS(totAll)+'</td>'
+    +'</tr>';
+
+  tb.innerHTML=rows;
+}
+
+// EXPORT EXCEL
+async function exportIncentiveExcel(){
+  if(!isSuperuserInc()){showToast('Tidak ada akses',true);return;}
+  var data=calcIncentiveData();
+  if(!data.length){showToast('Tidak ada data untuk diexport',true);return;}
+  try{
+    var XLSXmod=await import('https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs');
+    var wsData=[['Bulan','Streamer','GMV SH','GMV TT','Rate SH (%)','Rate TT (%)','Incentive SH','Incentive TT','Total Incentive']];
+    data.forEach(function(d){
+      wsData.push([BULAN_NAMES[d.bulan]+' '+d.tahun,d.streamerName,d.gmvSH,d.gmvTT,d.rateSH,d.rateTT,d.incSH,d.incTT,d.total]);
+    });
+    var totGmvSH=data.reduce(function(s,d){return s+d.gmvSH;},0);
+    var totGmvTT=data.reduce(function(s,d){return s+d.gmvTT;},0);
+    var totIncSH=data.reduce(function(s,d){return s+d.incSH;},0);
+    var totIncTT=data.reduce(function(s,d){return s+d.incTT;},0);
+    var totAll=data.reduce(function(s,d){return s+d.total;},0);
+    wsData.push(['Total','',totGmvSH,totGmvTT,'','',totIncSH,totIncTT,totAll]);
+    var ws=XLSXmod.utils.aoa_to_sheet(wsData);
+    var numCols=[2,3,6,7,8];
+    for(var r=1;r<wsData.length;r++){
+      numCols.forEach(function(c){
+        var cellRef=XLSXmod.utils.encode_cell({r:r,c:c});
+        if(ws[cellRef]&&typeof ws[cellRef].v==='number'){
+          ws[cellRef].z='#,##0';
+        }
+      });
+    }
+    ws['!cols']=[{wch:14},{wch:18},{wch:14},{wch:14},{wch:10},{wch:10},{wch:14},{wch:14},{wch:16}];
+    var wb=XLSXmod.utils.book_new();
+    var brandName=BRAND_CONFIG[activeBrand]?BRAND_CONFIG[activeBrand].name:activeBrand;
+    XLSXmod.utils.book_append_sheet(wb,ws,'Incentive');
+    var fname='Incentive_'+brandName+'_'+selectedIncYear+'.xlsx';
+    XLSXmod.writeFile(wb,fname);
+    showToast('Export berhasil!');
+  }catch(e){showToast('Gagal export: '+e.message,true);}
+}
+
+// RULES INCENTIVE (Data Streamer tab)
+function switchStreamerTab(tab){
+  var isList=tab==='list';
+  document.getElementById('ds-panel-list').style.display=isList?'block':'none';
+  document.getElementById('ds-panel-rules').style.display=isList?'none':'block';
+  document.getElementById('ds-tab-list').style.background=isList?'var(--navy)':'transparent';
+  document.getElementById('ds-tab-list').style.color=isList?'#fff':'var(--text2)';
+  document.getElementById('ds-tab-rules').style.background=isList?'transparent':'var(--navy)';
+  document.getElementById('ds-tab-rules').style.color=isList?'var(--text2)':'#fff';
+  if(!isList){
+    populateRuleMonthDropdown();
+    renderRulesHistory();
+  }
+}
+
+function populateRuleMonthDropdown(){
+  var sel=document.getElementById('rule-month');
+  if(!sel)return;
+  sel.innerHTML='';
+  var now=new Date();
+  for(var i=-2;i<=6;i++){
+    var d=new Date(now.getFullYear(),now.getMonth()+i,1);
+    var key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    var label=BULAN_NAMES[d.getMonth()+1]+' '+d.getFullYear();
+    var opt=document.createElement('option');
+    opt.value=key;opt.textContent=label;
+    if(i===0)opt.selected=true;
+    sel.appendChild(opt);
+  }
+}
+
+function renderRulesHistory(){
+  var tb=document.getElementById('rules-tbody');
+  var badge=document.getElementById('rules-total-badge');
+  var aksiCol=document.getElementById('rules-aksi-col');
+  if(!tb)return;
+  var isSU=isSuperuserInc();
+  if(aksiCol)aksiCol.style.display=isSU?'':'none';
+  if(badge)badge.textContent=allIncentiveRules.length+' data';
+  if(!allIncentiveRules.length){tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada rules. Set rate pertama di atas.</td></tr>';return;}
+  var sorted=allIncentiveRules.slice().sort(function(a,b){return (b.key||'').localeCompare(a.key||'');});
+  var now=new Date();
+  var nowKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var activeRule=getRateForMonth(nowKey);
+  tb.innerHTML=sorted.map(function(r){
+    var parts=r.key.split('-');
+    var label=BULAN_NAMES[parseInt(parts[1])]+' '+parts[0];
+    var isActive=(r.rateSH===activeRule.rateSH&&r.rateTT===activeRule.rateTT&&r.key<=nowKey&&(allIncentiveRules.filter(function(x){return x.key<=nowKey&&x.key>r.key;}).length===0));
+    var statusBadge=isActive?'<span style="font-size:11px;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:10px;font-weight:700;">Berlaku</span>':'';
+    var aksiCell=isSU?'<td><button class="del-row" onclick="delIncentiveRule(\''+r.id+'\')">Hapus</button></td>':'';
+    var setDate=r.createdAt?new Date(r.createdAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):'-';
+    return '<tr>'
+      +'<td style="font-weight:700;color:var(--navy)">'+label+'</td>'
+      +'<td>'+r.rateSH+'%</td>'
+      +'<td>'+r.rateTT+'%</td>'
+      +'<td style="font-size:12px;color:var(--text2)">'+(r.createdByName||r.createdBy||'-')+'</td>'
+      +'<td style="font-size:12px;color:var(--text3)">'+setDate+'</td>'
+      +'<td>'+statusBadge+'</td>'
       +aksiCell
       +'</tr>';
   }).join('');
 }
 
-function openIncentiveInput(){
-  editingIncentiveId=null;
-  // Populate streamer dropdown
-  const sel=document.getElementById('inc-streamer');
-  sel.innerHTML='<option value="">-- Pilih Streamer --</option>';
-  allStreamers.forEach(s=>{
-    const opt=document.createElement('option');
-    opt.value=s.id;opt.textContent=s.name+(s.email?' ('+s.email+')':'');
-    opt.dataset.email=s.email||'';opt.dataset.name=s.name;
-    sel.appendChild(opt);
-  });
-  // Set bulan ke sekarang
-  const now=new Date();
-  document.getElementById('inc-bulan').value=now.getMonth()+1;
-  document.getElementById('inc-tahun').value=selectedIncYear||now.getFullYear();
-  document.getElementById('inc-nominal').value='';
-  document.getElementById('inc-catatan').value='';
-  document.getElementById('incentive-modal').style.display='flex';
-}
-
-function closeIncentiveInput(){
-  document.getElementById('incentive-modal').style.display='none';
-  editingIncentiveId=null;
-}
-
-async function saveIncentive(){
-  const streamerId=document.getElementById('inc-streamer').value;
-  const sel=document.getElementById('inc-streamer');
-  const opt=sel.options[sel.selectedIndex];
-  if(!streamerId){showToast('Pilih streamer dulu!',true);return;}
-  const nominal=parseFloat(document.getElementById('inc-nominal').value);
-  if(!nominal||nominal<=0){showToast('Nominal wajib diisi!',true);return;}
-  const data={
-    brand:activeBrand,
-    streamerId,
-    streamerName:opt.dataset.name||opt.textContent.split(' (')[0],
-    streamerEmail:opt.dataset.email||'',
-    bulan:parseInt(document.getElementById('inc-bulan').value),
-    tahun:parseInt(document.getElementById('inc-tahun').value),
-    nominal,
-    catatan:document.getElementById('inc-catatan').value.trim(),
-    inputBy:currentUser?.displayName||currentUser?.email?.split('@')[0]||'',
-    updatedAt:new Date().toISOString()
-  };
+async function saveIncentiveRule(){
+  if(!isSuperuserInc()){showToast('Tidak ada akses',true);return;}
+  var key=document.getElementById('rule-month').value;
+  var rateSH=parseFloat(document.getElementById('rule-rate-sh').value);
+  var rateTT=parseFloat(document.getElementById('rule-rate-tt').value);
+  if(!key){showToast('Pilih bulan dulu',true);return;}
+  if(isNaN(rateSH)||isNaN(rateTT)){showToast('Rate SH dan TT wajib diisi',true);return;}
   try{
-    if(editingIncentiveId){
-      await db.collection('incentives').doc(editingIncentiveId).update(data);
-      showToast('Incentive diupdate!');
-    }else{
-      data.createdAt=new Date().toISOString();
-      await db.collection('incentives').add(data);
-      showToast('Incentive tersimpan!');
-    }
-    closeIncentiveInput();
+    var existing=allIncentiveRules.find(function(r){return r.key===key;});
+    var data={
+      brand:activeBrand,key:key,rateSH:rateSH,rateTT:rateTT,
+      createdBy:currentUser?currentUser.email:'',
+      createdByName:currentUser?(currentUser.displayName||currentUser.email.split('@')[0]):'',
+      createdAt:new Date().toISOString()
+    };
+    if(existing)await db.collection('incentive_rules').doc(existing.id).update(data);
+    else await db.collection('incentive_rules').add(data);
+    document.getElementById('rule-rate-sh').value='';
+    document.getElementById('rule-rate-tt').value='';
+    showToast('Rate disimpan!');
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
-function editIncentive(id){
-  const d=allIncentives.find(x=>x.id===id);
-  if(!d)return;
-  editingIncentiveId=id;
-  openIncentiveInput();
-  setTimeout(()=>{
-    document.getElementById('inc-streamer').value=d.streamerId||'';
-    document.getElementById('inc-bulan').value=d.bulan||1;
-    document.getElementById('inc-tahun').value=d.tahun||new Date().getFullYear();
-    document.getElementById('inc-nominal').value=d.nominal||'';
-    document.getElementById('inc-catatan').value=d.catatan||'';
-  },100);
-}
-
-async function delIncentive(id){
-  if(!confirm('Hapus data incentive ini?'))return;
-  try{await db.collection('incentives').doc(id).delete();showToast('Incentive dihapus.');}
-  catch(e){showToast('Gagal hapus.',true);}
+async function delIncentiveRule(id){
+  if(!confirm('Hapus rule ini?'))return;
+  try{
+    await db.collection('incentive_rules').doc(id).delete();
+    showToast('Rule dihapus.');
+  }catch(e){showToast('Gagal hapus.',true);}
 }
 
 
@@ -5803,10 +5859,6 @@ function applyMenuAccess(){
     const el=document.getElementById(id);
     if(el)el.style.display=(isGA||isBA)?'inline-block':'none';
   });
-
-  // Incentive admin btn: only God Admin & Brand Admin
-  const incAdminBtn=document.getElementById('incentive-admin-btn');
-  if(incAdminBtn)incAdminBtn.style.display=(isGA||isBA)?'block':'none';
 
   // Show-add-sku button: God Admin & Brand Admin
   const addSkuBtn=document.getElementById('show-add-sku-page-btn');
