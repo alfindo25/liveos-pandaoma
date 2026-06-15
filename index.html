@@ -5807,7 +5807,7 @@ function applyMenuAccess(){
 
   // Setting: God Admin + Brand Admin only
   const niSet=document.getElementById('ni-setting');
-  if(niSet)niSet.style.display=(isGA||isBA)?'flex':'none';
+  if(niSet)niSet.style.display='flex'; // Setting selalu visible untuk semua role (logout, info akun)
   // Pengumuman: God Admin + Brand Admin
   const niAnn=document.getElementById('ni-announcement');
   if(niAnn)niAnn.style.display=(isGA||isBA)?'flex':'none';
