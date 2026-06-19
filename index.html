@@ -4482,13 +4482,15 @@ var skuRowCount=0;
 function startSKUListeners(){
   if(_unsub.skuReports){_unsub.skuReports();_unsub.skuReports=null;}
   if(_unsub.masterSku){_unsub.masterSku();_unsub.masterSku=null;}
-  _unsub.skuReports=db.collection('sku_reports').where('brand','==',activeBrand).orderBy('createdAt','desc').onSnapshot(function(snap){
+  _unsub.skuReports=db.collection('sku_reports').where('brand','==',activeBrand).onSnapshot(function(snap){
     allSKUReports=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    allSKUReports.sort(function(a,b){return (b.createdAt||'').localeCompare(a.createdAt||'');});
     if(document.getElementById('page-sku-history').classList.contains('active'))renderSKUHistory();
     refreshSKUWidget();
   });
-  _unsub.masterSku=db.collection('master_sku').where('brand','==',activeBrand).orderBy('name').onSnapshot(function(snap){
+  _unsub.masterSku=db.collection('master_sku').where('brand','==',activeBrand).onSnapshot(function(snap){
     allMasterSKU=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    allMasterSKU.sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
     renderMasterSKUList();
     if(document.getElementById('page-master-sku').classList.contains('active'))renderMasterSKUPage();
   });
@@ -5135,8 +5137,9 @@ var allSlotJam = [];
 
 function startJadwalListeners(){
   if(_unsub.schedules){_unsub.schedules();_unsub.schedules=null;}
-  _unsub.schedules=db.collection('schedules').where('brand','==',activeBrand).orderBy('date','asc').onSnapshot(function(snap){
+  _unsub.schedules=db.collection('schedules').where('brand','==',activeBrand).onSnapshot(function(snap){
     allSchedules = snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    allSchedules.sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
     jadwalMassMode=false;jadwalSelected.clear();
     if(document.getElementById('page-jadwal').classList.contains('active')){
       renderJadwalGrid(); renderJadwalDetail();
