@@ -6611,10 +6611,10 @@ async function saveTambahTargetDD(){
 async function bulkDeleteInvalidSchedules(){
   var validSlots=['06:00','09:00','14:00','22:00'];
   var resultEl=document.getElementById('bulk-delete-result');
-  if(!confirm('Yakin hapus semua jadwal dengan timeStart di luar slot resmi (06:00, 09:00, 14:00, 22:00)?'))return;
+  if(!confirm('Yakin hapus semua jadwal '+activeBrand+' dengan timeStart di luar slot resmi (06:00, 09:00, 14:00, 22:00)?'))return;
   if(resultEl)resultEl.innerHTML='<span style="color:var(--text2);">Memproses...</span>';
   try{
-    var snap=await db.collection('schedules').get();
+    var snap=await db.collection('schedules').where('brand','==',activeBrand).get();
     var toDelete=snap.docs.filter(function(d){
       var ts=d.data().timeStart;
       return !ts||validSlots.indexOf(ts)===-1;
@@ -6635,12 +6635,12 @@ async function bulkDeleteInvalidSchedules(){
 }
 
 async function deleteAllSchedules(){
-  if(!confirm('⚠️ HAPUS SEMUA DATA JADWAL? Aksi ini tidak bisa dibatalkan!'))return;
-  if(!confirm('Konfirmasi sekali lagi — semua jadwal akan dihapus permanen?'))return;
+  if(!confirm('⚠️ HAPUS SEMUA DATA JADWAL '+activeBrand.toUpperCase()+'? Aksi ini tidak bisa dibatalkan!'))return;
+  if(!confirm('Konfirmasi sekali lagi — semua jadwal '+activeBrand+' akan dihapus permanen?'))return;
   var resultEl=document.getElementById('bulk-delete-result');
   if(resultEl)resultEl.innerHTML='<span style="color:var(--text2);">Memproses...</span>';
   try{
-    var snap=await db.collection('schedules').get();
+    var snap=await db.collection('schedules').where('brand','==',activeBrand).get();
     if(!snap.docs.length){
       if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; Tidak ada data jadwal.</span>';
       return;
@@ -6653,8 +6653,8 @@ async function deleteAllSchedules(){
       chunks[c].forEach(function(d){batch.delete(d.ref);});
       await batch.commit();
     }
-    if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; '+snap.docs.length+' jadwal berhasil dihapus semua.</span>';
-    showToast('Semua jadwal ('+snap.docs.length+') berhasil dihapus!');
+    if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; '+snap.docs.length+' jadwal berhasil dihapus.</span>';
+    showToast('Semua jadwal '+activeBrand+' ('+snap.docs.length+') berhasil dihapus!');
   }catch(e){
     if(resultEl)resultEl.innerHTML='<span style="color:var(--red);">&#10007; Gagal: '+e.message+'</span>';
     showToast('Gagal hapus: '+e.message,true);
