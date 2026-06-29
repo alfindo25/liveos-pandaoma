@@ -7384,6 +7384,18 @@ function openPkForm(id) {
   var p = id ? allPK.find(function(x){ return x.id===id; }) : null;
   pkUspList = p ? (p.usp ? p.usp.slice() : []) : [''];
   pkVariantList = p ? (p.variants ? p.variants.map(function(v){ return Object.assign({},v); }) : []) : [];
+  // Init pkFormState dari data produk (atau kosong untuk produk baru)
+  pkFormState = {
+    name:       p ? (p.name||'') : '',
+    sku:        p ? (p.skuUtama||'') : '',
+    tag:        p ? (p.tagline||'') : '',
+    photo:      p ? (p.photoUrl||'') : '',
+    detail:     p ? (p.detail||'') : '',
+    caraPakai:  p ? (p.caraPakai||'') : '',
+    perawatan:  p ? (p.perawatan||'') : '',
+    peringatan: p ? (p.peringatan||'') : '',
+    garansi:    p ? (p.garansi||'') : ''
+  };
 
   var existing = document.getElementById('modal-pk-form');
   if(existing) existing.remove();
@@ -7403,27 +7415,43 @@ function openPkForm(id) {
 }
 
 // Module-level helpers — TIDAK boleh nested di dalam if/openPkForm
+// pkFormState menyimpan nilai semua field text agar tidak hilang saat refresh
+var pkFormState = {name:'',sku:'',tag:'',photo:'',detail:'',caraPakai:'',perawatan:'',peringatan:'',garansi:''};
+
 function syncPkForm() {
-  var nameEl = document.getElementById('pk-fname');
-  var skuEl = document.getElementById('pk-fsku');
-  var tagEl = document.getElementById('pk-ftag');
-  var photoEl = document.getElementById('pk-fphoto');
-  var detailEl = document.getElementById('pk-fdetail');
-  var caraPakaiEl = document.getElementById('pk-fcarapakai');
-  var perawatanEl = document.getElementById('pk-fperawatan');
-  var peringatanEl = document.getElementById('pk-fperingatan');
-  var garansiEl = document.getElementById('pk-fgaransi');
+  var g = function(id){ var el=document.getElementById(id); return el?el.value:''; };
+  pkFormState.name      = g('pk-fname');
+  pkFormState.sku       = g('pk-fsku');
+  pkFormState.tag       = g('pk-ftag');
+  pkFormState.photo     = g('pk-fphoto');
+  pkFormState.detail    = g('pk-fdetail');
+  pkFormState.caraPakai = g('pk-fcarapakai');
+  pkFormState.perawatan = g('pk-fperawatan');
+  pkFormState.peringatan= g('pk-fperingatan');
+  pkFormState.garansi   = g('pk-fgaransi');
   // Read USP
-  var uspEls = document.querySelectorAll('.pk-usp-input');
   pkUspList = [];
-  uspEls.forEach(function(el){ pkUspList.push(el.value); });
+  document.querySelectorAll('.pk-usp-input').forEach(function(el){ pkUspList.push(el.value); });
   // Read Variants
-  var vRows = document.querySelectorAll('.pk-variant-row');
   pkVariantList = [];
-  vRows.forEach(function(row){
-    var nameEl2 = row.querySelector('.pk-vname');
-    var skuSel = row.querySelector('.pk-vsku');
-    pkVariantList.push({ name: nameEl2 ? nameEl2.value : '', skuId: skuSel ? skuSel.value : '' });
+  document.querySelectorAll('.pk-variant-row').forEach(function(row){
+    var n = row.querySelector('.pk-vname');
+    var searchInput = row.querySelector('.pk-vsku-search');
+    var hiddenSku = row.querySelector('.pk-vsku');
+    var skuId = '';
+    if(searchInput) {
+      // Cari SKU yang cocok dengan teks di search input
+      var searchVal = searchInput.value.trim();
+      var matched = allMasterSKU.find(function(s){
+        return (s.name+(s.prodName?' — '+s.prodName:'')).toLowerCase() === searchVal.toLowerCase()
+          || s.name.toLowerCase() === searchVal.toLowerCase();
+      });
+      skuId = matched ? matched.id : (hiddenSku ? hiddenSku.value : '');
+      if(hiddenSku) hiddenSku.value = skuId;
+    } else if(hiddenSku) {
+      skuId = hiddenSku.value;
+    }
+    pkVariantList.push({ name: n?n.value:'', skuId: skuId });
   });
 }
 
@@ -7442,10 +7470,20 @@ function refreshPkModalOnly() {
     return '<option value="'+s.id+'">'+s.name+(s.prodName?' — '+s.prodName:'')+'</option>';
   }).join('');
   var variantHtml = pkVariantList.map(function(v, i){
-    return '<tr class="pk-variant-row" style="border-bottom:1px solid var(--border);">'
+    var curSku = allMasterSKU.find(function(s){ return s.id===v.skuId; });
+    var curSkuLabel = curSku ? curSku.name+(curSku.prodName?' — '+curSku.prodName:'') : '';
+    var dlId = 'pk-sku-dl-'+i;
+    var dlHtml = '<datalist id="'+dlId+'">'+allMasterSKU.map(function(s){
+      return '<option value="'+(s.name+(s.prodName?' — '+s.prodName:''))+'" data-id="'+s.id+'">';
+    }).join('')+'</datalist>';
+    return '<tr class="pk-variant-row" style="border-bottom:1px solid var(--border);" data-idx="'+i+'">'
       + '<td style="padding:6px 4px;color:var(--text3);font-size:12px;text-align:center;">'+(i+1)+'</td>'
       + '<td style="padding:6px 4px;"><input class="fi pk-vname" type="text" value="'+v.name.replace(/"/g,'&quot;')+'" placeholder="cth. Merah" style="margin-bottom:0;font-size:13px;"/></td>'
-      + '<td style="padding:6px 4px;"><select class="fi pk-vsku" style="margin-bottom:0;font-size:12px;cursor:pointer;"><option value="">-- Pilih SKU --</option>'+skuOptions+'</select></td>'
+      + '<td style="padding:6px 4px;">'
+      + dlHtml
+      + '<input class="fi pk-vsku-search" type="text" list="'+dlId+'" placeholder="Cari SKU..." value="'+curSkuLabel.replace(/"/g,'&quot;')+'" data-skuid="'+v.skuId+'" style="margin-bottom:0;font-size:12px;"/>'
+      + '<input type="hidden" class="pk-vsku" value="'+v.skuId+'"/>'
+      + '</td>'
       + '<td style="padding:6px 4px;"><button type="button" onclick="pkRemoveVariant('+i+')" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:12px;">&#10005;</button></td>'
       + '</tr>';
   }).join('');
@@ -7481,22 +7519,19 @@ function refreshPkModalOnly() {
     + '<button type="button" onclick="savePK()" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128190; Simpan</button>'
     + '</div>';
 
-  // Restore values from pkEditId
-  var p = pkEditId ? allPK.find(function(x){ return x.id===pkEditId; }) : null;
-  if(p) {
-    var setVal = function(id, val){ var el=document.getElementById(id); if(el&&val!==undefined) el.value=val||''; };
-    setVal('pk-fname', p.name);
-    setVal('pk-fsku', p.skuUtama);
-    setVal('pk-ftag', p.tagline);
-    setVal('pk-fphoto', p.photoUrl);
-    setVal('pk-fdetail', p.detail);
-    setVal('pk-fcarapakai', p.caraPakai);
-    setVal('pk-fperawatan', p.perawatan);
-    setVal('pk-fperingatan', p.peringatan);
-    setVal('pk-fgaransi', p.garansi);
-  }
-  // Restore variant SKU selects
+  // Restore values dari pkFormState (yang sudah di-sync sebelum refresh)
   setTimeout(function(){
+    var s = function(id, val){ var el=document.getElementById(id); if(el) el.value=val||''; };
+    s('pk-fname',      pkFormState.name);
+    s('pk-fsku',       pkFormState.sku);
+    s('pk-ftag',       pkFormState.tag);
+    s('pk-fphoto',     pkFormState.photo);
+    s('pk-fdetail',    pkFormState.detail);
+    s('pk-fcarapakai', pkFormState.caraPakai);
+    s('pk-fperawatan', pkFormState.perawatan);
+    s('pk-fperingatan',pkFormState.peringatan);
+    s('pk-fgaransi',   pkFormState.garansi);
+    // Restore variant SKU selects
     document.querySelectorAll('.pk-variant-row').forEach(function(row, i){
       var sel = row.querySelector('.pk-vsku');
       if(sel && pkVariantList[i]) sel.value = pkVariantList[i].skuId||'';
@@ -7544,24 +7579,21 @@ function extractGDriveId(url) {
 
 async function savePK() {
   syncPkForm();
-  var name = (document.getElementById('pk-fname')||{}).value||'';
-  var skuUtama = (document.getElementById('pk-fsku')||{}).value||'';
-  if(!name.trim()) { showToast('Nama produk wajib diisi', true); return; }
-  if(!skuUtama.trim()) { showToast('SKU Utama wajib diisi', true); return; }
-
-  var rawPhoto = (document.getElementById('pk-fphoto')||{}).value||'';
+  // pkFormState sudah terupdate oleh syncPkForm() di atas
+  if(!pkFormState.name.trim()) { showToast('Nama produk wajib diisi', true); return; }
+  if(!pkFormState.sku.trim()) { showToast('SKU Utama wajib diisi', true); return; }
   var data = {
     brand: activeBrand,
-    name: name.trim(),
-    skuUtama: skuUtama.trim(),
-    tagline: ((document.getElementById('pk-ftag')||{}).value||'').trim(),
-    photoUrl: extractGDriveId(rawPhoto.trim()),
+    name: pkFormState.name.trim(),
+    skuUtama: pkFormState.sku.trim(),
+    tagline: pkFormState.tag.trim(),
+    photoUrl: extractGDriveId(pkFormState.photo.trim()),
     usp: pkUspList.filter(function(u){ return u.trim(); }),
-    detail: ((document.getElementById('pk-fdetail')||{}).value||'').trim(),
-    caraPakai: ((document.getElementById('pk-fcarapakai')||{}).value||'').trim(),
-    perawatan: ((document.getElementById('pk-fperawatan')||{}).value||'').trim(),
-    peringatan: ((document.getElementById('pk-fperingatan')||{}).value||'').trim(),
-    garansi: ((document.getElementById('pk-fgaransi')||{}).value||'').trim(),
+    detail: pkFormState.detail.trim(),
+    caraPakai: pkFormState.caraPakai.trim(),
+    perawatan: pkFormState.perawatan.trim(),
+    peringatan: pkFormState.peringatan.trim(),
+    garansi: pkFormState.garansi.trim(),
     variants: pkVariantList.filter(function(v){ return v.name.trim(); }),
     updatedAt: new Date().toISOString()
   };
