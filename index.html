@@ -2125,12 +2125,14 @@ function toggleGuideCard(hdr){
 </div>
 </div>
 <div class="page" id="page-produk">
-<div class="topbar"><div><div class="pgtitle">Product <span>Knowledge</span></div><div class="pgsub">Informasi lengkap produk Pandaoma untuk tim</div></div></div>
-<div class="pk-coming">
-  <div class="pk-coming-icon">📦</div>
-  <div class="pk-coming-title">Segera hadir</div>
-  <p style="font-size:13px;color:var(--text3);margin-top:4px;">Konten product knowledge akan ditambahkan oleh admin. Stay tuned!</p>
+<div class="topbar">
+  <div><div class="pgtitle">Product <span>Knowledge</span></div><div class="pgsub" id="pk-sub">Informasi lengkap produk untuk tim</div></div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+    <input id="pk-search" type="text" placeholder="Cari produk atau SKU..." oninput="renderPK()" style="padding:7px 12px;font-size:13px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);background:var(--surface);color:var(--text);width:200px;"/>
+    <button id="pk-add-btn" onclick="openPkForm()" style="display:none;padding:7px 16px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">+ Tambah Produk</button>
+  </div>
 </div>
+<div id="pk-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;"></div>
 </div>
 <div class="page" id="page-announcement">
 <div class="topbar">
@@ -2704,6 +2706,7 @@ function goPage(p){
   if(p==='detail')renderDetailTable();
   if(p==='incentive')renderIncentive();
   if(p==='announcement'){loadAnnouncements();}
+  if(p==='produk'){renderPK();}
   if(p==='sku'){initSKUForm();}
   if(p==='jadwal'){renderJadwalGrid();renderJadwalDetail();}
   if(p==='input-jadwal'){initIJForm();}
@@ -5554,6 +5557,7 @@ function startAllListeners(){
   startJadwalListeners();
   startTargetListener();
   startAnnouncementListener();
+  startPKListener();
   // Migrate data lama — hanya sekali per browser (cek localStorage flag)
   if(isGodAdmin()){
     setTimeout(function(){
@@ -7244,6 +7248,348 @@ async function submitMultiForm(){
     addMultiStreamerRow();addMultiStreamerRow();
   }catch(e){showToast('Gagal: '+e.message,true);}
   finally{if(btn){btn.disabled=false;btn.textContent='Simpan Sesi';}}
+}
+
+
+
+// ════════════════════════════════════════
+// ── PRODUCT KNOWLEDGE SYSTEM ──
+// ════════════════════════════════════════
+var allPK = [];
+var pkEditId = null;
+var pkUspList = [];
+var pkVariantList = [];
+
+// ── Listener ──
+function startPKListener() {
+  db.collection('product_knowledge').where('brand','==',activeBrand).onSnapshot(function(snap) {
+    allPK = snap.docs.map(function(d){ return Object.assign({id:d.id}, d.data()); });
+    allPK.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+    if(document.getElementById('page-produk') && document.getElementById('page-produk').classList.contains('active')) renderPK();
+  }, function(err){ console.error('PK listener error:', err); });
+}
+
+// ── Render grid ──
+function renderPK() {
+  var grid = document.getElementById('pk-grid');
+  if(!grid) return;
+  var q = (document.getElementById('pk-search') ? document.getElementById('pk-search').value : '').toLowerCase().trim();
+  var data = allPK.filter(function(p) {
+    if(!q) return true;
+    return (p.name||'').toLowerCase().includes(q) || (p.skuUtama||'').toLowerCase().includes(q);
+  });
+
+  // Update subtitle
+  var sub = document.getElementById('pk-sub');
+  if(sub) sub.textContent = data.length + ' produk tersedia';
+
+  // Show add btn for God Admin
+  var addBtn = document.getElementById('pk-add-btn');
+  if(addBtn) addBtn.style.display = isGodAdmin() ? 'inline-block' : 'none';
+
+  if(!data.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px 0;color:var(--text3);font-size:14px;">'+(q?'Produk tidak ditemukan.':'Belum ada produk. God Admin bisa tambah produk.')+'</div>';
+    return;
+  }
+
+  grid.innerHTML = data.map(function(p) {
+    var photoHtml = p.photoUrl
+      ? '<img src="'+p.photoUrl+'" style="width:100%;height:140px;object-fit:cover;border-radius:var(--radius-sm) var(--radius-sm) 0 0;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"/><div style="display:none;width:100%;height:140px;align-items:center;justify-content:center;background:var(--off);border-radius:var(--radius-sm) var(--radius-sm) 0 0;font-size:40px;">📦</div>'
+      : '<div style="width:100%;height:140px;display:flex;align-items:center;justify-content:center;background:var(--off);border-radius:var(--radius-sm) var(--radius-sm) 0 0;font-size:40px;">📦</div>';
+    var adminBtns = isGodAdmin()
+      ? '<button onclick="openPkForm(\''+p.id+'\')" style="padding:4px 10px;font-size:11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--font);">✏ Edit</button>'
+        +'<button onclick="deletePK(\''+p.id+'\')" style="padding:4px 10px;font-size:11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:#dc2626;cursor:pointer;font-family:var(--font);">Hapus</button>'
+      : '';
+    return '<div class="card" style="overflow:hidden;display:flex;flex-direction:column;">'
+      + photoHtml
+      + '<div style="padding:12px;flex:1;display:flex;flex-direction:column;gap:6px;">'
+      + '<code style="font-size:11px;background:var(--off);padding:2px 6px;border-radius:4px;color:var(--navy);font-family:var(--mono);">'+(p.skuUtama||'—')+'</code>'
+      + '<div style="font-size:14px;font-weight:700;color:var(--navy);">'+(p.name||'')+'</div>'
+      + (p.tagline?'<div style="font-size:12px;color:var(--text2);font-style:italic;">'+(p.tagline)+'</div>':'')
+      + '<div style="margin-top:auto;padding-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">'
+      + '<button onclick="openPkDetail(\''+p.id+'\')" style="padding:5px 12px;font-size:12px;font-weight:700;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;cursor:pointer;font-family:var(--font);">Lihat Detail</button>'
+      + adminBtns
+      + '</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+// ── Detail modal ──
+function openPkDetail(id) {
+  var p = allPK.find(function(x){ return x.id===id; });
+  if(!p) return;
+  var div = document.createElement('div');
+  div.id = 'modal-pk-detail';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;';
+  var uspHtml = (p.usp&&p.usp.length) ? '<ul style="margin:0;padding-left:18px;">' + p.usp.map(function(u){ return '<li style="font-size:13px;margin-bottom:4px;">'+u+'</li>'; }).join('') + '</ul>' : '<span style="color:var(--text3);font-size:13px;">—</span>';
+  var variantHtml = '';
+  if(p.variants && p.variants.length) {
+    variantHtml = '<table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;">'
+      + '<thead><tr style="border-bottom:2px solid var(--border);">'
+      + '<th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text3);text-transform:uppercase;">No</th>'
+      + '<th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text3);text-transform:uppercase;">Nama Varian</th>'
+      + '<th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text3);text-transform:uppercase;">SKU</th>'
+      + '</tr></thead><tbody>'
+      + p.variants.map(function(v,i){
+          var sku = allMasterSKU.find(function(s){ return s.id===v.skuId; });
+          return '<tr style="border-bottom:1px solid var(--border);">'
+            + '<td style="padding:6px 8px;color:var(--text3);">'+(i+1)+'</td>'
+            + '<td style="padding:6px 8px;font-weight:600;">'+(v.name||'')+'</td>'
+            + '<td style="padding:6px 8px;"><code style="font-size:11px;background:var(--off);padding:2px 6px;border-radius:4px;font-family:var(--mono);">'+(sku?sku.name:v.skuId||'—')+'</code></td>'
+            + '</tr>';
+        }).join('')
+      + '</tbody></table>';
+  } else {
+    variantHtml = '<span style="color:var(--text3);font-size:13px;">Tidak ada varian.</span>';
+  }
+
+  function section(title, content) {
+    if(!content) return '';
+    return '<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px;">'+title+'</div><div style="font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;">'+content+'</div></div>';
+  }
+
+  div.innerHTML = '<div style="background:#fff;border-radius:var(--radius);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.2);">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px 0;">'
+    + '<div style="font-size:15px;font-weight:800;color:var(--navy);">Detail Produk</div>'
+    + '<div style="display:flex;gap:8px;align-items:center;">'
+    + (isGodAdmin() ? '<button onclick="document.getElementById(\'modal-pk-detail\').remove();openPkForm(\''+p.id+'\')" style="padding:5px 12px;font-size:12px;font-weight:700;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;cursor:pointer;font-family:var(--font);">✏ Edit</button>' : '')
+    + '<button onclick="document.getElementById(\'modal-pk-detail\').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);">&#10005;</button>'
+    + '</div></div>'
+    + '<div style="padding:16px 20px;">'
+    + '<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">'
+    + (p.photoUrl ? '<img src="'+p.photoUrl+'" style="width:120px;height:120px;object-fit:cover;border-radius:var(--radius-sm);flex-shrink:0;" onerror="this.style.display=\'none\'">' : '<div style="width:120px;height:120px;display:flex;align-items:center;justify-content:center;background:var(--off);border-radius:var(--radius-sm);font-size:40px;flex-shrink:0;">📦</div>')
+    + '<div style="min-width:0;">'
+    + '<code style="font-size:11px;background:var(--off);padding:2px 6px;border-radius:4px;color:var(--navy);font-family:var(--mono);">'+(p.skuUtama||'—')+'</code>'
+    + '<div style="font-size:17px;font-weight:800;color:var(--navy);margin:6px 0 4px;">'+(p.name||'')+'</div>'
+    + (p.tagline ? '<div style="font-size:13px;color:var(--text2);font-style:italic;">'+p.tagline+'</div>' : '')
+    + '</div></div>'
+    + '<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px;">USP / Keunggulan</div>'+uspHtml+'</div>'
+    + section('Detail Singkat', p.detail)
+    + section('Cara Pakai', p.caraPakai)
+    + section('Cara Perawatan', p.perawatan)
+    + section('Peringatan', p.peringatan)
+    + section('Garansi', p.garansi)
+    + '<div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px;">Varian Produk</div>'+variantHtml+'</div>'
+    + '</div></div>';
+
+  var existing = document.getElementById('modal-pk-detail');
+  if(existing) existing.remove();
+  document.body.appendChild(div);
+}
+
+// ── Form Add/Edit ──
+function openPkForm(id) {
+  if(!isGodAdmin()) { showToast('Hanya God Admin', true); return; }
+  pkEditId = id || null;
+  var p = id ? allPK.find(function(x){ return x.id===id; }) : null;
+  pkUspList = p ? (p.usp ? p.usp.slice() : []) : [''];
+  pkVariantList = p ? (p.variants ? p.variants.map(function(v){ return Object.assign({},v); }) : []) : [];
+
+  var existing = document.getElementById('modal-pk-form');
+  if(existing) existing.remove();
+  var div = document.createElement('div');
+  div.id = 'modal-pk-form';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;';
+  div.innerHTML = '<div style="background:#fff;border-radius:var(--radius);width:100%;max-width:580px;max-height:92vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.2);" id="pk-form-inner">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px 0;">'
+    + '<div style="font-size:15px;font-weight:800;color:var(--navy);">'+(id?'Edit':'Tambah')+' Produk</div>'
+    + '<button onclick="document.getElementById(\'modal-pk-form\').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text2);">&#10005;</button>'
+    + '</div>'
+    + '<div style="padding:16px 20px;" id="pk-form-body"></div>'
+    + '</div>';
+  document.body.appendChild(div);
+  refreshPkModalOnly();
+  setTimeout(function(){ var el=document.getElementById('pk-fname'); if(el) el.focus(); }, 100);
+}
+
+// Module-level helpers — TIDAK boleh nested di dalam if/openPkForm
+function syncPkForm() {
+  var nameEl = document.getElementById('pk-fname');
+  var skuEl = document.getElementById('pk-fsku');
+  var tagEl = document.getElementById('pk-ftag');
+  var photoEl = document.getElementById('pk-fphoto');
+  var detailEl = document.getElementById('pk-fdetail');
+  var caraPakaiEl = document.getElementById('pk-fcarapakai');
+  var perawatanEl = document.getElementById('pk-fperawatan');
+  var peringatanEl = document.getElementById('pk-fperingatan');
+  var garansiEl = document.getElementById('pk-fgaransi');
+  // Read USP
+  var uspEls = document.querySelectorAll('.pk-usp-input');
+  pkUspList = [];
+  uspEls.forEach(function(el){ pkUspList.push(el.value); });
+  // Read Variants
+  var vRows = document.querySelectorAll('.pk-variant-row');
+  pkVariantList = [];
+  vRows.forEach(function(row){
+    var nameEl2 = row.querySelector('.pk-vname');
+    var skuSel = row.querySelector('.pk-vsku');
+    pkVariantList.push({ name: nameEl2 ? nameEl2.value : '', skuId: skuSel ? skuSel.value : '' });
+  });
+}
+
+function refreshPkModalOnly() {
+  var body = document.getElementById('pk-form-body');
+  if(!body) return;
+  // Build USP rows
+  var uspHtml = pkUspList.map(function(u, i){
+    return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">'
+      + '<input class="fi pk-usp-input" type="text" value="'+u.replace(/"/g,'&quot;')+'" placeholder="Masukkan USP..." style="flex:1;margin-bottom:0;"/>'
+      + '<button type="button" onclick="pkRemoveUsp('+i+')" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">&#10005;</button>'
+      + '</div>';
+  }).join('');
+  // Build Variant rows
+  var skuOptions = allMasterSKU.map(function(s){
+    return '<option value="'+s.id+'">'+s.name+(s.prodName?' — '+s.prodName:'')+'</option>';
+  }).join('');
+  var variantHtml = pkVariantList.map(function(v, i){
+    return '<tr class="pk-variant-row" style="border-bottom:1px solid var(--border);">'
+      + '<td style="padding:6px 4px;color:var(--text3);font-size:12px;text-align:center;">'+(i+1)+'</td>'
+      + '<td style="padding:6px 4px;"><input class="fi pk-vname" type="text" value="'+v.name.replace(/"/g,'&quot;')+'" placeholder="cth. Merah" style="margin-bottom:0;font-size:13px;"/></td>'
+      + '<td style="padding:6px 4px;"><select class="fi pk-vsku" style="margin-bottom:0;font-size:12px;cursor:pointer;"><option value="">-- Pilih SKU --</option>'+skuOptions+'</select></td>'
+      + '<td style="padding:6px 4px;"><button type="button" onclick="pkRemoveVariant('+i+')" style="width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text3);cursor:pointer;font-size:12px;">&#10005;</button></td>'
+      + '</tr>';
+  }).join('');
+
+  body.innerHTML = ''
+    + field('Nama Produk *', '<input class="fi" id="pk-fname" type="text" placeholder="cth. Setrika Vulga Series"/>')
+    + field('SKU Utama *', '<input class="fi" id="pk-fsku" type="text" placeholder="cth. PD-IRON-VULGA"/>')
+    + field('Tagline', '<input class="fi" id="pk-ftag" type="text" placeholder="cth. Setrika tahan lama untuk semua pakaian"/>')
+    + field('URL Foto (Google Drive)', '<input class="fi" id="pk-fphoto" type="text" placeholder="Paste link Google Drive..."/><div style="font-size:11px;color:var(--text3);margin-top:3px;">Link Google Drive biasa akan otomatis dikonversi.</div>')
+    + '<div class="fgi" style="margin-bottom:14px;"><label class="fl">USP / Keunggulan</label>'
+    + '<div id="pk-usp-container">'+uspHtml+'</div>'
+    + '<button type="button" onclick="pkAddUsp()" style="margin-top:4px;padding:5px 12px;font-size:12px;border-radius:var(--radius-sm);border:1.5px dashed var(--border);background:transparent;color:var(--blue);cursor:pointer;font-family:var(--font);font-weight:700;">+ Tambah USP</button>'
+    + '</div>'
+    + field('Detail Singkat', '<textarea class="fi" id="pk-fdetail" rows="2" style="resize:vertical;" placeholder="Penjelasan singkat produk..."></textarea>')
+    + field('Cara Pakai', '<textarea class="fi" id="pk-fcarapakai" rows="2" style="resize:vertical;" placeholder="Langkah-langkah penggunaan..."></textarea>')
+    + field('Cara Perawatan', '<textarea class="fi" id="pk-fperawatan" rows="2" style="resize:vertical;" placeholder="Tips perawatan produk..."></textarea>')
+    + field('Peringatan', '<textarea class="fi" id="pk-fperingatan" rows="2" style="resize:vertical;" placeholder="Hal-hal yang perlu dihindari..."></textarea>')
+    + field('Garansi', '<textarea class="fi" id="pk-fgaransi" rows="2" style="resize:vertical;" placeholder="Informasi garansi..."></textarea>')
+    + '<div class="fgi" style="margin-bottom:14px;"><label class="fl">Varian Produk</label>'
+    + '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:320px;">'
+    + '<thead><tr style="border-bottom:2px solid var(--border);">'
+    + '<th style="padding:6px 4px;font-size:10px;color:var(--text3);text-transform:uppercase;width:32px;">No</th>'
+    + '<th style="padding:6px 4px;font-size:10px;color:var(--text3);text-transform:uppercase;">Nama Varian</th>'
+    + '<th style="padding:6px 4px;font-size:10px;color:var(--text3);text-transform:uppercase;">SKU</th>'
+    + '<th style="width:32px;"></th>'
+    + '</tr></thead>'
+    + '<tbody id="pk-variant-tbody">'+variantHtml+'</tbody>'
+    + '</table></div>'
+    + '<button type="button" onclick="pkAddVariant()" style="margin-top:8px;padding:5px 12px;font-size:12px;border-radius:var(--radius-sm);border:1.5px dashed var(--border);background:transparent;color:var(--blue);cursor:pointer;font-family:var(--font);font-weight:700;">+ Tambah Varian</button>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border);">'
+    + '<button type="button" onclick="document.getElementById(\'modal-pk-form\').remove()" style="padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:var(--font);">Batal</button>'
+    + '<button type="button" onclick="savePK()" style="padding:8px 20px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128190; Simpan</button>'
+    + '</div>';
+
+  // Restore values from pkEditId
+  var p = pkEditId ? allPK.find(function(x){ return x.id===pkEditId; }) : null;
+  if(p) {
+    var setVal = function(id, val){ var el=document.getElementById(id); if(el&&val!==undefined) el.value=val||''; };
+    setVal('pk-fname', p.name);
+    setVal('pk-fsku', p.skuUtama);
+    setVal('pk-ftag', p.tagline);
+    setVal('pk-fphoto', p.photoUrl);
+    setVal('pk-fdetail', p.detail);
+    setVal('pk-fcarapakai', p.caraPakai);
+    setVal('pk-fperawatan', p.perawatan);
+    setVal('pk-fperingatan', p.peringatan);
+    setVal('pk-fgaransi', p.garansi);
+  }
+  // Restore variant SKU selects
+  setTimeout(function(){
+    document.querySelectorAll('.pk-variant-row').forEach(function(row, i){
+      var sel = row.querySelector('.pk-vsku');
+      if(sel && pkVariantList[i]) sel.value = pkVariantList[i].skuId||'';
+    });
+  }, 0);
+}
+
+function field(label, inputHtml) {
+  return '<div class="fgi" style="margin-bottom:14px;"><label class="fl">'+label+'</label>'+inputHtml+'</div>';
+}
+
+function pkAddUsp() {
+  syncPkForm();
+  pkUspList.push('');
+  refreshPkModalOnly();
+}
+
+function pkRemoveUsp(i) {
+  syncPkForm();
+  pkUspList.splice(i, 1);
+  if(!pkUspList.length) pkUspList.push('');
+  refreshPkModalOnly();
+}
+
+function pkAddVariant() {
+  syncPkForm();
+  pkVariantList.push({ name:'', skuId:'' });
+  refreshPkModalOnly();
+}
+
+function pkRemoveVariant(i) {
+  syncPkForm();
+  pkVariantList.splice(i, 1);
+  refreshPkModalOnly();
+}
+
+function extractGDriveId(url) {
+  if(!url) return '';
+  var m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if(m) return 'https://lh3.googleusercontent.com/d/' + m[1];
+  // already converted
+  if(url.includes('lh3.googleusercontent.com')) return url;
+  return url;
+}
+
+async function savePK() {
+  syncPkForm();
+  var name = (document.getElementById('pk-fname')||{}).value||'';
+  var skuUtama = (document.getElementById('pk-fsku')||{}).value||'';
+  if(!name.trim()) { showToast('Nama produk wajib diisi', true); return; }
+  if(!skuUtama.trim()) { showToast('SKU Utama wajib diisi', true); return; }
+
+  var rawPhoto = (document.getElementById('pk-fphoto')||{}).value||'';
+  var data = {
+    brand: activeBrand,
+    name: name.trim(),
+    skuUtama: skuUtama.trim(),
+    tagline: ((document.getElementById('pk-ftag')||{}).value||'').trim(),
+    photoUrl: extractGDriveId(rawPhoto.trim()),
+    usp: pkUspList.filter(function(u){ return u.trim(); }),
+    detail: ((document.getElementById('pk-fdetail')||{}).value||'').trim(),
+    caraPakai: ((document.getElementById('pk-fcarapakai')||{}).value||'').trim(),
+    perawatan: ((document.getElementById('pk-fperawatan')||{}).value||'').trim(),
+    peringatan: ((document.getElementById('pk-fperingatan')||{}).value||'').trim(),
+    garansi: ((document.getElementById('pk-fgaransi')||{}).value||'').trim(),
+    variants: pkVariantList.filter(function(v){ return v.name.trim(); }),
+    updatedAt: new Date().toISOString()
+  };
+
+  var btn = document.querySelector('#modal-pk-form button[onclick="savePK()"]');
+  if(btn) { btn.disabled=true; btn.textContent='Menyimpan...'; }
+  try {
+    if(pkEditId) {
+      await db.collection('product_knowledge').doc(pkEditId).update(data);
+    } else {
+      data.createdAt = new Date().toISOString();
+      await db.collection('product_knowledge').add(data);
+    }
+    document.getElementById('modal-pk-form').remove();
+    showToast('\u2713 Produk ' + (pkEditId?'diperbarui':'ditambahkan') + '!');
+  } catch(e) {
+    showToast('Gagal: ' + e.message, true);
+    if(btn) { btn.disabled=false; btn.textContent='\uD83D\uDCBE Simpan'; }
+  }
+}
+
+async function deletePK(id) {
+  if(!isGodAdmin()) { showToast('Hanya God Admin', true); return; }
+  if(!confirm('Hapus produk ini? Aksi tidak bisa dibatalkan.')) return;
+  try {
+    await db.collection('product_knowledge').doc(id).delete();
+    showToast('Produk dihapus.');
+  } catch(e) { showToast('Gagal: ' + e.message, true); }
 }
 
 </script>
