@@ -52,11 +52,12 @@ body{font-family:var(--font);background:var(--off);color:var(--text);min-height:
 .sl-img{width:36px;height:36px;border-radius:8px;object-fit:cover;background:#fff;flex-shrink:0;padding:2px;}
 .sl-name{font-size:15px;font-weight:800;color:#fff;}
 .sl-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px;}
-.snav{flex:1;min-height:0;padding:12px 10px 16px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;}
-.nsec{font-size:10px;color:rgba(255,255,255,.3);font-weight:700;letter-spacing:1px;padding:10px 10px 4px;text-transform:uppercase;}
-.ni{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.5);transition:all .15s;border:none;background:none;width:100%;text-align:left;}
-.ni:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);}.ni.active{background:var(--blue);color:#fff;font-weight:600;}
-.ni svg{width:17px;height:17px;flex-shrink:0;stroke-width:2;}
+.snav{flex:1;min-height:0;padding:8px 10px 16px;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
+.nsec{font-size:10px;color:rgba(232,237,245,0.45);font-weight:600;letter-spacing:.07em;padding:12px 8px 3px;text-transform:uppercase;}
+.ni{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(232,237,245,0.8);transition:all .12s;border:none;background:transparent;width:100%;text-align:left;font-family:var(--font);}
+.ni:hover{background:#162645;color:rgba(232,237,245,1);}
+.ni.active{background:#1e3a6e;color:#a8c4fd;font-weight:600;}
+.ni svg{width:16px;height:16px;flex-shrink:0;stroke-width:2;color:inherit;}
 .sbot{padding:12px 10px 16px;border-top:1px solid rgba(255,255,255,.08);flex-shrink:0;}
 .suser{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);background:rgba(255,255,255,.06);}
 .sav{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;}
@@ -937,39 +938,47 @@ margin-bottom: 4px;
 <div><div class="sl-name">LiveOS</div><div class="sl-sub">Live Tracker</div></div>
 </div>
 <div class="snav">
-<div id="brand-switcher" style="padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:4px;">
-  <div id="brand-ws-label" style="font-size:10px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.06em;margin-bottom:6px;padding-left:2px;">WORKSPACE</div>
+<div id="brand-switcher" style="margin-bottom:6px;">
+  <div id="brand-ws-label" style="font-size:10px;color:rgba(232,237,245,0.45);font-weight:600;letter-spacing:.07em;margin-bottom:4px;padding:0 8px;text-transform:uppercase;">Workspace</div>
   <div style="position:relative;">
-    <button onclick="toggleBrandDropdown()" id="brand-switcher-btn" style="width:100%;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);cursor:pointer;font-family:var(--font);transition:.15s;">
-      <img id="brand-switcher-logo" src="" alt="" style="width:22px;height:22px;border-radius:4px;object-fit:contain;background:#fff;padding:2px;flex-shrink:0;"/>
-      <span id="brand-switcher-name" style="font-size:13px;font-weight:600;color:#fff;flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Pandaoma</span>
-      <svg id="brand-switcher-chevron" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;transition:.2s;"><polyline points="6 9 12 15 18 9"/></svg>
+    <button onclick="toggleBrandDropdown()" id="brand-switcher-btn" style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:none;background:rgba(255,255,255,.06);cursor:pointer;font-family:var(--font);transition:.12s;">
+      <img id="brand-switcher-logo" src="" alt="" style="width:28px;height:28px;border-radius:6px;object-fit:contain;background:#fff;padding:2px;flex-shrink:0;"/>
+      <div style="flex:1;text-align:left;overflow:hidden;">
+        <div id="brand-switcher-name" style="font-size:13px;font-weight:600;color:#e8edf5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Pandaoma</div>
+        <div style="font-size:10px;color:rgba(232,237,245,0.5);">LiveOS</div>
+      </div>
+      <svg id="brand-switcher-chevron" viewBox="0 0 24 24" fill="none" stroke="rgba(232,237,245,0.4)" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;transition:.2s;"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
-    <div id="brand-dropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#1a2d5a;border:1px solid rgba(255,255,255,.15);border-radius:6px;z-index:200;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.3);">
+    <div id="brand-dropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:#162645;border:1px solid rgba(255,255,255,.12);border-radius:8px;z-index:200;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.3);">
       <div id="brand-dropdown-list" style="padding:4px;"></div>
     </div>
   </div>
 </div>
-<div class="nsec">Menu</div>
-<button class="ni active" onclick="goPage('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
-<button class="ni" onclick="goPage('detail')" data-page="detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Detail Sesi</button>
-<button class="ni" onclick="goPage('target')" data-page="target"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Target</button>
-<button class="ni" onclick="goPage('aichat')" data-page="aichat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</button>
-<button class="ni" onclick="goPage('inputdata')" data-page="inputdata"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Input Data</button>
-      <button class="ni" onclick="goPage('sku')" data-page="sku"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Report SKU</button>
-      <button class="ni" onclick="goPage('sku-history')" data-page="sku-history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Detail Report SKU</button>
-<button class="ni" onclick="goPage('incentive')" data-page="incentive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Incentive</button>
-      <button class="ni" onclick="goPage('jadwal')" data-page="jadwal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Jadwal Live</button>
-      <button class="ni" onclick="goPage('input-jadwal')" data-page="input-jadwal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>Input Jadwal</button>
-      <button class="ni" onclick="goPage('sop')" data-page="sop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
-<button class="ni" onclick="goPage('produk')" data-page="produk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
-<button class="ni" onclick="goPage('panduan')" data-page="panduan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan LiveOS</button>
-<div class="nsec" style="margin-top:6px">Master Data</div>
-<button class="ni" onclick="goPage('streamers')" data-page="streamers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Data Streamer</button>
-      <button class="ni" onclick="goPage('master-sku')" data-page="master-sku" id="ni-master-sku" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7h10M7 12h10M7 17h6"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Master SKU</button>
-<div class="nsec" style="margin-top:6px">Lainnya</div>
+<div class="nsec">Overview</div>
+<button class="ni active" onclick="goPage('dashboard')" data-page="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</button>
+<button class="ni" onclick="goPage('detail')" data-page="detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Detail Sesi</button>
+<button class="ni" onclick="goPage('target')" data-page="target"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>Target</button>
+<button class="ni" onclick="goPage('sku-history')" data-page="sku-history" id="ni-sku-history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Detail SKU</button>
+<button class="ni" onclick="goPage('jadwal')" data-page="jadwal" id="ni-jadwal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Kalender Jadwal Live</button>
+<div class="nsec">Input Data</div>
+<button class="ni" onclick="goPage('inputdata')" data-page="inputdata"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Sesi Live</button>
+<button class="ni" onclick="goPage('input-jadwal')" data-page="input-jadwal" id="ni-input-jadwal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>Jadwal Live</button>
+<button class="ni" onclick="goPage('sku')" data-page="sku" id="ni-sku"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Report SKU</button>
+<div class="nsec">Analisa</div>
+<button class="ni" onclick="goPage('aichat')" data-page="aichat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>AI Chat</button>
+<div class="nsec">Incentive</div>
+<button class="ni" onclick="goPage('incentive')" data-page="incentive" id="ni-incentive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Incentive Live</button>
+<div class="nsec">Konten &amp; Produk</div>
+<button class="ni" onclick="goPage('produk')" data-page="produk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Product Knowledge</button>
+<button class="ni" onclick="goPage('sop')" data-page="sop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>SOP Live</button>
+<div class="nsec">Master Data</div>
+<button class="ni" onclick="goPage('streamers')" data-page="streamers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Data Streamer</button>
+<button class="ni" onclick="goPage('master-sku')" data-page="master-sku" id="ni-master-sku" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M7 7h10M7 12h10M7 17h6"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Master SKU</button>
+<div class="nsec">Lainnya</div>
+<button class="ni" onclick="goPage('panduan')" data-page="panduan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Panduan LiveOS</button>
 <button class="ni" id="ni-announcement" onclick="goPage('announcement')" data-page="announcement" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Pengumuman<span id="announcement-badge" style="display:none;background:#ef4444;color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:1px 6px;margin-left:auto;">0</span></button>
-<button class="ni" id="ni-setting" onclick="goPage('setting')" data-page="setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Setting<span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:1px 6px;margin-left:auto;">0</span></button>
+<button class="ni" id="ni-setting" onclick="goPage('setting')" data-page="setting"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Setting<span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:10px;font-weight:800;border-radius:10px;padding:1px 6px;margin-left:auto;">0</span></button>
+
 </div>
 <div class="sbot"><div class="suser">
 <div class="sav" id="s-av">?</div>
@@ -5846,7 +5855,7 @@ function applyMenuAccess(){
   if(niInput)niInput.style.display=isVW?'none':'flex';
 
   // Incentive: hanya God Admin, Super Admin, Streamer (bukan brand_admin biasa & viewer)
-  const niInc=document.querySelector('[data-page="incentive"]');
+  const niInc=document.getElementById('ni-incentive')||document.querySelector('[data-page="incentive"]');
   const canSeeIncentive=(isGA||isSuperAdmin()||isST);
   if(niInc)niInc.style.display=canSeeIncentive?'flex':'none';
 
