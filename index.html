@@ -1109,7 +1109,18 @@ margin-bottom: 4px;
 </div>
 
 <div class="crow">
-<div class="card"><div class="ch"><div class="ct">Grafik GMV Harian</div><div class="leg"><div class="li"><div class="ld" style="background:var(--shopee)"></div>Shopee</div><div class="li"><div class="ld" style="background:var(--tiktok)"></div>TikTok</div></div></div><div class="cb"><canvas id="mainChart"></canvas><div id="chart-empty">Belum ada data. Input sesi live dulu!</div></div></div>
+<div id="dash-jadwal-widget" style="display:none;">
+  <div class="tcard" style="padding:14px 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);">📅 Jadwal Live <span id="dash-jadwal-label" style="font-size:12px;font-weight:500;color:var(--text3);"></span></div>
+      <button onclick="goPage('jadwal')" style="padding:3px 10px;font-size:11px;font-weight:700;border-radius:var(--radius-sm);background:var(--navy);color:#fff;border:none;cursor:pointer;font-family:var(--font);">Lihat Semua →</button>
+    </div>
+    <div id="dash-jadwal-body"></div>
+  </div>
+</div>
+</div>
+
+<div class="crow"><div class="leg"><div class="li"><div class="ld" style="background:var(--shopee)"></div>Shopee</div><div class="li"><div class="ld" style="background:var(--tiktok)"></div>TikTok</div></div></div><div class="cb"><canvas id="mainChart"></canvas><div id="chart-empty">Belum ada data. Input sesi live dulu!</div></div></div>
 <div class="card" style="display:flex;flex-direction:column;max-height:420px;">
   <div class="ch" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
     <div class="ct">🏆 Rank Streamer</div>
@@ -2032,7 +2043,7 @@ function toggleGuideCard(hdr){
 </div>
 <div class="fc" style="margin-top:14px;border:1.5px solid #fee2e2;border-radius:var(--radius-sm);padding:16px;">
   <div class="fct" style="color:var(--red);font-size:13px;margin-bottom:8px;">&#9888; Bersihkan Data Jadwal Tidak Valid</div>
-  <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Hapus semua data jadwal yang <b>timeStart</b>-nya tidak sesuai slot resmi (06:00, 09:00, 14:00, 22:00). Data yang tidak sesuai tidak akan muncul di grid jadwal.</div>
+  <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Hapus semua data jadwal yang <b>timeStart</b>-nya tidak sesuai slot resmi (06:00, 09:00, 12:00, 14:00, 22:00). Data yang tidak sesuai tidak akan muncul di grid jadwal.</div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;">
     <button onclick="bulkDeleteInvalidSchedules()" style="padding:8px 18px;border-radius:var(--radius-sm);background:#dc2626;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128465; Hapus Data Tidak Valid</button>
     <button onclick="deleteAllSchedules()" style="padding:8px 18px;border-radius:var(--radius-sm);background:#7f1d1d;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#9888; Reset Semua Jadwal</button>
@@ -3426,6 +3437,7 @@ async function delSess(id){
 }
 
 function refreshAll(){
+  renderDashJadwalWidget();
   refreshMetrics(allSessions);refreshTop3(allSessions);buildChart(allSessions);renderTable(filterData(allSessions));renderStreamerList();
   renderDashboardTargetWidget();
   if(typeof refreshSKUWidget==='function')refreshSKUWidget();
@@ -5153,8 +5165,9 @@ function startJadwalListeners(){
       allSlotJam=[
         {label:'06.00\u201314.00',from:'06:00',to:'14:00',sort:1},
         {label:'09.00\u201317.00',from:'09:00',to:'17:00',sort:2},
-        {label:'14.00\u201322.00',from:'14:00',to:'22:00',sort:3},
-        {label:'22.00\u201306.00',from:'22:00',to:'06:00',sort:4}
+        {label:'12.00\u201320.00',from:'12:00',to:'20:00',sort:3},
+        {label:'14.00\u201322.00',from:'14:00',to:'22:00',sort:4},
+        {label:'22.00\u201306.00',from:'22:00',to:'06:00',sort:5}
       ];
     } else {
       allSlotJam=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
@@ -5194,6 +5207,7 @@ function renderJadwalGrid(){
   var slots=allSlotJam.length?allSlotJam:[
     {label:'06.00\u201314.00',from:'06:00',to:'14:00'},
     {label:'09.00\u201317.00',from:'09:00',to:'17:00'},
+    {label:'12.00\u201320.00',from:'12:00',to:'20:00'},
     {label:'14.00\u201322.00',from:'14:00',to:'22:00'},
     {label:'22.00\u201306.00',from:'22:00',to:'06:00'}
   ];
@@ -7622,6 +7636,88 @@ async function deletePK(id) {
     await db.collection('product_knowledge').doc(id).delete();
     showToast('Produk dihapus.');
   } catch(e) { showToast('Gagal: ' + e.message, true); }
+}
+
+
+
+// ── DASHBOARD JADWAL WIDGET ──
+function renderDashJadwalWidget() {
+  var widget = document.getElementById('dash-jadwal-widget');
+  var body = document.getElementById('dash-jadwal-body');
+  var label = document.getElementById('dash-jadwal-label');
+  if(!widget || !body) return;
+
+  var from = AF.customFrom || '';
+  var to = AF.customTo || '';
+  if(!from || !to) { widget.style.display='none'; return; }
+
+  var days = Math.round((new Date(to+'T12:00:00') - new Date(from+'T12:00:00')) / 86400000) + 1;
+  var isMulti = days > 1;
+
+  var inRange = allSchedules.filter(function(s){ return s.date >= from && s.date <= to; });
+  if(!inRange.length) { widget.style.display='none'; return; }
+  widget.style.display='block';
+
+  if(!isMulti) {
+    var dateLabel = new Date(from+'T12:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    if(label) label.textContent = '— ' + dateLabel;
+
+    var slots = allSlotJam.length ? allSlotJam : [
+      {label:'06.00\u201314.00',from:'06:00',to:'14:00'},
+      {label:'09.00\u201317.00',from:'09:00',to:'17:00'},
+      {label:'12.00\u201320.00',from:'12:00',to:'20:00'},
+      {label:'14.00\u201322.00',from:'14:00',to:'22:00'},
+      {label:'22.00\u201306.00',from:'22:00',to:'06:00'}
+    ];
+    var offList = inRange.filter(function(s){ return s.status==='off'; });
+
+    var rows = slots.map(function(slot){
+      var inSlot = inRange.filter(function(s){ return s.status==='masuk'&&s.timeStart===slot.from&&s.timeEnd===slot.to; });
+      var names = inSlot.length
+        ? inSlot.map(function(s){ return '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600;background:var(--blue-lt);color:var(--navy);margin:2px;">'+s.streamerName+'</span>'; }).join('')
+        : '<span style="font-size:12px;color:var(--text3);">—</span>';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:0.5px solid var(--border);">'
+        + '<div style="font-size:12px;font-weight:700;color:var(--text3);width:96px;flex-shrink:0;font-family:var(--mono);">'+slot.label+'</div>'
+        + '<div style="flex:1;">'+names+'</div>'
+        + '</div>';
+    }).join('');
+
+    if(offList.length) {
+      var offNames = offList.map(function(s){ return '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600;background:#fff5f5;color:var(--red);margin:2px;">'+s.streamerName+'</span>'; }).join('');
+      rows += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;">'
+        + '<div style="font-size:12px;font-weight:700;color:var(--red);width:96px;flex-shrink:0;">OFF</div>'
+        + '<div style="flex:1;">'+offNames+'</div>'
+        + '</div>';
+    }
+    body.innerHTML = rows;
+
+  } else {
+    if(label) label.textContent = '— ' + days + ' hari (' + formatDateShort(from) + ' \u2013 ' + formatDateShort(to) + ')';
+    var byStreamer = {};
+    inRange.filter(function(s){ return s.status==='masuk'; }).forEach(function(s){
+      var n = s.streamerName || '-';
+      if(!byStreamer[n]) byStreamer[n] = [];
+      if(byStreamer[n].indexOf(s.date) === -1) byStreamer[n].push(s.date);
+    });
+    var sorted = Object.keys(byStreamer).map(function(k){ return {name:k, count:byStreamer[k].length}; })
+      .sort(function(a,b){ return b.count - a.count; });
+    if(!sorted.length) { body.innerHTML='<div class="empty" style="padding:8px 0;">Tidak ada jadwal di periode ini.</div>'; return; }
+    body.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;">'
+      + sorted.map(function(e){
+          var pct = Math.round(e.count/days*100);
+          return '<div style="padding:8px 10px;background:var(--off);border-radius:var(--radius-sm);border:1px solid var(--border);">'
+            + '<div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">'+e.name+'</div>'
+            + '<div style="font-size:12px;color:var(--text2);">'+e.count+' dari '+days+' hari</div>'
+            + '<div style="margin-top:6px;height:4px;border-radius:2px;background:var(--border);overflow:hidden;">'
+            + '<div style="height:100%;width:'+pct+'%;background:var(--navy);border-radius:2px;"></div></div>'
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+}
+
+function formatDateShort(dateStr) {
+  return new Date(dateStr+'T12:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short'});
 }
 
 </script>
