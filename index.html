@@ -2710,6 +2710,20 @@ function goPage(p){
   document.getElementById('page-'+p).classList.add('active');
   // Highlight sidebar by data-page attribute
   document.querySelectorAll('.ni[data-page="'+p+'"]').forEach(el=>el.classList.add('active'));
+  // Reapply NVMEE active color jika perlu
+  if(activeBrand==='nvmee'){
+    var cfg=BRAND_CONFIG['nvmee'];
+    document.querySelectorAll('.ni').forEach(function(el){
+      el.style.color=cfg.sidebarText;
+      el.style.opacity='0.85';
+      el.style.background='';
+    });
+    document.querySelectorAll('.ni.active').forEach(function(el){
+      el.style.background='rgba(61,26,71,0.18)';
+      el.style.color=cfg.sidebarText;
+      el.style.opacity='1';
+    });
+  }
   const mn=document.getElementById('mn-'+p);
   if(mn)mn.classList.add('active');
   const drawerPages=['incentive','sop','produk','panduan','streamers','setting'];
@@ -5748,7 +5762,13 @@ function updateBrandSwitcherUI(){
     });
     document.querySelectorAll('.ni').forEach(function(el){
       el.style.color=cfg.sidebarText;
-      el.style.setProperty('--ni-bg-active',cfg.sidebarAccent);
+      el.style.opacity='0.85';
+    });
+    // Active item: pakai background semi-transparan gelap agar teks tetap terbaca
+    document.querySelectorAll('.ni.active').forEach(function(el){
+      el.style.background='rgba(61,26,71,0.18)';
+      el.style.color=cfg.sidebarText;
+      el.style.opacity='1';
     });
     document.querySelectorAll('.nsec').forEach(function(el){el.style.color=cfg.sidebarText+'99';});
     document.querySelectorAll('.snm,.sem').forEach(function(el){el.style.color=cfg.sidebarText;});
