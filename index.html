@@ -2727,13 +2727,17 @@ function goPage(p){
   // Reapply NVMEE active color jika perlu
   if(activeBrand==='nvmee'||activeBrand==='honeyboo'||activeBrand==='reebit'){
     var cfg=BRAND_CONFIG[activeBrand]||BRAND_CONFIG['nvmee'];
+    var activeAlpha2=activeBrand==='honeyboo'?'rgba(92,61,14,0.15)':activeBrand==='reebit'?'rgba(192,53,106,0.15)':'rgba(61,26,71,0.18)';
     document.querySelectorAll('.ni').forEach(function(el){
       el.style.color=cfg.sidebarText;
       el.style.opacity='0.85';
-      el.style.background='';
+      el.style.background='transparent';
+      // Override hover untuk light backgrounds
+      el.onmouseenter=function(){if(!this.classList.contains('active')){this.style.opacity='1';this.style.background='rgba(0,0,0,0.07)';}};
+      el.onmouseleave=function(){if(!this.classList.contains('active')){this.style.opacity='0.85';this.style.background='transparent';}};
     });
     document.querySelectorAll('.ni.active').forEach(function(el){
-      el.style.background='rgba(61,26,71,0.18)';
+      el.style.background=activeAlpha2;
       el.style.color=cfg.sidebarText;
       el.style.opacity='1';
     });
@@ -5780,6 +5784,12 @@ function updateBrandSwitcherUI(){
       mobdrawer.style.removeProperty('--mob-label-color');
       mobdrawer.style.removeProperty('--mob-icon-bg');
     }
+    // Reset nav items ke default putih (Pandaoma navy)
+    document.querySelectorAll('.ni').forEach(function(el){
+      el.style.color='';el.style.opacity='';el.style.background='';
+      el.onmouseenter=null;el.onmouseleave=null;
+    });
+    document.querySelectorAll('.nsec').forEach(function(el){el.style.color='';});
   }
 
   // Apply/reset nav item colors
@@ -5788,13 +5798,18 @@ function updateBrandSwitcherUI(){
     navItems.forEach(function(el){
       el.style.setProperty('--ni-text',cfg.sidebarText);
     });
+    var activeAlpha=activeBrand==='honeyboo'?'rgba(92,61,14,0.15)':activeBrand==='reebit'?'rgba(192,53,106,0.15)':'rgba(61,26,71,0.18)';
     document.querySelectorAll('.ni').forEach(function(el){
       el.style.color=cfg.sidebarText;
       el.style.opacity='0.85';
+      el.style.background='transparent';
+      // Override hover untuk light backgrounds
+      el.onmouseenter=function(){if(!this.classList.contains('active')){this.style.opacity='1';this.style.background='rgba(0,0,0,0.07)';}};
+      el.onmouseleave=function(){if(!this.classList.contains('active')){this.style.opacity='0.85';this.style.background='transparent';}};
     });
-    // Active item: pakai background semi-transparan gelap agar teks tetap terbaca
+    // Active item: semi-transparan sesuai brand
     document.querySelectorAll('.ni.active').forEach(function(el){
-      el.style.background='rgba(61,26,71,0.18)';
+      el.style.background=activeAlpha;
       el.style.color=cfg.sidebarText;
       el.style.opacity='1';
     });
