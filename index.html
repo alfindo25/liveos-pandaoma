@@ -2735,16 +2735,10 @@ function goPage(p){
     }
     document.querySelectorAll('.ni').forEach(function(el){
       el.style.color=cfg.sidebarText;
-      el.style.opacity='0.85';
-      el.style.background='transparent';
-      // Override hover untuk light backgrounds
-      el.onmouseenter=function(){if(!this.classList.contains('active')){this.style.opacity='1';this.style.background='rgba(0,0,0,0.07)';}};
-      el.onmouseleave=function(){if(!this.classList.contains('active')){this.style.opacity='0.85';this.style.background='transparent';}};
-    });
-    document.querySelectorAll('.ni.active').forEach(function(el){
-      el.style.background=activeAlpha2;
-      el.style.color=cfg.sidebarText;
       el.style.opacity='1';
+      el.style.background='transparent';
+      el.onmouseenter=function(){if(!this.classList.contains('active')){this.style.background='rgba(0,0,0,0.08)';}};
+      el.onmouseleave=function(){if(!this.classList.contains('active')){this.style.background='transparent';}};
     });
   }
   const mn=document.getElementById('mn-'+p);
@@ -5634,12 +5628,12 @@ function startAllListeners(){
   // Migrate data lama — hanya sekali per browser (cek localStorage flag)
   if(isGodAdmin()){
     setTimeout(function(){
-      // Migrate incentive tanpa brand field → pandaoma (jalankan tiap session God Admin, aman karena cek !brand)
       migrateIncentiveBrand();
-      // Migrate users tanpa brand field → pandaoma
       migrateUserBrand();
     },3000);
   }
+  // Reapply brand theme setelah listeners reload
+  setTimeout(updateBrandSwitcherUI, 100);
 }
 
 function initBrandSwitcher(){
@@ -5805,7 +5799,7 @@ function updateBrandSwitcherUI(){
 
   // Apply/reset nav item colors
   var navItems=document.querySelectorAll('.ni,.nsec,.sav,.snm,.sem');
-  if(activeBrand==='nvmee'){
+  if(activeBrand==='nvmee'||activeBrand==='honeyboo'||activeBrand==='reebit'){
     navItems.forEach(function(el){
       el.style.setProperty('--ni-text',cfg.sidebarText);
     });
