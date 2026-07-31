@@ -2464,14 +2464,14 @@ var BRAND_CONFIG={
     name:'HoneyBoo',
     logo:'https://ui-avatars.com/api/?name=HB&background=F5C842&color=5C3D0E&size=64&rounded=true&bold=true',
     sidebarBg:'linear-gradient(160deg,#FFF8C5 0%,#FFF0A0 40%,#F5E680 100%)',
-    sidebarText:'#5C3D0E',
+    sidebarText:'#3D1A47',
     sidebarAccent:'rgba(92,61,14,0.15)',
   },
   reebit:{
     name:'Reebit',
     logo:'https://ui-avatars.com/api/?name=RB&background=FFB6C1&color=C0356A&size=64&rounded=true&bold=true',
     sidebarBg:'linear-gradient(160deg,#FFF0F5 0%,#FFD6E7 40%,#FFC0D0 100%)',
-    sidebarText:'#C0356A',
+    sidebarText:'#3D1A47',
     sidebarAccent:'rgba(192,53,106,0.15)',
   },
   pandaoma:{
@@ -5818,10 +5818,10 @@ function updateBrandSwitcherUI(){
     }
     document.querySelectorAll('.ni').forEach(function(el){
       el.style.color=cfg.sidebarText;
-      el.style.opacity='0.85';
+      el.style.opacity='1';
       el.style.background='transparent';
-      el.onmouseenter=function(){if(!this.classList.contains('active')){this.style.background='rgba(0,0,0,0.08)';this.style.opacity='1';}};
-      el.onmouseleave=function(){if(!this.classList.contains('active')){this.style.background='transparent';this.style.opacity='0.85';}};
+      el.onmouseenter=function(){if(!this.classList.contains('active')){this.style.background='rgba(0,0,0,0.08)';}};
+      el.onmouseleave=function(){if(!this.classList.contains('active')){this.style.background='transparent';}};
     });
     document.querySelectorAll('.nsec').forEach(function(el){el.style.color=cfg.sidebarText+'99';});
     document.querySelectorAll('.snm,.sem').forEach(function(el){el.style.color=cfg.sidebarText;});
