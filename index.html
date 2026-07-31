@@ -56,7 +56,7 @@ body{font-family:var(--font);background:var(--off);color:var(--text);min-height:
 .nsec{font-size:10px;color:rgba(232,237,245,0.45);font-weight:600;letter-spacing:.07em;padding:12px 8px 3px;text-transform:uppercase;}
 .ni{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(232,237,245,0.8);transition:all .12s;border:none;background:transparent;width:100%;text-align:left;font-family:var(--font);}
 .ni:hover{background:#162645;color:rgba(232,237,245,1);}
-.ni.active{background:#1e3a6e;color:#a8c4fd;font-weight:600;}
+.ni.active{background:var(--ni-active-bg,#1e3a6e);color:var(--ni-active-color,#a8c4fd);font-weight:600;}
 .ni svg{width:16px;height:16px;flex-shrink:0;stroke-width:2;color:inherit;}
 .sbot{padding:12px 10px 16px;border-top:1px solid rgba(255,255,255,.08);flex-shrink:0;}
 .suser{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);background:rgba(255,255,255,.06);}
@@ -2727,7 +2727,12 @@ function goPage(p){
   // Reapply NVMEE active color jika perlu
   if(activeBrand==='nvmee'||activeBrand==='honeyboo'||activeBrand==='reebit'){
     var cfg=BRAND_CONFIG[activeBrand]||BRAND_CONFIG['nvmee'];
-    var activeAlpha2=activeBrand==='honeyboo'?'rgba(92,61,14,0.15)':activeBrand==='reebit'?'rgba(192,53,106,0.15)':'rgba(61,26,71,0.18)';
+    var sidebar3=document.getElementById('sidebar');
+    var activeAlpha2=activeBrand==='honeyboo'?'rgba(92,61,14,0.18)':activeBrand==='reebit'?'rgba(192,53,106,0.15)':'rgba(61,26,71,0.18)';
+    if(sidebar3){
+      sidebar3.style.setProperty('--ni-active-bg',activeAlpha2);
+      sidebar3.style.setProperty('--ni-active-color',cfg.sidebarText);
+    }
     document.querySelectorAll('.ni').forEach(function(el){
       el.style.color=cfg.sidebarText;
       el.style.opacity='0.85';
@@ -5277,7 +5282,8 @@ function renderJadwalGrid(){
     var day=ms.filter(function(s){return s.date===ds;});
     var tr=document.createElement('tr');
     var holidayName=HOLIDAYS_ID[ds]||'';
-    if(holidayName){tr.style.background='#FFFBEB';}
+    var isSunday=dow===0;
+    if(holidayName||isSunday){tr.style.background='#FFFBEB';}
     var dayLabel=days[dow]+(holidayName?'<div style="font-size:9px;color:#B45309;font-weight:600;line-height:1.2;margin-top:2px;">'+holidayName+'</div>':'');
     tr.innerHTML='<td>'+d+'/'+(jadwalMonth+1)+'/'+jadwalYear+'</td><td>'+dayLabel+'</td>';
     slots.forEach(function(slot){
@@ -5286,7 +5292,7 @@ function renderJadwalGrid(){
       td.innerHTML=inSlot.map(function(s){return '<span class="s-pill '+(colorMap[s.streamerName]||'s-0')+'">'+fn(s.streamerName)+'</span>';}).join('');
       tr.appendChild(td);
     });
-    if(holidayName){tr.style.borderLeft='3px solid #F59E0B';}
+    if(holidayName||isSunday){tr.style.borderLeft='3px solid #F59E0B';}
     var offDay=day.filter(function(s){return s.status==='off';});
     var offTd=document.createElement('td');offTd.className='off-col';
     offTd.innerHTML=offDay.map(function(s){return '<span class="s-off">'+fn(s.streamerName)+'</span>';}).join('');
@@ -5785,6 +5791,11 @@ function updateBrandSwitcherUI(){
       mobdrawer.style.removeProperty('--mob-icon-bg');
     }
     // Reset nav items ke default putih (Pandaoma navy)
+    var sidebarReset=document.getElementById('sidebar');
+    if(sidebarReset){
+      sidebarReset.style.removeProperty('--ni-active-bg');
+      sidebarReset.style.removeProperty('--ni-active-color');
+    }
     document.querySelectorAll('.ni').forEach(function(el){
       el.style.color='';el.style.opacity='';el.style.background='';
       el.onmouseenter=null;el.onmouseleave=null;
@@ -5798,20 +5809,19 @@ function updateBrandSwitcherUI(){
     navItems.forEach(function(el){
       el.style.setProperty('--ni-text',cfg.sidebarText);
     });
-    var activeAlpha=activeBrand==='honeyboo'?'rgba(92,61,14,0.15)':activeBrand==='reebit'?'rgba(192,53,106,0.15)':'rgba(61,26,71,0.18)';
+    var activeAlpha=activeBrand==='honeyboo'?'rgba(92,61,14,0.18)':activeBrand==='reebit'?'rgba(192,53,106,0.15)':'rgba(61,26,71,0.18)';
+    var sidebar2=document.getElementById('sidebar');
+    if(sidebar2){
+      // Set CSS variables di sidebar — override .ni.active CSS class
+      sidebar2.style.setProperty('--ni-active-bg', activeAlpha);
+      sidebar2.style.setProperty('--ni-active-color', cfg.sidebarText);
+    }
     document.querySelectorAll('.ni').forEach(function(el){
       el.style.color=cfg.sidebarText;
       el.style.opacity='0.85';
       el.style.background='transparent';
-      // Override hover untuk light backgrounds
-      el.onmouseenter=function(){if(!this.classList.contains('active')){this.style.opacity='1';this.style.background='rgba(0,0,0,0.07)';}};
-      el.onmouseleave=function(){if(!this.classList.contains('active')){this.style.opacity='0.85';this.style.background='transparent';}};
-    });
-    // Active item: semi-transparan sesuai brand
-    document.querySelectorAll('.ni.active').forEach(function(el){
-      el.style.background=activeAlpha;
-      el.style.color=cfg.sidebarText;
-      el.style.opacity='1';
+      el.onmouseenter=function(){if(!this.classList.contains('active')){this.style.background='rgba(0,0,0,0.08)';this.style.opacity='1';}};
+      el.onmouseleave=function(){if(!this.classList.contains('active')){this.style.background='transparent';this.style.opacity='0.85';}};
     });
     document.querySelectorAll('.nsec').forEach(function(el){el.style.color=cfg.sidebarText+'99';});
     document.querySelectorAll('.snm,.sem').forEach(function(el){el.style.color=cfg.sidebarText;});
