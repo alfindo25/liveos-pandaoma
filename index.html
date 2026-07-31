@@ -924,7 +924,7 @@ margin-bottom: 4px;
 <div><label class="llbl">Nama</label><input class="linput" id="r-name" type="text" placeholder="Nama kamu"/></div>
 <div><label class="llbl">Email</label><input class="linput" id="r-email" type="email" placeholder="kamu@email.com"/></div>
 <div><label class="llbl">Password</label><input class="linput" id="r-pass" type="password" placeholder="Min. 6 karakter"/></div>
-<div><label class="llbl">Daftar untuk Brand</label><select class="linput" id="r-brand" style="cursor:pointer;"><option value="pandaoma">Pandaoma</option><option value="nvmee">NVMEE</option></select></div>
+<div><label class="llbl">Daftar untuk Brand</label><select class="linput" id="r-brand" style="cursor:pointer;"><option value="pandaoma">Pandaoma</option><option value="nvmee">NVMEE</option><option value="honeyboo">HoneyBoo</option><option value="reebit">Reebit</option></select></div>
 <button class="lbtn" id="reg-btn" onclick="doRegister()">Buat Akun</button>
 <div class="lerr" id="r-err"></div>
 <div class="lswitch">Sudah punya akun? <a onclick="switchForm('login')">Masuk</a></div>
@@ -2462,14 +2462,14 @@ function canSuperAdmin(){return currentRole==='god_admin'||currentRole==='super_
 var BRAND_CONFIG={
   honeyboo:{
     name:'HoneyBoo',
-    logo:'https://ui-avatars.com/api/?name=HB&background=F5C842&color=5C3D0E&size=64&rounded=true&bold=true',
+    logo:'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23F5C842'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='Arial,sans-serif' font-weight='700' font-size='26' fill='%235C3D0E'%3EHB%3C/text%3E%3C/svg%3E',
     sidebarBg:'linear-gradient(160deg,#FFF8C5 0%,#FFF0A0 40%,#F5E680 100%)',
     sidebarText:'#3D1A47',
     sidebarAccent:'rgba(92,61,14,0.15)',
   },
   reebit:{
     name:'Reebit',
-    logo:'https://ui-avatars.com/api/?name=RB&background=FFB6C1&color=C0356A&size=64&rounded=true&bold=true',
+    logo:'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23FFB6C1'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-family='Arial,sans-serif' font-weight='700' font-size='26' fill='%23C0356A'%3ERB%3C/text%3E%3C/svg%3E',
     sidebarBg:'linear-gradient(160deg,#FFF0F5 0%,#FFD6E7 40%,#FFC0D0 100%)',
     sidebarText:'#3D1A47',
     sidebarAccent:'rgba(192,53,106,0.15)',
