@@ -3291,15 +3291,20 @@ function refreshTop3WithMonth(data){
   });
   var medals={1:'🥇',2:'🥈',3:'🥉'};
   var medalBg={1:'background:#f0fdf4;',2:'background:#f8fafc;',3:'background:#fefce8;'};
+  var totalGmvAll=sorted.reduce(function(s,x){return s+x.gmv;},0);
   c.innerHTML=sorted.map(function(s,i){
     var r=ranks[i];
     var rankDisplay=medals[r]||('<span style="font-size:12px;font-weight:800;color:#94a3b8;font-family:var(--mono)">'+r+'</span>');
     var gmvColor=r<=3?'var(--green)':'var(--text2)';
     var rowBg=medalBg[r]||'';
+    var pct=totalGmvAll>0?Math.round(s.gmv/totalGmvAll*100):0;
     return '<div class="pi" style="'+rowBg+'">'
       +'<div class="pr">'+rankDisplay+'</div>'
       +'<div class="pinfo"><div class="pname">'+s.name+'</div><div class="psub">'+s.n+' sesi</div></div>'
+      +'<div style="text-align:right;">'
       +'<div class="pgmv" style="color:'+gmvColor+'">'+fRpS(s.gmv)+'</div>'
+      +'<div style="font-size:10px;color:var(--text3);font-weight:600;margin-top:1px;">'+pct+'%</div>'
+      +'</div>'
       +'</div>';
   }).join('');
 }
