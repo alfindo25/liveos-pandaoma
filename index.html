@@ -3686,10 +3686,14 @@ async function sendChat(){
     const l7GMVai=l7ai.reduce((s,d)=>s+(d.gmv||0),0);
     const jMapAI={};allSessions.filter(s=>s.time).forEach(s=>{const h=s.time.split(':')[0]+'00';if(!jMapAI[h])jMapAI[h]={gmv:0,n:0};jMapAI[h].gmv+=(s.gmv||0);jMapAI[h].n++;});
     const jamTerbaikAI=Object.entries(jMapAI).sort((a,b)=>b[1].gmv-a[1].gmv).slice(0,3).map(([j,v])=>'jam '+j+' (avg '+fRp(Math.round(v.gmv/v.n))+')').join(', ');
-    const sRankAI=Object.entries(allSessions.reduce((acc,s)=>{if(!acc[s.streamerName])acc[s.streamerName]={gmv:0,n:0};acc[s.streamerName].gmv+=(s.gmv||0);acc[s.streamerName].n++;return acc;},{})).sort((a,b)=>b[1].gmv-a[1].gmv).map(([n,v],i)=>`${i+1}. ${n}: ${fRp(v.gmv)} (${v.n} sesi)`).join('\n');
-    // SKU summary + detail rows (max 30 untuk hemat token)
-    const skuSumAI=typeof allSKUReports!=='undefined'&&allSKUReports.length?(()=>{const sm={};allSKUReports.forEach(r=>(r.items||[]).forEach(i=>{if(!sm[i.name])sm[i.name]=0;sm[i.name]+=i.qty;}));return Object.entries(sm).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([n,q])=>n+': '+q+' pcs').join(', ');})():'Belum ada data SKU';
-    const skuDetailAI=typeof allSKUReports!=='undefined'&&allSKUReports.length?allSKUReports.slice(0,30).map(r=>{const items=(r.items||[]).map(i=>i.name+' '+i.qty+'pcs').join(', ');return (r.date||'-')+' | '+r.mp+' | oleh '+(r.inputByName||r.inputBy||'-')+' | streamer '+(r.streamerName||'-')+' | '+items;}).join('\n'):'Belum ada data SKU report.';
+    // Ranking streamer — max 8, all-time
+    const sRankAI=Object.entries(allSessions.reduce((acc,s)=>{if(!acc[s.streamerName])acc[s.streamerName]={gmv:0,n:0};acc[s.streamerName].gmv+=(s.gmv||0);acc[s.streamerName].n++;return acc;},{})).sort((a,b)=>b[1].gmv-a[1].gmv).slice(0,8).map(([n,v],i)=>`${i+1}. ${n}: ${fRp(v.gmv)} (${v.n} sesi)`).join('\n');
+    // SKU summary top 8
+    const skuSumAI=typeof allSKUReports!=='undefined'&&allSKUReports.length?(()=>{const sm={};allSKUReports.forEach(r=>(r.items||[]).forEach(i=>{if(!sm[i.name])sm[i.name]=0;sm[i.name]+=i.qty;}));return Object.entries(sm).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([n,q])=>n+': '+q+' pcs').join(', ');})():'Belum ada data SKU';
+    // SKU detail — max 15, prioritas periode aktif
+    const skuFiltered=(typeof allSKUReports!=='undefined'?allSKUReports:[]).filter(r=>r.date&&AF.customFrom&&r.date>=AF.customFrom&&r.date<=AF.customTo);
+    const skuForAI=(skuFiltered.length?skuFiltered:(typeof allSKUReports!=='undefined'?allSKUReports:[])).slice(0,15);
+    const skuDetailAI=skuForAI.length?skuForAI.map(r=>{const items=(r.items||[]).slice(0,4).map(i=>i.name+' '+i.qty+'pcs').join(', ');return (r.date||'-')+'|'+(r.inputByName||r.inputBy||'-')+'|'+(r.streamerName||'-')+'|'+items;}).join('\n'):'Belum ada data.';
 
     const sysP=`Kamu adalah advisor bisnis live streaming untuk brand ${brand} (kategori: ${cat}).
 
