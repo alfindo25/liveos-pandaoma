@@ -916,6 +916,7 @@ margin-bottom: 4px;
 <div><label class="llbl">Password</label><input class="linput" id="l-pass" type="password" placeholder="Min. 6 karakter" onkeydown="if(event.key==='Enter')doLogin()"/></div>
 <button class="lbtn" id="login-btn" onclick="doLogin()">Masuk ke LiveOS</button>
 <div class="lerr" id="l-err"></div>
+<div class="lswitch"><a onclick="switchForm('forgot')">Lupa password?</a></div>
 <div class="lswitch">Belum punya akun? <a onclick="switchForm('register')">Daftar di sini</a></div>
 </div>
 </div>
@@ -928,6 +929,24 @@ margin-bottom: 4px;
 <button class="lbtn" id="reg-btn" onclick="doRegister()">Buat Akun</button>
 <div class="lerr" id="r-err"></div>
 <div class="lswitch">Sudah punya akun? <a onclick="switchForm('login')">Masuk</a></div>
+</div>
+</div>
+<div id="wrap-forgot" style="display:none">
+<div class="lform">
+<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:2px;">Masukin email akun LiveOS kamu. Link reset password bakal dikirim ke email itu.</div>
+<div><label class="llbl">Email</label><input class="linput" id="fp-email" type="email" placeholder="kamu@pandaoma.com" onkeydown="if(event.key==='Enter')doForgotPassword()"/></div>
+<button class="lbtn" id="fp-btn" onclick="doForgotPassword()">Kirim Link Reset</button>
+<div class="lerr" id="fp-err"></div>
+<div class="lswitch"><a onclick="switchForm('login')">&larr; Kembali ke login</a></div>
+</div>
+</div>
+<div id="wrap-reset" style="display:none">
+<div class="lform">
+<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:2px;" id="reset-email-label">Set password baru untuk akunmu.</div>
+<div><label class="llbl">Password Baru</label><input class="linput" id="rp-pass1" type="password" placeholder="Min. 6 karakter"/></div>
+<div><label class="llbl">Konfirmasi Password Baru</label><input class="linput" id="rp-pass2" type="password" placeholder="Ulangi password baru" onkeydown="if(event.key==='Enter')doConfirmReset()"/></div>
+<button class="lbtn" id="rp-btn" onclick="doConfirmReset()">Simpan Password Baru</button>
+<div class="lerr" id="rp-err"></div>
 </div>
 </div>
 </div>
@@ -2537,6 +2556,10 @@ const _initFrom=new Date(_initNow);_initFrom.setDate(_initNow.getDate()-6);
 const _initFromStr=_initFrom.getFullYear()+'-'+String(_initFrom.getMonth()+1).padStart(2,'0')+'-'+String(_initFrom.getDate()).padStart(2,'0');
 let SC='gmv',SD=-1,SMP='Shopee',AF={shopee:true,tiktok:true,dld:true,period:'week',customFrom:_initFromStr,customTo:_initToday};
 
+// Cek dulu apakah ini link reset password dari email
+const _isResetPasswordLink=new URLSearchParams(window.location.search).get('mode')==='resetPassword';
+if(_isResetPasswordLink)checkResetPasswordMode();
+
 // Safety timeout 8s
 const loadingTimeout = setTimeout(()=>{
   document.getElementById('loading-screen').style.display='none';
@@ -2553,6 +2576,7 @@ setTimeout(()=>{
 
 auth.onAuthStateChanged(async(user)=>{
   clearTimeout(loadingTimeout);
+  if(_isResetPasswordLink)return; // biarkan halaman set password baru yang tampil, jangan ditimpa
   const ls=document.getElementById('loading-screen');
   ls.classList.add('hide');
   setTimeout(()=>ls.style.display='none',400);
@@ -2653,8 +2677,92 @@ function setSyncStatus(type,text){
 function switchForm(f){
   document.getElementById('wrap-login').style.display=f==='login'?'block':'none';
   document.getElementById('wrap-register').style.display=f==='register'?'block':'none';
+  document.getElementById('wrap-forgot').style.display=f==='forgot'?'block':'none';
   document.getElementById('l-err').textContent='';
   document.getElementById('r-err').textContent='';
+  const fpErr=document.getElementById('fp-err');if(fpErr)fpErr.textContent='';
+  if(f==='forgot'){
+    const fpEmail=document.getElementById('fp-email');
+    const lEmail=document.getElementById('l-email');
+    if(fpEmail&&lEmail&&lEmail.value.trim())fpEmail.value=lEmail.value.trim();
+  }
+}
+
+async function doForgotPassword(){
+  const em=document.getElementById('fp-email').value.trim();
+  const err=document.getElementById('fp-err');
+  const btn=document.getElementById('fp-btn');
+  err.style.color='var(--red)';
+  if(!em){err.textContent='Email wajib diisi.';return;}
+  btn.disabled=true;btn.textContent='Mengirim...';
+  try{
+    await auth.sendPasswordResetEmail(em);
+    err.style.color='var(--green)';
+    err.textContent='Kalau email itu terdaftar, link reset udah dikirim. Cek inbox / folder spam ya.';
+    btn.textContent='Kirim Ulang';
+    btn.disabled=false;
+  }catch(e){
+    err.style.color='var(--red)';
+    err.textContent=e.code==='auth/invalid-email'?'Format email tidak valid.':'Gagal mengirim: '+e.message;
+    btn.disabled=false;btn.textContent='Kirim Link Reset';
+  }
+}
+
+let _resetOobCode='';
+async function checkResetPasswordMode(){
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('mode')!=='resetPassword'||!params.get('oobCode'))return;
+  _resetOobCode=params.get('oobCode');
+  document.getElementById('loading-screen').classList.add('hide');
+  setTimeout(()=>document.getElementById('loading-screen').style.display='none',400);
+  document.getElementById('login-screen').classList.add('show');
+  ['wrap-login','wrap-register','wrap-forgot'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('wrap-reset').style.display='block';
+  const lbl=document.getElementById('reset-email-label');
+  const btn=document.getElementById('rp-btn');
+  const err=document.getElementById('rp-err');
+  try{
+    const email=await auth.verifyPasswordResetCode(_resetOobCode);
+    lbl.textContent='Set password baru untuk '+email;
+  }catch(e){
+    lbl.textContent='';
+    btn.style.display='none';
+    err.style.color='var(--red)';
+    err.textContent='Link reset ini sudah tidak berlaku atau sudah dipakai. Minta link baru lewat "Lupa password?" di halaman login.';
+  }
+}
+
+async function doConfirmReset(){
+  const p1=document.getElementById('rp-pass1').value;
+  const p2=document.getElementById('rp-pass2').value;
+  const err=document.getElementById('rp-err');
+  const btn=document.getElementById('rp-btn');
+  err.style.color='var(--red)';
+  if(!p1||!p2){err.textContent='Isi kedua kolom password.';return;}
+  if(p1.length<6){err.textContent='Password minimal 6 karakter.';return;}
+  if(p1!==p2){err.textContent='Konfirmasi password tidak cocok.';return;}
+  btn.disabled=true;btn.textContent='Menyimpan...';
+  try{
+    await auth.confirmPasswordReset(_resetOobCode,p1);
+    err.style.color='var(--green)';
+    err.textContent='Password berhasil diubah! Kamu bisa login sekarang.';
+    btn.textContent='Kembali ke Login';
+    btn.onclick=function(){
+      window.history.replaceState({},document.title,window.location.pathname);
+      document.getElementById('rp-pass1').value='';
+      document.getElementById('rp-pass2').value='';
+      err.textContent='';
+      btn.textContent='Simpan Password Baru';
+      btn.onclick=doConfirmReset;
+      btn.disabled=false;
+      switchForm('login');
+    };
+    btn.disabled=false;
+  }catch(e){
+    err.style.color='var(--red)';
+    err.textContent=e.code==='auth/expired-action-code'?'Link reset sudah kedaluwarsa. Minta link baru ya.':'Gagal simpan password: '+e.message;
+    btn.disabled=false;btn.textContent='Simpan Password Baru';
+  }
 }
 
 async function doLogin(){
