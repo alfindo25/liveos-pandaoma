@@ -1945,8 +1945,29 @@ function toggleGuideCard(hdr){
 
 
 
+<div class="tcard" id="skuh-summary-widget" style="margin-bottom:14px;">
+  <div class="thdr" style="display:flex;align-items:center;justify-content:space-between;">
+    <div class="ct">&#128202; Rangkuman SKU</div>
+    <span class="badge" id="skuh-summary-period">sesuai filter</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 16px 4px;">
+    <div class="mc"><div class="mc-lbl">Total SKU Unik</div><div class="mc-val" id="skuh-w-total">-</div></div>
+    <div class="mc"><div class="mc-lbl">Total QTY Terjual</div><div class="mc-val" id="skuh-w-qty">-</div></div>
+    <div class="mc"><div class="mc-lbl">SKU Paling Laris</div><div class="mc-val" style="font-size:13px;" id="skuh-w-top">-</div></div>
+  </div>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>#</th><th>Nama SKU</th><th>Total QTY</th><th>Distribusi</th></tr></thead>
+      <tbody id="skuh-widget-tbody"><tr><td colspan="4" class="empty">Belum ada data SKU</td></tr></tbody>
+    </table>
+  </div>
+  <div id="skuh-widget-more-wrap" style="text-align:center;padding:10px;display:none;">
+    <button id="skuh-widget-more-btn" onclick="toggleSKUHWidgetExpand()" style="padding:7px 20px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--blue);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);"></button>
+  </div>
+</div>
+
 <div class="tcard">
-  <div class="thdr"><div class="ct">Semua Report</div><span class="badge" id="sku-history-count">0 report</span></div>
+  <div class="thdr"><div class="ct">Detail per Sesi</div><span class="badge" id="sku-history-count">0 report</span></div>
   <div class="twrap"><table>
     <thead><tr><th>Tanggal</th><th>Platform</th><th>Jam</th><th>SKU &amp; QTY</th><th>Diinput oleh</th><th>Aksi</th></tr></thead>
     <tbody id="sku-history-tbody"><tr><td colspan="6" class="empty">Belum ada report</td></tr></tbody>
@@ -1979,6 +2000,7 @@ function toggleGuideCard(hdr){
     <button onclick="jadwalNavMonth(-1)" style="width:28px;height:28px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:16px;color:var(--text2);">&#8249;</button>
     <div id="jadwal-month-label" style="font-size:14px;font-weight:700;color:var(--navy);min-width:110px;text-align:center;">Juni 2026</div>
     <button onclick="jadwalNavMonth(1)" style="width:28px;height:28px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:16px;color:var(--text2);">&#8250;</button>
+    <button id="jadwal-kelola-slot-btn" onclick="openKelolaSlotModal()" style="display:none;padding:7px 14px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#9881; Kelola Slot Jam</button>
     <button onclick="goPage('input-jadwal')" style="padding:7px 14px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">+ Input Jadwal</button>
   </div>
 </div>
@@ -2068,10 +2090,9 @@ function toggleGuideCard(hdr){
   <button id="ij-import-btn" onclick="saveIJImport()" style="display:none;padding:9px 22px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128190; Import Semua Data</button>
 </div>
 <div class="fc" style="margin-top:14px;border:1.5px solid #fee2e2;border-radius:var(--radius-sm);padding:16px;">
-  <div class="fct" style="color:var(--red);font-size:13px;margin-bottom:8px;">&#9888; Bersihkan Data Jadwal Tidak Valid</div>
-  <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Hapus semua data jadwal yang <b>timeStart</b>-nya tidak sesuai slot resmi (06:00, 09:00, 12:00, 14:00, 22:00). Data yang tidak sesuai tidak akan muncul di grid jadwal.</div>
+  <div class="fct" style="color:var(--red);font-size:13px;margin-bottom:8px;">&#9888; Zona Berbahaya</div>
+  <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Kolom jam di grid Jadwal Live sekarang otomatis mengikuti data (lihat tombol &#9881; <b>Kelola Slot Jam</b> di halaman Jadwal Live kalau mau menggabungkan jam yang mirip-mirip). Tombol di bawah ini cuma untuk reset total data jadwal.</div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;">
-    <button onclick="bulkDeleteInvalidSchedules()" style="padding:8px 18px;border-radius:var(--radius-sm);background:#dc2626;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#128465; Hapus Data Tidak Valid</button>
     <button onclick="deleteAllSchedules()" style="padding:8px 18px;border-radius:var(--radius-sm);background:#7f1d1d;border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">&#9888; Reset Semua Jadwal</button>
   </div>
   <div id="bulk-delete-result" style="margin-top:10px;font-size:12px;"></div>
@@ -2467,7 +2488,7 @@ var currentRole='viewer'; // 'god_admin' | 'brand_admin' | 'streamer' | 'viewer'
 var currentUserBrand=''; // brand dari user (untuk brand_admin & streamer & viewer)
 var GOD_ADMIN_EMAIL='alfindo.ixa.2537@gmail.com';
 // Unsubscribe functions untuk semua Firestore listeners
-var _unsub={sessions:null,streamers:null,incentives:null,skuReports:null,masterSku:null,schedules:null,targets:null};
+var _unsub={sessions:null,streamers:null,incentives:null,skuReports:null,masterSku:null,schedules:null,targets:null,slotMerges:null};
 function unsubAll(){Object.keys(_unsub).forEach(function(k){if(_unsub[k]){_unsub[k]();_unsub[k]=null;}});}
 
 function isGodAdmin(){return currentUser&&currentUser.email===GOD_ADMIN_EMAIL;}
@@ -4768,6 +4789,8 @@ function renderSKUHistory(){
   var badge=document.getElementById('sku-history-count');
   if(badge)badge.textContent=filtered2.length+' report';
 
+  renderSKUHSummaryWidget(filtered2);
+
   // Sort: timeStart ascending, same time Shopee/DLD first
   function toMins2(t){if(!t)return 9999;var p=t.split(':');return parseInt(p[0]||0)*60+parseInt(p[1]||0);}
   var mpOrd={'Shopee':0,'DLD':1,'TikTok':2};
@@ -4816,6 +4839,70 @@ function renderSKUHistory(){
 }
 
 async function deleteSKUReport(id){if(!confirm('Hapus report ini?'))return;try{await db.collection('sku_reports').doc(id).delete();showToast('Report dihapus.');}catch(e){showToast('Gagal.',true);}}
+
+// ═══ RANGKUMAN SKU (page Detail Report SKU) ═══
+var skuhWidgetExpanded=false;
+function toggleSKUHWidgetExpand(){
+  skuhWidgetExpanded=!skuhWidgetExpanded;
+  renderSKUHistory();
+}
+function renderSKUHSummaryWidget(filtered){
+  var periodBadge=document.getElementById('skuh-summary-period');
+  if(periodBadge){
+    var lblMap={today:'Hari Ini',yesterday:'Kemarin','7d':'7 Hari','30d':'30 Hari',custom:'Kustom'};
+    periodBadge.textContent=lblMap[SKUH.period]||'sesuai filter';
+  }
+  var skuMap={};
+  filtered.forEach(function(r){
+    (r.items||[]).forEach(function(item){
+      if(!skuMap[item.name])skuMap[item.name]={qty:0};
+      skuMap[item.name].qty+=item.qty;
+    });
+  });
+  var sorted=Object.entries(skuMap).sort(function(a,b){return b[1].qty-a[1].qty;});
+  var tot=sorted.reduce(function(s,e){return s+e[1].qty;},0);
+  var maxQ=sorted.length?sorted[0][1].qty:1;
+
+  var wT=document.getElementById('skuh-w-total');
+  var wQ=document.getElementById('skuh-w-qty');
+  var wTop=document.getElementById('skuh-w-top');
+  if(wT)wT.textContent=sorted.length+' SKU';
+  if(wQ)wQ.textContent=tot+' pcs';
+  if(wTop)wTop.textContent=sorted.length?sorted[0][0]:'-';
+
+  var tbody=document.getElementById('skuh-widget-tbody');
+  var moreWrap=document.getElementById('skuh-widget-more-wrap');
+  var moreBtn=document.getElementById('skuh-widget-more-btn');
+  if(!tbody)return;
+  if(!sorted.length){
+    tbody.innerHTML='<tr><td colspan="4" class="empty">Belum ada data SKU periode ini</td></tr>';
+    if(moreWrap)moreWrap.style.display='none';
+    return;
+  }
+  var showCount=skuhWidgetExpanded?sorted.length:Math.min(10,sorted.length);
+  var medals=['&#127942;','&#129352;','&#129353;'];
+  tbody.innerHTML='';
+  sorted.slice(0,showCount).forEach(function(entry,i){
+    var nm=entry[0],v=entry[1];
+    var pct=Math.round(v.qty/tot*100);
+    var bw=Math.round(v.qty/maxQ*100);
+    var tr=document.createElement('tr');
+    var msku=allMasterSKU.find(function(x){return x.name===nm;});
+    var prodNameDisp=msku&&msku.prodName?'<div style="font-size:10px;color:var(--text3);margin-top:1px;">'+msku.prodName+'</div>':'';
+    tr.innerHTML='<td style="font-weight:700">'+(i<3?medals[i]:i+1)+'</td>'
+      +'<td style="font-weight:600">'+nm+prodNameDisp+'</td>'
+      +'<td style="font-weight:700;color:var(--green)">'+v.qty+' pcs</td>'
+      +'<td><div class="sku-rank-bar"><div class="sku-bar-bg"><div class="sku-bar-fill" style="width:'+bw+'%"></div></div>'
+      +'<span style="font-size:11px;color:var(--text3)">'+pct+'%</span></div></td>';
+    tbody.appendChild(tr);
+  });
+  if(sorted.length>10){
+    if(moreWrap)moreWrap.style.display='block';
+    if(moreBtn)moreBtn.textContent=skuhWidgetExpanded?'Tutup ↑':'Lihat '+(sorted.length-10)+' SKU lainnya ↓';
+  } else if(moreWrap){
+    moreWrap.style.display='none';
+  }
+}
 
 function refreshSKUWidget(){
   // Filter SKU sinkron dengan dashboard (pakai AF.customFrom/customTo)
@@ -5308,7 +5395,8 @@ function skuHistGetDateRange(){
 var allSchedules = [];
 var jadwalYear = new Date().getFullYear();
 var jadwalMonth = new Date().getMonth();
-var allSlotJam = [];
+var allSlotJam = []; // legacy, tidak lagi dipakai untuk render kolom (lihat clusterTimeSlots)
+var slotMerges = []; // dari koleksi schedule_slot_merges - penggabungan manual jam yang mirip
 
 function startJadwalListeners(){
   if(_unsub.schedules){_unsub.schedules();_unsub.schedules=null;}
@@ -5319,21 +5407,91 @@ function startJadwalListeners(){
     if(document.getElementById('page-jadwal').classList.contains('active')){
       renderJadwalGrid(); renderJadwalDetail();
     }
+    renderDashJadwalWidget();
   });
-  db.collection('master_slots').orderBy('sort','asc').onSnapshot(function(snap){
-    if(snap.empty){
-      allSlotJam=[
-        {label:'06.00\u201314.00',from:'06:00',to:'14:00',sort:1},
-        {label:'09.00\u201317.00',from:'09:00',to:'17:00',sort:2},
-        {label:'12.00\u201320.00',from:'12:00',to:'20:00',sort:3},
-        {label:'14.00\u201322.00',from:'14:00',to:'22:00',sort:4},
-        {label:'22.00\u201306.00',from:'22:00',to:'06:00',sort:5}
-      ];
-    } else {
-      allSlotJam=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-    }
+  if(_unsub.slotMerges){_unsub.slotMerges();_unsub.slotMerges=null;}
+  _unsub.slotMerges=db.collection('schedule_slot_merges').where('brand','==',activeBrand).onSnapshot(function(snap){
+    slotMerges = snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     if(document.getElementById('page-jadwal').classList.contains('active')) renderJadwalGrid();
+    renderDashJadwalWidget();
+    var ksm=document.getElementById('kelola-slot-modal');
+    if(ksm&&ksm.style.display==='flex')renderKelolaSlotModal();
   });
+}
+
+// -- Kolom jam dinamis: cluster jadwal "masuk" berdasarkan jam, toleransi +-15 menit --
+// Dua jadwal digabung jadi 1 kolom kalau timeStart & timeEnd masing2 beda <=15 menit,
+// kecuali sudah digabung manual lewat slotMerges (lihat fitur "Kelola Slot Jam").
+function _toMinJadwal(t){
+  if(!t)return null;
+  var p=t.split(':');
+  var h=parseInt(p[0],10), m=parseInt(p[1],10);
+  if(isNaN(h)||isNaN(m))return null;
+  return h*60+m;
+}
+function fmtSlotLabel(from,to){
+  function f(t){return t?t.replace(':','.'):'?';}
+  return f(from)+'\u2013'+f(to);
+}
+function scheduleMatchesCluster(s,cluster){
+  return cluster.members.some(function(m){return m.from===s.timeStart&&m.to===s.timeEnd;});
+}
+function clusterTimeSlots(masukSchedules, merges){
+  var rawMap={};
+  masukSchedules.forEach(function(s){
+    if(!s.timeStart||!s.timeEnd)return;
+    var k=s.timeStart+'|'+s.timeEnd;
+    if(!rawMap[k])rawMap[k]={from:s.timeStart,to:s.timeEnd,count:0};
+    rawMap[k].count++;
+  });
+  var consumed={};
+  var clusters=[];
+  (merges||[]).forEach(function(merge){
+    var memberKeys=(merge.members||[])
+      .map(function(m){return m.from+'|'+m.to;})
+      .filter(function(k){return rawMap[k]&&!consumed[k];});
+    if(!memberKeys.length)return;
+    memberKeys.forEach(function(k){consumed[k]=true;});
+    var reps=memberKeys.map(function(k){return rawMap[k];}).sort(function(a,b){return b.count-a.count;});
+    var rep=reps[0];
+    clusters.push({
+      key:'merge:'+merge.id,
+      label: merge.label || fmtSlotLabel(rep.from,rep.to),
+      from: rep.from, to: rep.to,
+      members: reps
+    });
+  });
+  var remaining=Object.keys(rawMap).filter(function(k){return !consumed[k];}).map(function(k){return rawMap[k];});
+  function closeEnough(a,b){
+    var as=_toMinJadwal(a.from), ae=_toMinJadwal(a.to), bs=_toMinJadwal(b.from), be=_toMinJadwal(b.to);
+    if(as==null||bs==null)return false;
+    return Math.abs(as-bs)<=15 && Math.abs(ae-be)<=15;
+  }
+  var groups=[];
+  remaining.forEach(function(item){
+    var placed=false;
+    for(var i=0;i<groups.length;i++){
+      if(groups[i].some(function(m){return closeEnough(m,item);})){groups[i].push(item);placed=true;break;}
+    }
+    if(!placed)groups.push([item]);
+  });
+  var mergedAny=true;
+  while(mergedAny){
+    mergedAny=false;
+    for(var i=0;i<groups.length&&!mergedAny;i++){
+      for(var j=i+1;j<groups.length;j++){
+        var closeAny=groups[i].some(function(a){return groups[j].some(function(b){return closeEnough(a,b);});});
+        if(closeAny){groups[i]=groups[i].concat(groups[j]);groups.splice(j,1);mergedAny=true;break;}
+      }
+    }
+  }
+  groups.forEach(function(g,idx){
+    g.sort(function(a,b){return b.count-a.count;});
+    var rep=g[0];
+    clusters.push({key:'auto:'+idx+':'+rep.from+'-'+rep.to,label:fmtSlotLabel(rep.from,rep.to),from:rep.from,to:rep.to,members:g});
+  });
+  clusters.sort(function(a,b){return _toMinJadwal(a.from)-_toMinJadwal(b.from);});
+  return clusters;
 }
 
 function jadwalNavMonth(dir){
@@ -5369,13 +5527,7 @@ function renderJadwalGrid(){
   var thead=document.getElementById('jadwal-thead');
   var tbody=document.getElementById('jadwal-tbody');
   if(!thead||!tbody)return;
-  var slots=allSlotJam.length?allSlotJam:[
-    {label:'06.00\u201314.00',from:'06:00',to:'14:00'},
-    {label:'09.00\u201317.00',from:'09:00',to:'17:00'},
-    {label:'12.00\u201320.00',from:'12:00',to:'20:00'},
-    {label:'14.00\u201322.00',from:'14:00',to:'22:00'},
-    {label:'22.00\u201306.00',from:'22:00',to:'06:00'}
-  ];
+  var slots=clusterTimeSlots(ms.filter(function(s){return s.status==='masuk';}),slotMerges);
   thead.innerHTML='<tr><th>Tanggal</th><th>Hari</th>'
     +slots.map(function(s){return '<th>'+s.label+'</th>';}).join('')
     +'<th style="background:#fff5f5;color:var(--red);">Off</th></tr>';
@@ -5398,7 +5550,7 @@ function renderJadwalGrid(){
     var dayLabel=days[dow]+(holidayName?'<div style="font-size:9px;color:#B45309;font-weight:600;line-height:1.2;margin-top:2px;">'+holidayName+'</div>':'');
     tr.innerHTML='<td>'+d+'/'+(jadwalMonth+1)+'/'+jadwalYear+'</td><td>'+dayLabel+'</td>';
     slots.forEach(function(slot){
-      var inSlot=day.filter(function(s){return s.status==='masuk'&&s.timeStart===slot.from&&s.timeEnd===slot.to;});
+      var inSlot=day.filter(function(s){return s.status==='masuk'&&scheduleMatchesCluster(s,slot);});
       var td=document.createElement('td');
       td.innerHTML=inSlot.map(function(s){return '<span class="s-pill '+(colorMap[s.streamerName]||'s-0')+'">'+fn(s.streamerName)+'</span>';}).join('');
       tr.appendChild(td);
@@ -5412,6 +5564,8 @@ function renderJadwalGrid(){
   }
   var cnt=document.getElementById('jadwal-streamer-count');
   if(cnt){var u=new Set(ms.map(function(s){return s.streamerName;}));cnt.textContent=u.size+' streamer';}
+  var kelolaBtn=document.getElementById('jadwal-kelola-slot-btn');
+  if(kelolaBtn)kelolaBtn.style.display=(isGodAdmin()||isBrandAdmin())?'inline-block':'none';
 }
 
 var jadwalMassMode=false;
@@ -6816,31 +6970,96 @@ async function saveTambahTargetDD(){
   }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
-// ═══ BULK DELETE INVALID SCHEDULES ═══
-async function bulkDeleteInvalidSchedules(){
-  var validSlots=['06:00','09:00','14:00','22:00'];
-  var resultEl=document.getElementById('bulk-delete-result');
-  if(!confirm('Yakin hapus semua jadwal '+activeBrand+' dengan timeStart di luar slot resmi (06:00, 09:00, 14:00, 22:00)?'))return;
-  if(resultEl)resultEl.innerHTML='<span style="color:var(--text2);">Memproses...</span>';
-  try{
-    var snap=await db.collection('schedules').where('brand','==',activeBrand).get();
-    var toDelete=snap.docs.filter(function(d){
-      var ts=d.data().timeStart;
-      return !ts||validSlots.indexOf(ts)===-1;
-    });
-    if(!toDelete.length){
-      if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; Tidak ada data tidak valid ditemukan.</span>';
-      return;
-    }
-    var batch=db.batch();
-    toDelete.forEach(function(d){batch.delete(d.ref);});
-    await batch.commit();
-    if(resultEl)resultEl.innerHTML='<span style="color:var(--green);">&#10003; '+toDelete.length+' data tidak valid berhasil dihapus.</span>';
-    showToast(toDelete.length+' jadwal tidak valid dihapus!');
-  }catch(e){
-    if(resultEl)resultEl.innerHTML='<span style="color:var(--red);">&#10007; Gagal: '+e.message+'</span>';
-    showToast('Gagal hapus: '+e.message,true);
+// ═══ KELOLA SLOT JAM (gabung manual jam-jam yang mirip, non-destruktif) ═══
+var kelolaSlotChecked=new Set(); // key "from|to" yang dicentang user di modal
+function openKelolaSlotModal(){
+  var m=document.getElementById('kelola-slot-modal');
+  if(!m)return;
+  kelolaSlotChecked.clear();
+  renderKelolaSlotModal();
+  m.style.display='flex';
+}
+function closeKelolaSlotModal(){
+  var m=document.getElementById('kelola-slot-modal');
+  if(m)m.style.display='none';
+}
+function renderKelolaSlotModal(){
+  var listEl=document.getElementById('kelola-slot-list');
+  var mergedListEl=document.getElementById('kelola-slot-merged-list');
+  var mergeBtn=document.getElementById('kelola-slot-merge-btn');
+  if(!listEl)return;
+  // Kumpulkan semua raw time-pair unik dari seluruh data jadwal "masuk" (bukan cuma bulan ini, biar komprehensif)
+  var rawMap={};
+  allSchedules.filter(function(s){return s.status==='masuk'&&s.timeStart&&s.timeEnd;}).forEach(function(s){
+    var k=s.timeStart+'|'+s.timeEnd;
+    if(!rawMap[k])rawMap[k]={from:s.timeStart,to:s.timeEnd,count:0};
+    rawMap[k].count++;
+  });
+  // Tandai key yang sudah tergabung lewat merge manual yang ada
+  var mergedKeys={};
+  slotMerges.forEach(function(mg){(mg.members||[]).forEach(function(mm){mergedKeys[mm.from+'|'+mm.to]=mg;});});
+
+  var rawList=Object.keys(rawMap).map(function(k){return Object.assign({key:k},rawMap[k]);})
+    .sort(function(a,b){return (_toMinJadwal(a.from)||0)-(_toMinJadwal(b.from)||0);});
+
+  if(!rawList.length){
+    listEl.innerHTML='<div class="empty" style="padding:16px;">Belum ada data jadwal.</div>';
+  } else {
+    listEl.innerHTML=rawList.map(function(r){
+      var inMerge=mergedKeys[r.key];
+      var checked=kelolaSlotChecked.has(r.key)?'checked':'';
+      return '<label style="display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:0.5px solid var(--border);cursor:pointer;">'
+        +'<input type="checkbox" class="ks-cb" data-key="'+r.key+'" '+checked+' style="width:16px;height:16px;cursor:pointer;" onchange="toggleKelolaSlotCheck(\''+r.key+'\',this.checked)"/>'
+        +'<span style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--navy);min-width:110px;">'+fmtSlotLabel(r.from,r.to)+'</span>'
+        +'<span style="font-size:12px;color:var(--text3);flex:1;">'+r.count+'x dipakai</span>'
+        +(inMerge?'<span style="font-size:11px;color:var(--blue);font-weight:600;">sudah gabung</span>':'')
+        +'</label>';
+    }).join('');
   }
+  if(mergeBtn){mergeBtn.disabled=kelolaSlotChecked.size<2;mergeBtn.style.opacity=mergeBtn.disabled?'.5':'1';}
+
+  if(!mergedListEl)return;
+  if(!slotMerges.length){
+    mergedListEl.innerHTML='<div class="empty" style="padding:10px 4px;font-size:12px;">Belum ada penggabungan.</div>';
+  } else {
+    mergedListEl.innerHTML=slotMerges.map(function(mg){
+      var lbl=mg.label||(mg.members&&mg.members[0]?fmtSlotLabel(mg.members[0].from,mg.members[0].to):'?');
+      var membersTxt=(mg.members||[]).map(function(mm){return fmtSlotLabel(mm.from,mm.to);}).join(', ');
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:0.5px solid var(--border);">'
+        +'<div style="flex:1;"><div style="font-size:12px;font-weight:700;color:var(--navy);">'+lbl+'</div>'
+        +'<div style="font-size:11px;color:var(--text3);">'+membersTxt+'</div></div>'
+        +'<button onclick="unmergeSlot(\''+mg.id+'\')" style="padding:4px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;color:var(--red);font-size:11px;cursor:pointer;font-family:var(--font);">Batalkan</button>'
+        +'</div>';
+    }).join('');
+  }
+}
+function toggleKelolaSlotCheck(key,checked){
+  if(checked)kelolaSlotChecked.add(key);else kelolaSlotChecked.delete(key);
+  var mergeBtn=document.getElementById('kelola-slot-merge-btn');
+  if(mergeBtn){mergeBtn.disabled=kelolaSlotChecked.size<2;mergeBtn.style.opacity=mergeBtn.disabled?'.5':'1';}
+}
+async function saveKelolaSlotMerge(){
+  if(kelolaSlotChecked.size<2)return;
+  var members=Array.from(kelolaSlotChecked).map(function(k){var p=k.split('|');return {from:p[0],to:p[1]};});
+  try{
+    await db.collection('schedule_slot_merges').add({
+      brand:activeBrand,
+      members:members,
+      label:'',
+      createdBy:(currentUser&&currentUser.email)||'',
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    kelolaSlotChecked.clear();
+    showToast('Slot jam berhasil digabung!');
+    renderKelolaSlotModal();
+  }catch(e){showToast('Gagal gabung: '+e.message,true);}
+}
+async function unmergeSlot(id){
+  if(!confirm('Batalkan penggabungan ini? Kolom akan kembali terpisah sesuai jam aslinya.'))return;
+  try{
+    await db.collection('schedule_slot_merges').doc(id).delete();
+    showToast('Penggabungan dibatalkan.');
+  }catch(e){showToast('Gagal: '+e.message,true);}
 }
 
 async function deleteAllSchedules(){
@@ -7853,17 +8072,11 @@ function renderDashJadwalWidget() {
     var dateLabel = new Date(from+'T12:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     if(label) label.textContent = '— ' + dateLabel;
 
-    var slots = allSlotJam.length ? allSlotJam : [
-      {label:'06.00\u201314.00',from:'06:00',to:'14:00'},
-      {label:'09.00\u201317.00',from:'09:00',to:'17:00'},
-      {label:'12.00\u201320.00',from:'12:00',to:'20:00'},
-      {label:'14.00\u201322.00',from:'14:00',to:'22:00'},
-      {label:'22.00\u201306.00',from:'22:00',to:'06:00'}
-    ];
+    var slots = clusterTimeSlots(inRange.filter(function(s){return s.status==='masuk';}),slotMerges);
     var offList = inRange.filter(function(s){ return s.status==='off'; });
 
     var rows = slots.map(function(slot){
-      var inSlot = inRange.filter(function(s){ return s.status==='masuk'&&s.timeStart===slot.from&&s.timeEnd===slot.to; });
+      var inSlot = inRange.filter(function(s){ return s.status==='masuk'&&scheduleMatchesCluster(s,slot); });
       var names = inSlot.length
         ? inSlot.map(function(s){ return '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600;background:var(--blue-lt);color:var(--navy);margin:2px;">'+s.streamerName+'</span>'; }).join('')
         : '<span style="font-size:12px;color:var(--text3);">—</span>';
@@ -7977,6 +8190,27 @@ function formatDateShort(dateStr) {
     <div style="display:flex;gap:8px;justify-content:flex-end;border-top:.5px solid var(--border);padding-top:14px;">
       <button onclick="closeJadwalEditModal()" style="padding:9px 18px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font);">Batal</button>
       <button onclick="saveJadwalEdit()" style="padding:9px 22px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
+
+<div id="kelola-slot-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--white);border-radius:14px;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;">
+    <div style="font-size:16px;font-weight:800;color:var(--navy);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;">
+      &#9881; Kelola Slot Jam
+      <button onclick="closeKelolaSlotModal()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--text3);">&#215;</button>
+    </div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px;">Pilih 2 jam atau lebih yang mirip (misal 10:00&#8211;18:00 dan 10:05&#8211;18:05) lalu gabungkan jadi 1 kolom di grid Jadwal Live. Data asli tidak diubah, cuma tampilannya yang digabung.</div>
+
+    <div class="fct" style="font-size:12px;margin-bottom:6px;">Jam yang terdeteksi dari data</div>
+    <div id="kelola-slot-list" style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 8px;margin-bottom:10px;"></div>
+    <button id="kelola-slot-merge-btn" onclick="saveKelolaSlotMerge()" disabled style="width:100%;padding:9px;border-radius:var(--radius-sm);background:var(--navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:18px;opacity:.5;">&#128279; Gabungkan Slot Terpilih</button>
+
+    <div class="fct" style="font-size:12px;margin-bottom:6px;border-top:.5px solid var(--border);padding-top:14px;">Penggabungan aktif</div>
+    <div id="kelola-slot-merged-list"></div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;border-top:.5px solid var(--border);padding-top:14px;">
+      <button onclick="closeKelolaSlotModal()" style="padding:9px 18px;border-radius:var(--radius-sm);background:none;border:1.5px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--font);">Tutup</button>
     </div>
   </div>
 </div>
